@@ -1,1 +1,1 @@
-# GrayWhaleEnergyRequirements
+# Gray Whale Energy Requirements
