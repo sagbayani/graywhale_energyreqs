@@ -1,11 +1,11 @@
 ---
-title: "mass_change_lactation"
+title: "Mass change needed to calculate cost of lactation"
 author: "Selina Agbayani"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: "Feb 11, 2021, updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
 output:
   github_document:
   html_document:
-  keep_md: yes
+
 editor_options: 
   chunk_output_type: console
 ---
@@ -287,7 +287,7 @@ print.proto <- function(x, ...) {
 ```   
 
 
-```{r}       
+```{r set output paths}       
 ############ Set path for output figures: ###############
 Figurespath <- paste0(getwd(), "/delta_mass/figures", collapse = NULL)
 Figurespath
@@ -299,7 +299,7 @@ datapath
 
 
 
-```{r}
+```{r read data in}
 ## Read data in
 
 mass_table <- as_tibble(read_csv("data/mass_table.csv"), #monthly 
@@ -330,6 +330,13 @@ mass_at_weaning_mean <-mass_at_weaning_tibble$mean_mass
 mass_at_weaning_sd <-mass_at_weaning_tibble$sd_mass
 
 
+```
+
+The mass change needed to calculate cost of lactation is the increase 
+in mass from newborn to weaning. 
+
+```{r mean cost of lactation}
+
 MC_reps = 10000
 
 mass_at_birth_reps <- rnorm(MC_reps, mass_at_birth_mean, mass_at_birth_sd)
@@ -344,10 +351,10 @@ masschange_lactation_mean
 masschange_lactation_sd
 
 
-
-
-
 ```
 
+Mean mass change: `r masschange_lactation_mean`.
+
+Sd mass change: `r masschange_lactation_sd`.
 
 
