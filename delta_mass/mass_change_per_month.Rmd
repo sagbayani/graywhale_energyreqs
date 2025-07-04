@@ -300,7 +300,7 @@ datapath <- paste0(getwd(), "/data", collapse = NULL)
 ## Read data in
 
 #Read in predicted lengths from Agbayani et al. 2020
-gw_pred_lengths <- as_data_frame(
+gw_pred_lengths <- as_tibble(
   read_csv("data/gw_predicted_phases_1_2_mthsversion_Feb2021.csv"),
   col_types = (list(
     cols(age_yrs = col_double(),
@@ -385,7 +385,7 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 1 mths
     sd <- pred_mass_i$sd_mass
     
     set.seed(1)
-    mass_i <- as_data_frame(rnorm(MC_reps, mass, sd), col.names = str(i))
+    mass_i <- as_tibble(rnorm(MC_reps, mass, sd), col.names = str(i))
     names(mass_i)[1] <- strcolname
     
     mass_i <- mass_i %>%  dplyr::mutate(ID = row_number())
@@ -398,7 +398,7 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 1 mths
     mass_i  <- mass_i[!row.names(mass_i)=='ID',]
     
     #turn matrix into data frame (need to include the t() to keep the matrix format)
-    mass_i <- as_data_frame(t(mass_i))
+    mass_i <- as_tibble(t(mass_i))
     
     mass_i$age_yrs <- age
     
@@ -477,7 +477,7 @@ colnames(MC_mass_diffs) <- unlist(MC_mass_diffs[row.names(MC_mass_diffs)=='age_y
 MC_mass_diffs  <- MC_mass_diffs[!row.names(MC_mass_diffs)=='age_yrs',]
     
 #turn matrix into data frame (need to include the t() to keep the matrix format)
-MC_mass_diffs_t <- MC_mass_diffs %>% as_data_frame()
+MC_mass_diffs_t <- MC_mass_diffs %>% as_tibble()
 
 head(MC_mass_diffs_t)
 str(MC_mass_diffs_t)
@@ -492,7 +492,7 @@ mean_masschange <- MC_mass_diffs_t %>% summarise_all(funs(mean))
 kable(head(mean_masschange))
 mean_masschange <-  t(mean_masschange)
 
-mean_masschange <- as_data_frame(mean_masschange)
+mean_masschange <- as_tibble(mean_masschange)
 colnames(mean_masschange)[colnames(mean_masschange)=="V1"] <- "mean_masschange"
 
 mean_masschange$age_yrs <- MC_mass$age_yrs
@@ -503,7 +503,7 @@ mean_masschange <- mean_masschange %>%
 sd_masschange <- MC_mass_diffs_t %>% summarise_all(funs(sd))
 sd_masschange <-  t(sd_masschange)
 
-sd_masschange <- as_data_frame(sd_masschange)
+sd_masschange <- as_tibble(sd_masschange)
 colnames(sd_masschange)[colnames(sd_masschange)=="V1"] <- "sd_masschange"
 
 mean_masschange$sd_masschange <- sd_masschange$sd_masschange
@@ -528,7 +528,7 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 0.5 mths
     sd <- pred_mass_i$sd_mass
     
     set.seed(1)
-    mass_i <- as_data_frame(rnorm(MC_reps, mass, sd), col.names = str(i))
+    mass_i <- as_tibble(rnorm(MC_reps, mass, sd), col.names = str(i))
     names(mass_i)[1] <- strcolname
     
     mass_i <- mass_i %>%  dplyr::mutate(ID = row_number())
@@ -541,7 +541,7 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 0.5 mths
     mass_i  <- mass_i[!row.names(mass_i)=='ID',]
     
     #turn matrix into data frame (need to include the t() to keep the matrix format)
-    mass_i <- as_data_frame(t(mass_i))
+    mass_i <- as_tibble(t(mass_i))
     
     mass_i$age_yrs <- age
     
@@ -617,7 +617,7 @@ colnames(MC_female_mass_diffs) <- unlist(MC_female_mass_diffs[row.names(MC_femal
 MC_female_mass_diffs  <- MC_female_mass_diffs[!row.names(MC_female_mass_diffs)=='age_yrs',]
     
 #turn matrix into data frame (need to include the t() to keep the matrix format)
-MC_female_mass_diffs_t <- MC_female_mass_diffs %>% as_data_frame()
+MC_female_mass_diffs_t <- MC_female_mass_diffs %>% as_tibble()
 
 
 head(MC_female_mass_diffs_t)
@@ -632,7 +632,7 @@ mean_masschange_female <- MC_female_mass_diffs_t %>% summarise_all(funs(mean))
 kable(head(mean_masschange_female))
 mean_masschange_female <-  t(mean_masschange_female)
 
-mean_masschange_female <- as_data_frame(mean_masschange_female)
+mean_masschange_female <- as_tibble(mean_masschange_female)
 colnames(mean_masschange_female)[colnames(mean_masschange_female)=="V1"] <- "mean_masschange"
 
 mean_masschange_female$age_yrs <- MC_female_mass$age_yrs
@@ -643,7 +643,7 @@ mean_masschange_female <- mean_masschange_female %>%
 sd_masschange_female <- MC_female_mass_diffs_t %>% summarise_all(funs(sd))
 sd_masschange_female <-  t(sd_masschange_female)
 
-sd_masschange_female <- as_data_frame(sd_masschange_female)
+sd_masschange_female <- as_tibble(sd_masschange_female)
 colnames(sd_masschange_female)[colnames(sd_masschange_female)=="V1"] <- "sd_masschange"
 
 mean_masschange_female$sd_masschange <- sd_masschange_female$sd_masschange
@@ -681,7 +681,7 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 0.5 mths
     mass_i  <- mass_i[!row.names(mass_i)=='ID',]
     
     #turn matrix into data frame (need to include the t() to keep the matrix format)
-    mass_i <- as_data_frame(t(mass_i))
+    mass_i <- as_tibble(t(mass_i))
     
     mass_i$age_yrs <- age
     
@@ -758,7 +758,7 @@ colnames(MC_male_mass_diffs) <- unlist(MC_male_mass_diffs[row.names(MC_male_mass
 MC_male_mass_diffs  <- MC_male_mass_diffs[!row.names(MC_male_mass_diffs)=='age_yrs',]
     
 #turn matrix into data frame (need to include the t() to keep the matrix format)
-MC_male_mass_diffs_t <- MC_male_mass_diffs %>% as_data_frame()
+MC_male_mass_diffs_t <- MC_male_mass_diffs %>% as_tibble()
 
 head(MC_male_mass_diffs_t)
 str(MC_male_mass_diffs_t)
@@ -772,18 +772,18 @@ mean_masschange_male <- MC_male_mass_diffs_t %>% summarise_all(funs(mean))
 kable(head(mean_masschange_male))
 mean_masschange_male <-  t(mean_masschange_male)
 
-mean_masschange_male <- as_data_frame(mean_masschange_male)
+mean_masschange_male <- as_tibble(mean_masschange_male)
 colnames(mean_masschange_male)[colnames(mean_masschange_male)=="V1"] <- "mean_masschange"
 
 mean_masschange_male$age_yrs <- MC_male_mass$age_yrs
 mean_masschange_male <- mean_masschange_male %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs)
 
 #calculate sd for mass changes across all columns (ages)
 sd_masschange_male <- MC_male_mass_diffs_t %>% summarise_all(funs(sd))
 sd_masschange_male <-  t(sd_masschange_male)
 
-sd_masschange_male <- as_data_frame(sd_masschange_male)
+sd_masschange_male <- as_tibble(sd_masschange_male)
 colnames(sd_masschange_male)[colnames(sd_masschange_male)=="V1"] <- "sd_masschange"
 
 mean_masschange_male$sd_masschange <- sd_masschange_male$sd_masschange
@@ -792,9 +792,9 @@ mean_masschange_male$sex <- "Male"
 
 ```
 
-combine mass change tables into one for plotting
+Combine mass change tables into one for plotting
 
-```{r}
+```{r consolidate mass change tables}
 mean_masschange <- rbind(mean_masschange, mean_masschange_female, mean_masschange_male)
 
 kable(mean_masschange)
@@ -806,11 +806,15 @@ mean_masschange %>% write_csv("data/mean_masschange.csv", na = "", append = FALS
 mean_masschange <- as_tibble(read_csv("data/mean_masschange.csv"))
 
 
+```
+
+Mean mass change by sex
+```{r plot mean mass change by sex, echo=FALSE}
 plot_mean_masschange_bysex <- mean_masschange %>% 
         ggplot(aes(x = age_mth-0.5, y = mean_masschange, linetype = sex))+
         scale_color_manual(values = c('black','black', 'black')) +
         scale_linetype_manual(values = c(2,1,3)) +
-        #facet_wrap(.~sex) +
+        facet_wrap(.~sex) +
         geom_ribbon(aes(ymin = mean_masschange - sd_masschange, 
                           ymax = mean_masschange + sd_masschange), 
                     fill = "gray60") +
@@ -833,6 +837,12 @@ plot_mean_masschange_bysex <- mean_masschange %>%
     
 
 plot_mean_masschange_bysex
+
+```
+
+Mean mass change (not sex-specific)
+
+```{r plot mean mass change NA, echo=FALSE}
 
 plot_mean_masschange_NA <- mean_masschange %>%
     filter(sex == "N/A") %>% 

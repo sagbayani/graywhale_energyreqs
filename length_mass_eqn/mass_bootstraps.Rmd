@@ -763,6 +763,8 @@ plot_age_mass_black <- mass_table %>%
 
 plot_age_mass_black
 
+
+
 plot_age_mass <- mass_table %>% 
     filter(age_yrs <=30) %>% 
     ggplot(mapping = aes(x = age_yrs, y = mean_mass)) +
