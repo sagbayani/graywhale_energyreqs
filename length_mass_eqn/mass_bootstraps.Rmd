@@ -2,7 +2,9 @@
 title: "Mass Bootstraps"
 author: "Selina Agbayani"
 date: "November 8, 2018, updated and cleaned July 3, 2025"
-output: github_document
+output: 
+  github_document: default
+  html_document: default
 editor_options: 
   chunk_output_type: console
 ---
