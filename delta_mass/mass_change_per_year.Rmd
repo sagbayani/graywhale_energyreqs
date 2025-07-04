@@ -1,0 +1,847 @@
+---
+title: "Mass change - phase 2 - per year"
+author: "Selina Agbayani"
+date: "Jan 19, 2021, updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  github_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+NOTE: This code will run for a long time.
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+
+
+## Setup
+
+# Initialize all libraries, set paths for output figures, then import the gw_observations.csv
+# install.packages("tidyr")
+# install.packages("tidyverse")
+# install.packages("dplyr")
+# install.packages("ggplot2")
+# install.packages("knitr")
+# install.packages("nls2")
+# install.packages("nlstools")
+# install.packages("nlme")
+# install.packages("minpack.lm")
+# install.packages("scales")
+# install.packages("ggpmisc")
+# install.packages("extrafont")
+
+
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(nls2)
+library(nlstools)
+library(nlme)
+library(minpack.lm)
+library(scales)
+library(ggpmisc)
+library(reshape2)
+library(extrafont)
+
+
+
+```
+
+
+
+```{r declare functions and global variables, include=FALSE}
+
+# **Declare custom functions and global variables**
+########## Specify Decimal function ############################
+# 
+# For use in labelling the plots with equations, and rounding up the coefficients
+# to a specific no. of decimal places
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+
+############ Multiple plot function######################
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
+# If you find any errors, please email winston@stdout.org
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+########### functions used for carry out the fit ########
+
+## this function is avaible in: 
+# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
+# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
+
+##### as.lm function: ######
+
+        as.lm <- function(object, ...) UseMethod("as.lm")
+
+        as.lm.nls <- function(object, ...) {
+            if (!inherits(object, "nls")) {
+                w <- paste("expected object of class nls but got object of class:", 
+                    paste(class(object), collapse = " "))
+                warning(w)
+            }
+
+            gradient <- object$m$gradient()
+            if (is.null(colnames(gradient))) {
+                colnames(gradient) <- names(object$m$getPars())
+            }
+
+            response.name <- if (length(formula(object)) == 2) "0" else 
+                as.character(formula(object)[[2]])
+
+            lhs <- object$m$lhs()
+            L <- data.frame(lhs, gradient)
+            names(L)[1] <- response.name
+
+            fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+            fo <- as.formula(fo, env = as.proto.list(L))
+
+            do.call("lm", list(fo, offset = substitute(fitted(object))))
+
+        }
+
+############## End as.lm function 
+
+
+
+############### proto function: ############
+#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
+
+proto <- function(. = parent.env(envir), expr = {},
+                   envir = new.env(parent = parent.frame()), ...,
+                   funEnvir = envir) {
+  parent.env(envir) <- .
+  envir <- as.proto.environment(envir)  # must do this before eval(...)
+  # moved eval after for so that ... always done first
+  # eval(substitute(eval(quote({ expr }))), envir)
+  dots <- list(...); names <- names(dots)
+  for (i in seq_along(dots)) {
+    assign(names[i], dots[[i]], envir = envir)
+    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
+      environment(envir[[names[i]]]) <- funEnvir
+  }
+  eval(substitute(eval(quote({
+    expr
+  }))), envir)
+  if (length(dots))
+    as.proto.environment(envir)
+  else
+    envir
+}
+
+#' @export
+#' @rdname proto
+as.proto <- function(x, ...) {
+  UseMethod("as.proto")
+}
+
+#' @export
+#' @rdname proto
+as.proto.environment <- function(x, ...) {
+  assign(".that", x, envir = x)
+  assign(".super", parent.env(x), envir = x)
+  structure(x, class = c("proto", "environment"))
+}
+
+#' @export
+#' @rdname proto
+as.proto.proto <- function(x, ...) {
+  x
+}
+as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
+                          funEnvir = envir, SELECT = function(x) TRUE) {
+  if (missing(envir)) {
+    if (missing(parent))
+      parent <- parent.frame()
+    envir <- if (is.proto(parent))
+      parent$proto(...)
+    else
+      proto(parent, ...)
+  }
+  for (s in names(x))
+    if (SELECT(x[[s]])) {
+      assign(s, x[[s]], envir = envir)
+      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
+        environment(envir[[s]]) <- funEnvir
+    }
+  if (!missing(parent))
+    parent.env(envir) <- parent
+  as.proto.environment(envir)  # force refresh of .that and .super
+}
+
+#' @export
+"$<-.proto" <- function(this,s,value) {
+  if (s == ".super")
+    parent.env(this) <- value
+  if (is.function(value))
+    environment(value) <- this
+  this[[as.character(substitute(s))]] <- value
+  this
+}
+is.proto <- function(x) inherits(x, "proto")
+
+#' @export
+"$.proto" <- function(x, name) {
+  inherits <- substr(name, 1, 2) != ".."
+
+  res <- get(name, envir = x, inherits = inherits)
+  if (!is.function(res))
+    return(res)
+
+  if (deparse(substitute(x)) %in% c(".that", ".super"))
+    return(res)
+
+  structure(
+    function(...) res(x, ...),
+    class = "protoMethod",
+    method = res
+  )
+}
+
+#' @export
+print.protoMethod <- function(x, ...) {
+  cat("<ProtoMethod>\n")
+  print(attr(x, "method"), ...)
+}
+
+# modified from Tom Short's original
+#' @export
+str.proto <- function(object, max.level = 1, nest.lev = 0,
+                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
+                      ...) {
+  cat("proto", name.proto(object), "\n")
+  Lines <- utils::capture.output(utils::str(
+    as.list(object), max.level = max.level,
+    nest.lev = nest.lev, ...
+  ))[-1]
+  for (s in Lines)
+    cat(s, "\n")
+  if (is.proto(parent.env(object))) {
+    cat(indent.str, "parent: ", sep = "")
+    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
+  }
+}
+
+#' @export
+print.proto <- function(x, ...) {
+  if (!exists("proto_print", envir = x, inherits = TRUE))
+    return(NextMethod())
+
+  x$proto_print(...)
+}
+
+############# End proto function 
+        
+```   
+
+
+```{r set output paths}       
+############ Set path for output figures: ###############
+Figurespath <- paste0(getwd(), "/figures", collapse = NULL)
+
+############ Set path for input & output data  ###########
+datapath <- paste0(getwd(), "/data", collapse = NULL) 
+
+
+```
+
+```{r read data in}
+##Read in predicted mass data (mass_table from mass_bootstraps.Rmd)
+
+gw_pred_mass <- as_tibble(read_csv("data/mass_table.csv"), #monthly 
+                                 col_types = (list(cols(age_yrs = col_double(),
+                                                        mean_mass = col_double(),
+                                                        sd_mass = col_double(),
+                                                        mean_lwr = col_double(),
+                                                        mean_upr = col_double(),
+                                                        quant025 = col_double(),
+                                                        quant975 = col_double(),
+                                                        female_mass = col_double(),
+                                                        male_mass = col_double()
+                                                        )
+                                                   )
+                                              )
+                                 )
+
+#Read in data for per  year only
+gw_pred_mass <- gw_pred_mass %>% filter(age_yrs == 0 | age_yrs %% 1 == 0)
+
+
+
+```
+
+
+Calculate change in mass per year. 
+
+```{r mean mass change}
+
+#Original code was run with MC_reps <- 10000  and took a very long time
+#To test and explore the code, use less reps 
+MC_reps <- 10
+
+kable(head(gw_pred_mass))
+
+pred_mass <- gw_pred_mass %>% 
+    select(age_yrs, mean_mass, sd_mass, female_mass, male_mass)
+
+
+
+####################################################################
+##### Generate mean mass at age (with sd) 
+MC_mass = NA
+
+for (i in seq(from = 0, to = 75, by = 1)){ 
+    age <-  i
+    
+    strcolname <- as.character(age)
+    
+    pred_mass_i <- filter(pred_mass, age_yrs == age)
+    
+    mass <- pred_mass_i$mean_mass
+    sd <- pred_mass_i$sd_mass
+    
+    set.seed(1)
+    mass_i <- as_tibble(rnorm(MC_reps, mass, sd), col.names = str(i))
+    names(mass_i)[1] <- strcolname
+    
+    mass_i <- mass_i %>%  dplyr::mutate(ID = row_number())
+    
+    #transpose the dataframe -- result is a matrix
+    mass_i <-  t(mass_i)    
+    
+    #make ID the column name, then remove the unneeded row
+    colnames(mass_i) <- unlist(mass_i[row.names(mass_i)=='ID',])
+    mass_i  <- mass_i[!row.names(mass_i)=='ID',]
+    
+    #turn matrix into data frame (need to include the t() to keep the matrix format)
+    mass_i <- as_tibble(t(mass_i))
+    
+    mass_i$age_yrs <- age
+    
+    MC_mass <- rbind(MC_mass, mass_i)
+    
+    
+}
+
+# move age_yrs to first column and delete first row (NAs)
+MC_mass <- MC_mass %>% 
+  relocate(age_yrs) %>% 
+  slice(-1)  
+
+# head(MC_mass)
+
+
+#########################################################
+#### Calculate mass change per age step (not sex-specific)
+
+MC_mass_diffs <- NA
+
+# Mass for newborn
+M_nb <- pred_mass %>% filter(age_yrs == 0) 
+
+for (i in seq(from = 1, to = MC_reps, by = 1)){
+
+    colnumber = i
+    colname = as.character(colnumber)
+    
+    #first row - Mass change from newborn
+    mass_chg <- MC_mass %>% 
+        filter(age_yrs == 0) %>% 
+        select(all_of(colname))
+    
+    delta_mass_yr1 <- as.data.frame(mass_chg) 
+    
+    mass_column <- MC_mass %>% 
+        select(all_of(colname))     
+    
+    #str(mass_column)
+    
+    diffs_mass <-  diff(as.matrix(mass_column))  #calculate delta mass
+    diffs_mass <- as.data.frame(diffs_mass) 
+    names(diffs_mass)[1] <- as.character(colname)
+    
+    #head(diffs_mass)
+    #diffs_mass <- diffs_mass %>% slice(-1) #remove NA row
+    
+    mass_chg <- rbind(delta_mass_yr1, diffs_mass) 
+    #head(mass_chg)
+    MC_mass_diffs <-cbind(MC_mass_diffs, mass_chg) 
+
+}
+
+#Drop first column called MC_mass_diffs (all NA)
+MC_mass_diffs  <-  MC_mass_diffs %>% 
+  select(-MC_mass_diffs)
+
+#transpose matrix of mass diffs
+MC_mass_diffs_t <- t(MC_mass_diffs)
+
+
+# transpose mass_diffs - t() will return matrix, convert to tibble
+MC_mass_diffs_t <- as_tibble(MC_mass_diffs_t)
+
+#save calculated mass diffs to file
+MC_mass_diffs_t %>% write_csv("data/MC_mass_diffs_t_per_year.csv", na = "", append = FALSE)
+
+
+#calculate mean mass changes across all columns (ages)
+mean_masschange <- MC_mass_diffs_t %>% summarise_all(list(mean))
+
+kable(head(mean_masschange))
+
+mean_masschange <-  t(mean_masschange)
+
+mean_masschange <- as_tibble(mean_masschange)
+colnames(mean_masschange)[colnames(mean_masschange)=="V1"] <- "mean_masschange"
+
+#calculate sd for mass changes across all columns (ages)
+sd_masschange <- MC_mass_diffs_t %>% summarise_all(c("sd"))
+sd_masschange <-  t(sd_masschange)
+
+sd_masschange <- as_tibble(sd_masschange)
+colnames(sd_masschange)[colnames(sd_masschange)=="V1"] <- "sd_masschange"
+
+mean_masschange$sd_masschange <- sd_masschange$sd_masschange
+mean_masschange$sex <- "N/A"
+
+#add age_yrs column (starting from 0) and move to front
+mean_masschange <- mean_masschange %>%
+  mutate("age_yrs" = row_number()-1) %>%
+  relocate("age_yrs")
+
+kable(head(mean_masschange))
+
+```
+
+
+```{r mean mass change females}
+###########################################################################
+# Calculate mean mass for females (with sd)
+
+MC_female_mass = NA
+
+
+for (i in seq(from = 0, to = 75, by = 1)){ 
+    age <-  i
+    
+    strcolname <- as.character(age)
+    
+    pred_mass_i <- filter(pred_mass, age_yrs == age)
+    
+    mass <- pred_mass_i$female_mass
+    sd <- pred_mass_i$sd_mass
+    
+    set.seed(1)
+    mass_i <- as_tibble(rnorm(MC_reps, mass, sd), col.names = str(i))
+    names(mass_i)[1] <- strcolname
+    
+    mass_i <- mass_i %>%  dplyr::mutate(ID = row_number())
+    
+    #transpose the table -- result is a matrix
+    mass_i <-  t(mass_i)    
+    
+    #make ID the column name, then remove the unneeded row
+    colnames(mass_i) <- unlist(mass_i[row.names(mass_i)=='ID',])
+    mass_i  <- mass_i[!row.names(mass_i)=='ID',]
+    
+    #turn matrix into data frame (need to include the t() to keep the matrix format)
+    mass_i <- as_tibble(t(mass_i))
+    
+    mass_i$age_yrs <- age
+
+    MC_female_mass <- rbind(MC_female_mass, mass_i)
+    
+    
+}
+
+# move age_yrs to first column and delete first row (NAs)
+MC_female_mass <- MC_female_mass %>% 
+  relocate(age_yrs) %>% 
+  slice(-1)
+
+head(MC_female_mass)
+
+
+
+#################################################
+#### Calculate mass change for females
+
+MC_female_mass_diffs <- NA
+
+# Mass for newborn 
+M_nb <- pred_mass %>% filter(age_yrs == 0) 
+    
+
+for (i in seq(from = 1, to = MC_reps, by = 1)){
+    
+    colnumber = i
+    colname = as.character(colnumber)
+    
+    #first row - mass change from newborn
+    mass_chg_Female <- MC_mass %>% 
+        dplyr::filter(age_yrs == 0) %>% 
+        dplyr::select(all_of(colname))
+    delta_mass_yr1 <- mass_chg_Female 
+        
+    delta_mass_yr1 <- as.data.frame(mass_chg_Female) 
+    
+    #names(delta_mass_yr1)[1] <- colname
+    
+    mass_column <- MC_female_mass %>% 
+        dplyr:: select(all_of(colname))     
+    
+    #str(mass_column)
+    
+    diffs_mass_Female <-  diff(as.matrix(mass_column))  #calculate delta mass
+    diffs_mass_Female <- as.data.frame(diffs_mass_Female) 
+    names(diffs_mass_Female)[1] <- as.character(colname)
+    
+    #head(diffs_mass_Female)
+    #diffs_mass_Female <- diffs_mass_Female %>% slice(-1) #remove NA row
+    
+    mass_chg_Female <- rbind(delta_mass_yr1, diffs_mass_Female) 
+    #head(mass_chg_Female)
+    MC_female_mass_diffs <-cbind(MC_female_mass_diffs, mass_chg_Female) 
+
+}
+
+#Drop first column called MC_mass_diffs (all NA)
+MC_female_mass_diffs  <-  MC_female_mass_diffs %>% 
+    select(-MC_female_mass_diffs)
+
+#transpose the table -- result is a matrix
+MC_female_mass_diffs <- t(MC_female_mass_diffs)
+
+# convert to tibble
+MC_female_mass_diffs_t <- as_tibble(MC_female_mass_diffs)
+
+#save calculated mass diffs to file
+MC_female_mass_diffs_t %>% write_csv("data/MC_female_mass_diffs_t_per_year.csv", na = "", append = FALSE)
+
+#calculate mean mass changes across all columns (ages)
+mean_masschange_female <- MC_female_mass_diffs_t %>% summarise_all(list(mean))
+
+kable(head(mean_masschange_female))
+mean_masschange_female <-  t(mean_masschange_female)
+
+mean_masschange_female <- as_tibble(mean_masschange_female)
+colnames(mean_masschange_female)[colnames(mean_masschange_female)=="V1"] <- "mean_masschange"
+
+
+#calculate sd for mass changes across all columns (ages)
+sd_masschange_female <- MC_female_mass_diffs_t %>% summarise_all(c("sd"))
+sd_masschange_female <-  t(sd_masschange_female)
+
+sd_masschange_female <- as_tibble(sd_masschange_female)
+colnames(sd_masschange_female)[colnames(sd_masschange_female)=="V1"] <- "sd_masschange"
+
+mean_masschange_female$sd_masschange <- sd_masschange_female$sd_masschange
+mean_masschange_female$sex <- "Female"
+
+#add the age column (starting from 0) and move to front
+mean_masschange_female <- mean_masschange_female %>%
+  mutate("age_yrs" = row_number()-1) %>%
+  relocate("age_yrs")
+
+kable(head(mean_masschange_female))
+
+```
+
+
+```{r Mean mass change males}
+
+####################################################################
+##### Calulate mean mass for males (with sd)
+MC_male_mass = NA
+
+for (i in seq(from = 0, to = 75, by = 1)){ 
+    age <-  i
+    
+    strcolname <- as.character(age)
+    
+    pred_mass_i <- filter(pred_mass, age_yrs == age)
+    
+    mass <- pred_mass_i$male_mass
+    sd <- pred_mass_i$sd_mass
+    
+    set.seed(1)
+    mass_i <- as_tibble(rnorm(MC_reps, mass, sd), col.names = str(i))
+    names(mass_i)[1] <- strcolname
+    
+    mass_i <- mass_i %>%  dplyr::mutate(ID = row_number())
+    
+    #transpose the dataframe -- result is a matrix
+    mass_i <-  t(mass_i)    
+    
+    #make ID the column name, then remove the unneeded row
+    colnames(mass_i) <- unlist(mass_i[row.names(mass_i)=='ID',])
+    mass_i  <- mass_i[!row.names(mass_i)=='ID',]
+    
+    #turn matrix into data frame (need to include the t() to keep the matrix format)
+    mass_i <- as_tibble(t(mass_i))
+    
+    mass_i$age_yrs <- age
+    
+    MC_male_mass <- rbind(MC_male_mass, mass_i)
+    
+    
+}
+
+# move age_yrs to first column and delete first row (NAs)
+MC_male_mass <- MC_male_mass %>% 
+  relocate(age_yrs) %>% 
+  slice(-1)
+
+head(MC_male_mass)
+
+
+
+#################################################
+#### Calculate mass change for males
+
+MC_male_mass_diffs <- NA
+
+for (i in seq(from = 1, to = MC_reps, by = 1)){
+    
+    colnumber = i
+    colname = as.character(colnumber)
+    
+    #mass_chg <- rnorm(1, M_nb$mean_mass, M_nb$sd_mass)     
+    mass_chg_male <- MC_mass %>% 
+        filter(age_yrs == 0) %>% 
+        select(all_of(colname))
+    
+    delta_mass_yr1 <- mass_chg_male 
+    
+    
+    delta_mass <- as.data.frame(mass_chg_male) 
+    
+    mass_column <- MC_male_mass %>% 
+        dplyr:: select(all_of(colname))     
+    
+    #str(mass_column)
+    
+    diffs_mass_male <-  diff(as.matrix(mass_column))  #calculate delta mass
+    diffs_mass_male <- as.data.frame(diffs_mass_male) 
+    names(diffs_mass_male)[1] <- as.character(colname)
+    
+    #head(diffs_mass_male)
+    #diffs_mass_male <- diffs_mass_male %>% slice(-1) #remove NA row
+    
+    mass_chg_male <- rbind(delta_mass_yr1, diffs_mass_male) 
+    #head(mass_chg_male)
+    MC_male_mass_diffs <-cbind(MC_male_mass_diffs, mass_chg_male) 
+
+}
+
+#Drop first column called MC_mass_diffs (all NA)
+MC_male_mass_diffs  <-  MC_male_mass_diffs %>% 
+    select(-MC_male_mass_diffs)
+
+# transpose matrix of mass_diffs
+MC_male_mass_diffs_t <- t(MC_male_mass_diffs)
+
+## transpose mass_diffs - t() will return matrix, convert to tibble
+MC_male_mass_diffs_t <- as_tibble(MC_male_mass_diffs_t)
+
+
+MC_male_mass_diffs_t %>% write_csv("data/MC_male_mass_diffs_t_per_year.csv", na = "", append = FALSE)
+
+#MC_male_mass_diffs_t <- as_tibble(read_csv("data/MC_male_mass_diffs_t_per_year.csv"))
+
+#calculate mean mass changes across all columns (ages)
+mean_masschange_male <- MC_male_mass_diffs_t %>% summarise_all(list(mean))
+
+kable(head(mean_masschange_male))
+mean_masschange_male <-  t(mean_masschange_male)
+
+mean_masschange_male <- as_tibble(mean_masschange_male)
+colnames(mean_masschange_male)[colnames(mean_masschange_male)=="V1"] <- "mean_masschange"
+
+#calculate sd for mass changes across all columns (ages)
+sd_masschange_male <- MC_male_mass_diffs_t %>% summarise_all(c("sd"))
+sd_masschange_male <-  t(sd_masschange_male)
+
+sd_masschange_male <- as_tibble(sd_masschange_male)
+colnames(sd_masschange_male)[colnames(sd_masschange_male)=="V1"] <- "sd_masschange"
+
+mean_masschange_male$sd_masschange <- sd_masschange_male$sd_masschange
+mean_masschange_male$sex <- "Male"
+
+#add the age column and move to front
+mean_masschange_male <- mean_masschange_male %>%
+  mutate("age_yrs" = row_number()-1) %>%
+  relocate("age_yrs")
+
+kable(head(mean_masschange_male))
+
+
+```
+
+Combine mass change tables into one for plotting
+
+```{r plotting mean mass change}
+
+mean_masschange <- rbind(mean_masschange, mean_masschange_female, mean_masschange_male)
+
+kable(mean_masschange)
+
+#Save mean mass change to file
+mean_masschange %>% write_csv("data/mean_masschange_per_year.csv", na = "", append = FALSE)
+
+#mean_masschange <- as_tibble(read_csv("data/mean_masschange_per_year.csv"))
+```
+
+
+Mean Mass Change by Sex
+
+```{r plot mean mass change by sex, echo=FALSE}
+
+plot_mean_masschange_bysex <- mean_masschange %>% 
+        filter(age_yrs >0 & age_yrs<=30) %>% 
+        ggplot(aes(x = age_yrs, y = mean_masschange, linetype = sex))+
+        #scale_color_manual(values = c('black','red', 'blue')) +
+        #scale_linetype_manual(values = c(2,1,3)) +
+        facet_wrap(.~sex) +
+        geom_ribbon(aes(ymin = mean_masschange - sd_masschange, 
+                          ymax = mean_masschange + sd_masschange), 
+                    fill = "gray60") +
+        geom_line() +
+        xlab("Age (year)") +
+        ylab(bquote('Mean change in mass (kg)')) +
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
+                           limits = c(0, 30)) +
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
+                           labels = scales::comma) +
+        theme_bw() +
+        theme(panel.grid = element_blank(),
+              axis.title.x = element_text(size = rel(1.4), colour = "black"),
+              axis.text.x = element_text(size = rel(1.2), colour = "black"),
+              axis.title.y = element_text(size = rel(1.4), colour = "black"),
+              axis.text.y = element_text(size = rel(1.2), colour = "black"),
+              strip.background = element_blank(),
+              legend.position="none" 
+              ) 
+    
+plot_mean_masschange_bysex
+
+```
+
+Mean Mass Change per year - with error bars
+
+```{r plot mean mass change NA, echo=FALSE}
+
+plot_mean_masschange_NA <- mean_masschange %>%
+    filter(age_yrs>0 & age_yrs<=30 & sex == "N/A") %>% 
+    ggplot(aes(x = age_yrs-0.5, y = mean_masschange))+
+    geom_errorbar(aes(ymin = mean_masschange - sd_masschange, 
+                      ymax = mean_masschange + sd_masschange),
+                  width = 0.02, color = "red")+
+    geom_point() +
+    xlab("Age (yrs)") +
+    ylab(bquote('Mean change in mass (kg)')) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 12))+
+                       #limits = c(0, 11)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
+                       #limits = c(-200, 800),
+                       labels = scales::comma)+
+    theme_bw() +
+    theme(panel.grid = element_blank(),
+              axis.title.x = element_text(size = rel(1.4), colour = "black"),
+              axis.text.x = element_text(size = rel(1.2), colour = "black"),
+              axis.title.y = element_text(size = rel(1.4), colour = "black"),
+              axis.text.y = element_text(size = rel(1.2), colour = "black"),
+              strip.background = element_blank(),
+              legend.position="none" 
+                       ) 
+
+plot_mean_masschange_NA
+    
+```
+
+Mean Mass Change - SD ribbon
+
+```{r plot mean mass change, echo = FALSE}
+
+
+plot_mean_masschange <- mean_masschange %>% 
+    filter(age_yrs>0 & age_yrs<=30 & sex == "N/A") %>% 
+    ggplot(aes(x = age_yrs, y = mean_masschange))+
+    geom_ribbon(aes(ymin = mean_masschange - sd_masschange, 
+                      ymax = mean_masschange + sd_masschange),
+                fill = "gray60")+
+    geom_line() +    
+    xlab("Age (yrs)") +
+    ylab(bquote('Mean change in mass (kg)')) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
+                       labels = scales::comma)+
+  theme_bw() +
+        theme(panel.grid = element_blank(),
+              axis.title.x = element_text(size = rel(1.4), colour = "black"),
+              axis.text.x = element_text(size = rel(1.2), colour = "black"),
+              axis.title.y = element_text(size = rel(1.4), colour = "black"),
+              axis.text.y = element_text(size = rel(1.2), colour = "black"),
+              strip.background = element_blank(),
+              legend.position="none" )
+
+
+plot_mean_masschange
+
+
+
+```
+
+
