@@ -3,8 +3,9 @@ title: "Mass change - phase 1 per month"
 author: "Selina Agbayani"
 date: "Jan 19, 2021, updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
 output: 
-  github_document: default
-  html_document: default
+  html_document: 
+  github_document: 
+  keep_md: yes
 editor_options: 
   chunk_output_type: console
 ---

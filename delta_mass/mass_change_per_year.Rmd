@@ -3,8 +3,9 @@ title: "Mass change - phase 2 - per year"
 author: "Selina Agbayani"
 date: "Jan 19, 2021, updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
 output: 
-  github_document: default
   html_document: default
+  github_document: default
+  
 editor_options: 
   chunk_output_type: console
 ---
