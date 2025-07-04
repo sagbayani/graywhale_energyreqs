@@ -1,0 +1,16 @@
+ID,sex,age_yrs,age_mths,age_wks,length_m,girth_m,mass_kg_x_1000,mass_kg,Details,source,log10_length_m,log10_mass_kg
+4,Male,,,,11.72,6,15.686,15686,,Rice and Wolman (1971),1.0689276116820718,4.195512210674072
+5,Male,,,,12.4,5.5,16.594,16594,,Rice and Wolman (1971),1.0934216851622351,4.219951085755317
+7,Unknown,,,,8.534,,6.632,6632,28 feet,Gilmore (1961); Rice and Wolman (1971),0.9311526385232933,3.821644517542217
+8,Male,,,,9.65,5,8.808,8808,,Rice and Wolman (1971),0.9845273133437926,3.9448773059636952
+9,Male,,,,9.9,4.8,8.876,8876,,Rice and Wolman (1971),0.9956351945975499,3.9482172935599706
+14,Male,,,,8.66,4.52,5.55,5550,,Sumich (1986)- cited J.Harvey pers.comm,0.9375178920173467,3.7442929831226763
+15,Male,,,,7.81,3.64,3.95,3950,,Sumich (1986)- cited A. Geiger pers. comm,0.8926510338773003,3.59659709562646
+17,Female,1.21,14.498631,63,9.43,0.49,9.28,9280,Calf (JJ),Sumich (2001); Sumich et al. (2013),0.9745116927373284,3.967547976218862
+18,Female,,,,4.91,,1.59,1590,Calf (Gigi I at capture),Sumich (1986)- cited Wahrenbrock pers. comm; Sumich et al. 2013- cited Wahrenbrock et al. 1974),0.6910814921229684,3.2013971243204513
+19,Female,1.11,13.347946,58,8.2,,6.38,6380,Calf (Gigi II),Sumich (1986)- cited Wahrenbrock pers. comm; Sumich et al. 2013- cited Wahrenbrock et al. 1974),0.9138138523837167,3.8048206787211623
+20,Male,,,,4.93,,0.93,930,stranded neonate,White and Griese (1978),0.69284691927723,2.9684829485539352
+21,Male,,,,8.5,,5.3,5300,1st summer harvested male,Sumich et al. (2013),0.9294189257142927,3.724275869600789
+22,Male,,,,8.05,5,5.47,5470,1st summer harvested male,Sumich et al. (2013),0.9057958803678685,3.737987326333431
+23,Female,,,,8.9,4.6,5.865,5865,2nd summer harvested female,Sumich et al. (2013),0.9493900066449128,3.768268016451548
+343,Male,,,,10.7,,14.8,14800,From Chukotka (1984),Blokhin (1986),1.0293837776852097,4.1702617153949575
