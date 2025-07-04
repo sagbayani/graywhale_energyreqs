@@ -189,28 +189,26 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 1 mths
 
 # move age_yrs to first column
 MC_mass <- MC_mass %>%
-  relocate(age_yrs)
+  relocate(age_yrs) %>% 
+  slice(-1)  #remove NA row
 
-MC_mass = MC_mass[-1,]
-
-head(MC_mass)
+kable(head(MC_mass))
 ```
 
-    ## # A tibble: 6 × 12
-    ##   age_yrs   `1`   `2`   `3`   `4`   `5`   `6`   `7`   `8`   `9`  `10` age_mth
-    ##     <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>   <dbl>
-    ## 1  0       966.  988.  961. 1026.  992.  961.  996. 1003.  998.  975.       0
-    ## 2  0.0849 1475. 1505. 1467. 1558. 1510. 1468. 1516. 1526. 1520. 1487.       1
-    ## 3  0.162  1970. 2014. 1959. 2089. 2021. 1960. 2030. 2043. 2034. 1988.       2
-    ## 4  0.247  2536. 2593. 2522. 2693. 2604. 2523. 2615. 2633. 2621. 2559.       3
-    ## 5  0.329  3083. 3150. 3065. 3266. 3162. 3066. 3175. 3195. 3182. 3109.       4
-    ## 6  0.414  3629. 3703. 3610. 3831. 3716. 3611. 3730. 3753. 3738. 3658.       5
+| age_yrs | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | age_mth |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.0000000 | 966.2585 | 987.9429 | 960.6594 | 1025.729 | 991.8474 | 961.0652 | 996.0746 | 1002.790 | 998.4396 | 974.8527 | 0 |
+| 0.0849315 | 1474.9895 | 1505.0793 | 1467.2200 | 1557.512 | 1510.4972 | 1467.7831 | 1516.3629 | 1525.682 | 1519.6446 | 1486.9150 | 1 |
+| 0.1616438 | 1970.4780 | 2013.5903 | 1959.3460 | 2088.716 | 2021.3531 | 1960.1528 | 2029.7574 | 2043.110 | 2034.4594 | 1987.5647 | 2 |
+| 0.2465753 | 2536.3056 | 2593.4586 | 2521.5481 | 2693.051 | 2603.7495 | 2522.6177 | 2614.8910 | 2632.592 | 2621.1243 | 2558.9570 | 3 |
+| 0.3287671 | 3082.5108 | 3149.5277 | 3065.2063 | 3266.308 | 3161.5947 | 3066.4605 | 3174.6590 | 3195.415 | 3181.9682 | 3109.0716 | 4 |
+| 0.4136986 | 3628.9325 | 3702.5583 | 3609.9217 | 3830.855 | 3715.8152 | 3611.2995 | 3730.1679 | 3752.971 | 3738.1978 | 3658.1126 | 5 |
 
 ``` r
-MC_mass_diffs <- NA
-
 ######################################################
-#### Calculate mass change (not sex-specific)
+#### Calculate mass per month (not sex-specific)
+
+MC_mass_diffs <- NA
 
 # Mass for newborn
 M_nb <- pred_mass %>% filter(age_yrs == 0) 
@@ -233,47 +231,24 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     mass_column <- MC_mass %>% 
         select(all_of(colname))     
     
-    str(mass_column)
+    #str(mass_column)
     
     diffs_mass <-  diff(as.matrix(mass_column))  #calculate delta mass
     diffs_mass <- as.data.frame(diffs_mass) 
     names(diffs_mass)[1] <- as.character(colname)
     
-    head(diffs_mass)
+    #head(diffs_mass)
     
     mass_chg <- rbind(delta_mass, diffs_mass) 
-    head(mass_chg)
+    #head(mass_chg)
     MC_mass_diffs <-cbind(MC_mass_diffs, mass_chg) 
 
 }
-```
 
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 1: num [1:13] 966 1475 1970 2536 3083 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 2: num [1:13] 988 1505 2014 2593 3150 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 3: num [1:13] 961 1467 1959 2522 3065 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 4: num [1:13] 1026 1558 2089 2693 3266 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 5: num [1:13] 992 1510 2021 2604 3162 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 6: num [1:13] 961 1468 1960 2523 3066 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 7: num [1:13] 996 1516 2030 2615 3175 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 8: num [1:13] 1003 1526 2043 2633 3195 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 9: num [1:13] 998 1520 2034 2621 3182 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 10: num [1:13] 975 1487 1988 2559 3109 ...
 
-``` r
 MC_mass_diffs  <-  MC_mass_diffs %>% 
     select(-MC_mass_diffs)
 
-names(MC_mass_diffs)[0] <-  "age_yrs"
 
 #transpose the table -- result is a matrix
 MC_mass_diffs <- t(MC_mass_diffs)
@@ -284,9 +259,8 @@ MC_mass_diffs_t <- as_tibble(MC_mass_diffs)
 #save calculated mass diffs to file
 MC_mass_diffs_t %>% write_csv("data/MC_mass_diffs_t.csv", na = "", append = FALSE)
 
-
 ####################################################################
-##### Calulate mean  mass change (not sex-specific) across all columns (ages)
+##### Calculate mean  mass change (not sex-specific) across all columns (ages)
 
 mean_masschange <- MC_mass_diffs_t %>% summarise_all(funs(mean))
 
@@ -305,7 +279,7 @@ colnames(mean_masschange)[colnames(mean_masschange)=="V1"] <- "mean_masschange"
 
 mean_masschange$age_yrs <- MC_mass$age_yrs
 mean_masschange <- mean_masschange %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs)
 
 #calculate sd for mass changes across all columns (ages)
 sd_masschange <- MC_mass_diffs_t %>% summarise_all(funs(sd))
@@ -316,10 +290,11 @@ colnames(sd_masschange)[colnames(sd_masschange)=="V1"] <- "sd_masschange"
 
 mean_masschange$sd_masschange <- sd_masschange$sd_masschange
 mean_masschange$sex <- "N/A"
+```
 
-
+``` r
 ###########################################################################
-# Calculate mass change for females
+# Calculate mass for females per month
 
 MC_female_mass = NA
 
@@ -362,28 +337,19 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 0.5 mths
 
 # move age_yrs to first column
 MC_female_mass <- MC_female_mass %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs) %>% 
+  slice(-1)
 
-MC_female_mass = MC_female_mass[-1,]
 
-head(MC_female_mass)
-```
 
-    ## # A tibble: 6 × 12
-    ##   age_yrs   `1`   `2`   `3`   `4`   `5`   `6`   `7`   `8`   `9`  `10` age_mth
-    ##     <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>   <dbl>
-    ## 1  0       994. 1016.  989. 1054. 1020.  989. 1024. 1031. 1026. 1003.       0
-    ## 2  0.0849 1518. 1548. 1510. 1600. 1553. 1510. 1559. 1568. 1562. 1530.       1
-    ## 3  0.162  2028. 2071. 2016. 2146. 2078. 2017. 2087. 2100. 2092. 2045.       2
-    ## 4  0.247  2610. 2667. 2595. 2767. 2677. 2596. 2688. 2706. 2695. 2632.       3
-    ## 5  0.329  3172. 3239. 3154. 3356. 3251. 3156. 3264. 3285. 3271. 3198.       4
-    ## 6  0.414  3734. 3808. 3715. 3936. 3821. 3716. 3835. 3858. 3843. 3763.       5
+#########################################################
+#### Calculate mass change for females
 
-``` r
 MC_female_mass_diffs <- NA
 
-#### Calculate mass change for females
-##first row must start at 0 because no chnange in mass from 0 to 0
+##first row must start at 0 because no change in mass from 0 to 0
+
+#Mass from newborn 
 M_nb <- pred_mass %>% filter(age_yrs == 0) 
     
 
@@ -442,7 +408,7 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
 
 ``` r
 MC_female_mass_diffs  <-  MC_female_mass_diffs %>% 
-    dplyr::select(-(MC_female_mass_diffs))
+    select(-MC_female_mass_diffs)
 
 #add the age column and move to front
 MC_female_mass_diffs$age_yrs <- MC_female_mass$age_yrs
@@ -478,7 +444,7 @@ colnames(mean_masschange_female)[colnames(mean_masschange_female)=="V1"] <- "mea
 
 mean_masschange_female$age_yrs <- MC_female_mass$age_yrs
 mean_masschange_female <- mean_masschange_female %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs)
 
 #calculate sd for mass changes across all columns (ages)
 sd_masschange_female <- MC_female_mass_diffs_t %>% summarise_all(funs(sd))
@@ -489,11 +455,12 @@ colnames(sd_masschange_female)[colnames(sd_masschange_female)=="V1"] <- "sd_mass
 
 mean_masschange_female$sd_masschange <- sd_masschange_female$sd_masschange
 mean_masschange_female$sex <- "Female"
+```
 
-
-
+``` r
 ####################################################################
-##### Calulate mass change for males
+##### Calulate mass for males per month
+
 MC_male_mass = NA
 
 for (i in seq(from = 0, to = 12, by = 1)){  #step by 0.5 mths
@@ -535,27 +502,15 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 0.5 mths
 
 # move age_yrs to first column
 MC_male_mass <- MC_male_mass %>%
-  relocate(age_yrs)
+  relocate(age_yrs) %>% 
+  slice(-1) #remove NA row
 
-MC_male_mass = MC_male_mass[-1,]
 
-head(MC_male_mass)
-```
+###############################################
+#### Calculate mass change for males
 
-    ## # A tibble: 6 × 12
-    ##   age_yrs   `1`   `2`   `3`   `4`   `5`   `6`   `7`   `8`   `9`  `10` age_mth
-    ##     <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>   <dbl>
-    ## 1  0       951.  972.  945. 1010.  976.  945.  980.  987.  983.  959.       0
-    ## 2  0.0849 1451. 1481. 1443. 1534. 1487. 1444. 1493. 1502. 1496. 1463.       1
-    ## 3  0.162  1939. 1982. 1927. 2057. 1989. 1928. 1998. 2011. 2003. 1956.       2
-    ## 4  0.247  2495. 2552. 2480. 2652. 2563. 2482. 2574. 2591. 2580. 2518.       3
-    ## 5  0.329  3033. 3100. 3015. 3216. 3112. 3017. 3125. 3145. 3132. 3059.       4
-    ## 6  0.414  3570. 3644. 3551. 3772. 3657. 3553. 3671. 3694. 3679. 3599.       5
-
-``` r
 MC_male_mass_diffs <- NA
 
-#### Calculate mass change for males
 ##first row must start at 0 because no chnange in mass from 0 to 0
 
 
@@ -566,8 +521,8 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     
     #mass_chg <- rnorm(1, M_nb$mean_mass, M_nb$sd_mass)     
     mass_chg_male <- MC_mass %>% 
-        dplyr::filter(age_yrs == 0) %>% 
-        dplyr::select(colname)
+        filter(age_yrs == 0) %>% 
+        select(all_of(colname))
     delta_mass <- mass_chg_male 
     
     
@@ -575,47 +530,25 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     names(delta_mass)[1] <- colname
     
     mass_column <- MC_male_mass %>% 
-        dplyr:: select(colname)     
+        select(all_of(colname))     
     
-    str(mass_column)
+    #str(mass_column)
     
     diffs_mass_male <-  diff(as.matrix(mass_column))  #calculate delta mass
     diffs_mass_male <- as.data.frame(diffs_mass_male) 
     names(diffs_mass_male)[1] <- as.character(colname)
     
-    head(diffs_mass_male)
+    #head(diffs_mass_male)
     
     mass_chg_male <- rbind(delta_mass, diffs_mass_male) 
-    head(mass_chg_male)
+    #head(mass_chg_male)
     MC_male_mass_diffs <-cbind(MC_male_mass_diffs, mass_chg_male) 
 
 }
-```
 
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 1: num [1:13] 951 1451 1939 2495 3033 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 2: num [1:13] 972 1481 1982 2552 3100 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 3: num [1:13] 945 1443 1927 2480 3015 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 4: num [1:13] 1010 1534 2057 2652 3216 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 5: num [1:13] 976 1487 1989 2563 3112 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 6: num [1:13] 945 1444 1928 2482 3017 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 7: num [1:13] 980 1493 1998 2574 3125 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 8: num [1:13] 987 1502 2011 2591 3145 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 9: num [1:13] 983 1496 2003 2580 3132 ...
-    ## tibble [13 × 1] (S3: tbl_df/tbl/data.frame)
-    ##  $ 10: num [1:13] 959 1463 1956 2518 3059 ...
 
-``` r
 MC_male_mass_diffs  <-  MC_male_mass_diffs %>% 
-    dplyr::select(-(MC_male_mass_diffs))
+    select(-MC_male_mass_diffs)
 
 # add the age column and move to front
 MC_male_mass_diffs$age_yrs <- MC_male_mass$age_yrs
@@ -733,8 +666,9 @@ mean_masschange <- as_tibble(read_csv("data/mean_masschange.csv"))
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 Mean mass change by sex
+
 ![](mass_change_per_month_files/figure-gfm/plot%20mean%20mass%20change%20by%20sex-1.png)<!-- -->
 
 Mean mass change (not sex-specific)
 
-![](mass_change_per_month_files/figure-gfm/plot%20mean%20mass%20change%20NA-1.png)<!-- -->![](mass_change_per_month_files/figure-gfm/plot%20mean%20mass%20change%20NA-2.png)<!-- -->
+![](mass_change_per_month_files/figure-gfm/plot%20mean%20mass%20change%20NA-1.png)<!-- -->
