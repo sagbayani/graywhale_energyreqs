@@ -693,7 +693,7 @@ kable(head(mass_table))
 
 *Plotting mass data onto graphs*
 
-```{r mass plots}
+```{r mass plots, echo=FALSE}
 
 plot_age_mass_black <- mass_table %>% 
     filter(age_yrs <=30) %>% 
@@ -754,7 +754,7 @@ plot_age_mass_black <- mass_table %>%
     theme(panel.background = element_rect(fill = "black"))+
     theme(panel.border = element_blank())+
     
-    theme(axis.line = element_line(size = 1, colour = "white"))+
+    theme(axis.line = element_line(linewidth = 1, colour = "white"))+
     theme(axis.text = element_text(colour = "white", size = rel(1.6)))+
     theme(axis.title.y = element_text(colour = "white", size = rel(1.8), angle = 90))+
     theme(axis.title.x = element_text(colour = "white", size = rel(1.8)))+
@@ -861,6 +861,13 @@ kable(head(mass_table))
 #save mass_table csv
 mass_table %>% write_csv("data/mass_table.csv", na = "", append = FALSE)
 
+```
+
+
+Predicted Mass by sex
+
+```{r plot age mass by sex, echo=FALSE}
+
 #Create white plot in  black background  
 plot_age_mass_bysex_black <- mass_table %>% 
     filter(age_yrs <=30) %>% 
@@ -911,7 +918,7 @@ plot_age_mass_bysex_black <- mass_table %>%
     theme(plot.background = element_rect(fill = "black"))+
     theme(panel.background = element_rect(fill = "black"))+
     theme(panel.border = element_blank())+
-    theme(axis.line = element_line(size = 1, colour = "white"))+
+    theme(axis.line = element_line(linewidth = 1, colour = "white"))+
     # theme(axis.text = element_text(colour = "white", size = rel(1.8)))+
     # theme(axis.title.y = element_text(colour = "white", size = rel(1.8), angle = 90))+
     # theme(axis.title.x = element_text(colour = "white", size = rel(2)))+
