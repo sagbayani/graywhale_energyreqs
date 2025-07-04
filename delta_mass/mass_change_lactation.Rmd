@@ -1,0 +1,353 @@
+---
+title: "mass_change_lactation"
+author: "Selina Agbayani"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  github_document:
+  html_document:
+  keep_md: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = TRUE)
+
+
+## Setup
+
+# Initialize all libraries, set paths for output figures, then import the gw_observations.csv
+# install.packages("tidyr")
+# install.packages("tidyverse")
+# install.packages("dplyr")
+# install.packages("ggplot2")
+# install.packages("knitr")
+# install.packages("nls2")
+# install.packages("nlstools")
+# install.packages("nlme")
+# install.packages("minpack.lm")
+# install.packages("scales")
+# install.packages("ggpmisc")
+# install.packages("extrafont")
+
+
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(nls2)
+library(nlstools)
+library(nlme)
+library(minpack.lm)
+library(scales)
+library(ggpmisc)
+library(reshape2)
+library(extrafont)
+
+
+
+```
+
+
+
+```{r declare functions and global variables, include=FALSE}
+
+# **Declare custom functions and global variables**
+########## Specify Decimal function ############################
+# 
+# For use in labelling the plots with equations, and rounding up the coefficients
+# to a specific no. of decimal places
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+
+############ Multiple plot function######################
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
+# If you find any errors, please email winston@stdout.org
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+########### functions used for carry out the fit ########
+
+## this function is avaible in: 
+# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
+# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
+
+##### as.lm function: ######
+
+        as.lm <- function(object, ...) UseMethod("as.lm")
+
+        as.lm.nls <- function(object, ...) {
+            if (!inherits(object, "nls")) {
+                w <- paste("expected object of class nls but got object of class:", 
+                    paste(class(object), collapse = " "))
+                warning(w)
+            }
+
+            gradient <- object$m$gradient()
+            if (is.null(colnames(gradient))) {
+                colnames(gradient) <- names(object$m$getPars())
+            }
+
+            response.name <- if (length(formula(object)) == 2) "0" else 
+                as.character(formula(object)[[2]])
+
+            lhs <- object$m$lhs()
+            L <- data.frame(lhs, gradient)
+            names(L)[1] <- response.name
+
+            fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+            fo <- as.formula(fo, env = as.proto.list(L))
+
+            do.call("lm", list(fo, offset = substitute(fitted(object))))
+
+        }
+
+############## End as.lm function 
+
+
+
+############### proto function: ############
+#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
+
+proto <- function(. = parent.env(envir), expr = {},
+                   envir = new.env(parent = parent.frame()), ...,
+                   funEnvir = envir) {
+  parent.env(envir) <- .
+  envir <- as.proto.environment(envir)  # must do this before eval(...)
+  # moved eval after for so that ... always done first
+  # eval(substitute(eval(quote({ expr }))), envir)
+  dots <- list(...); names <- names(dots)
+  for (i in seq_along(dots)) {
+    assign(names[i], dots[[i]], envir = envir)
+    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
+      environment(envir[[names[i]]]) <- funEnvir
+  }
+  eval(substitute(eval(quote({
+    expr
+  }))), envir)
+  if (length(dots))
+    as.proto.environment(envir)
+  else
+    envir
+}
+
+#' @export
+#' @rdname proto
+as.proto <- function(x, ...) {
+  UseMethod("as.proto")
+}
+
+#' @export
+#' @rdname proto
+as.proto.environment <- function(x, ...) {
+  assign(".that", x, envir = x)
+  assign(".super", parent.env(x), envir = x)
+  structure(x, class = c("proto", "environment"))
+}
+
+#' @export
+#' @rdname proto
+as.proto.proto <- function(x, ...) {
+  x
+}
+as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
+                          funEnvir = envir, SELECT = function(x) TRUE) {
+  if (missing(envir)) {
+    if (missing(parent))
+      parent <- parent.frame()
+    envir <- if (is.proto(parent))
+      parent$proto(...)
+    else
+      proto(parent, ...)
+  }
+  for (s in names(x))
+    if (SELECT(x[[s]])) {
+      assign(s, x[[s]], envir = envir)
+      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
+        environment(envir[[s]]) <- funEnvir
+    }
+  if (!missing(parent))
+    parent.env(envir) <- parent
+  as.proto.environment(envir)  # force refresh of .that and .super
+}
+
+#' @export
+"$<-.proto" <- function(this,s,value) {
+  if (s == ".super")
+    parent.env(this) <- value
+  if (is.function(value))
+    environment(value) <- this
+  this[[as.character(substitute(s))]] <- value
+  this
+}
+is.proto <- function(x) inherits(x, "proto")
+
+#' @export
+"$.proto" <- function(x, name) {
+  inherits <- substr(name, 1, 2) != ".."
+
+  res <- get(name, envir = x, inherits = inherits)
+  if (!is.function(res))
+    return(res)
+
+  if (deparse(substitute(x)) %in% c(".that", ".super"))
+    return(res)
+
+  structure(
+    function(...) res(x, ...),
+    class = "protoMethod",
+    method = res
+  )
+}
+
+#' @export
+print.protoMethod <- function(x, ...) {
+  cat("<ProtoMethod>\n")
+  print(attr(x, "method"), ...)
+}
+
+# modified from Tom Short's original
+#' @export
+str.proto <- function(object, max.level = 1, nest.lev = 0,
+                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
+                      ...) {
+  cat("proto", name.proto(object), "\n")
+  Lines <- utils::capture.output(utils::str(
+    as.list(object), max.level = max.level,
+    nest.lev = nest.lev, ...
+  ))[-1]
+  for (s in Lines)
+    cat(s, "\n")
+  if (is.proto(parent.env(object))) {
+    cat(indent.str, "parent: ", sep = "")
+    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
+  }
+}
+
+#' @export
+print.proto <- function(x, ...) {
+  if (!exists("proto_print", envir = x, inherits = TRUE))
+    return(NextMethod())
+
+  x$proto_print(...)
+}
+
+############# End proto function 
+        
+```   
+
+
+```{r}       
+############ Set path for output figures: ###############
+Figurespath <- paste0(getwd(), "/delta_mass/figures", collapse = NULL)
+Figurespath
+############ Set path for input & output data  ###########
+datapath <-  paste0(getwd(), "/data", collapse = NULL) 
+datapath
+
+```
+
+
+
+```{r}
+## Read data in
+
+mass_table <- as_tibble(read_csv("data/mass_table.csv"), #monthly 
+                                 col_types = (list(cols(age_yrs = col_double(),
+                                                        mean_mass = col_double(),
+                                                        sd_mass = col_double(),
+                                                        mean_lwr = col_double(),
+                                                        mean_upr = col_double(),
+                                                        quant025 = col_double(),
+                                                        quant975 = col_double(),
+                                                        female_mass = col_double(),
+                                                        male_mass = col_double()
+                                                        )
+                                                   )
+                                              )
+                                 )
+
+
+mass_at_birth_tibble <- mass_table %>% filter(age_yrs == 0)  #at birth
+
+mass_at_birth_mean <- mass_at_birth_tibble$mean_mass 
+mass_at_birth_sd <- mass_at_birth_tibble$sd_mass
+
+
+mass_at_weaning_tibble <- mass_table %>%  filter(round(age_yrs,2) == round((10/12),2))  #10th mth  i.e. 0.8333333
+
+mass_at_weaning_mean <-mass_at_weaning_tibble$mean_mass 
+mass_at_weaning_sd <-mass_at_weaning_tibble$sd_mass
+
+
+MC_reps = 10000
+
+mass_at_birth_reps <- rnorm(MC_reps, mass_at_birth_mean, mass_at_birth_sd)
+mass_at_weaning_reps <- rnorm(MC_reps, mass_at_weaning_mean, mass_at_weaning_sd)
+
+mass_change_lactation_reps <- mass_at_weaning_reps - mass_at_birth_reps
+
+masschange_lactation_mean <- mean(mass_change_lactation_reps)
+masschange_lactation_sd <- sd(mass_change_lactation_reps)
+
+masschange_lactation_mean
+masschange_lactation_sd
+
+
+
+
+
+```
+
+
+
