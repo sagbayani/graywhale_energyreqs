@@ -15,6 +15,7 @@ NOTE: This code will run for a long time.
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
 
 
 ## Setup
@@ -297,7 +298,6 @@ datapath <- paste0(getwd(), "/data", collapse = NULL)
 ```
 
 ```{r read data in}
-## Read data in
 
 #Read in predicted lengths from Agbayani et al. 2020
 gw_pred_lengths <- as_tibble(
@@ -320,6 +320,10 @@ gw_pred_lengths <- as_tibble(
   )
 )
 
+gw_pred_lengths <-gw_pred_lengths %>% 
+  filter(age_yrs <=1) %>% 
+  filter(row_number() <= n()-1) #remove duplicate row for age-yr==1
+
 #Read in predicted mass from mass_boostraps.Rmd
 gw_pred_mass <- as_tibble(
   read_csv("data/mass_table.csv"), #monthly 
@@ -337,6 +341,9 @@ gw_pred_mass <- as_tibble(
   )
   )
 )
+
+gw_pred_mass <-gw_pred_mass %>% 
+  filter(age_yrs <=1)
 
 #read in age table (months converted to decimal yr)
 age_yr_tibble <- as_tibble(
@@ -411,7 +418,7 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 1 mths
 
 # move age_yrs to first column
 MC_mass <- MC_mass %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs)
 
 MC_mass = MC_mass[-1,]
 
@@ -419,7 +426,10 @@ head(MC_mass)
 
 MC_mass_diffs <- NA
 
+######################################################
 #### Calculate mass change (not sex-specific)
+
+# Mass for newborn
 M_nb <- pred_mass %>% filter(age_yrs == 0) 
 
 for (i in seq(from = 1, to = MC_reps, by = 1)){
@@ -427,10 +437,10 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     colnumber = i
     colname = as.character(colnumber)
     
-    #mass_chg <- rnorm(1, M_nb$mean_mass, M_nb$sd_mass)     
+    #first row - Mass change from newborn   
     mass_chg <- MC_mass %>% 
         filter(age_yrs == 0) %>% 
-        dplyr::select(colname)
+        select(all_of(colname))
     delta_mass <- mass_chg 
     
     
@@ -438,7 +448,7 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     #names(delta_mass)[1] <- colname
     
     mass_column <- MC_mass %>% 
-        dplyr:: select(colname)     
+        select(all_of(colname))     
     
     str(mass_column)
     
@@ -456,33 +466,19 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
 
 
 MC_mass_diffs  <-  MC_mass_diffs %>% 
-    dplyr::select(-(MC_mass_diffs))
+    select(-MC_mass_diffs)
 
 names(MC_mass_diffs)[0] <-  "age_yrs"
 
-#add the age column and move to front
-#MC_mass_diffs$age_yrs <- MC_mass$age_yrs
-
-# MC_mass_diffs <- MC_mass_diffs %>%
-#   dplyr::select(age_yrs, everything())
-
-
-head(MC_mass_diffs)
-str(MC_mass_diffs)
-
+#transpose the table -- result is a matrix
 MC_mass_diffs <- t(MC_mass_diffs)
 
-#make ID the column name, then remove the unneeded row
-colnames(MC_mass_diffs) <- unlist(MC_mass_diffs[row.names(MC_mass_diffs)=='age_yrs',])
-MC_mass_diffs  <- MC_mass_diffs[!row.names(MC_mass_diffs)=='age_yrs',]
-    
-#turn matrix into data frame (need to include the t() to keep the matrix format)
-MC_mass_diffs_t <- MC_mass_diffs %>% as_tibble()
+#convert to tibble
+MC_mass_diffs_t <- as_tibble(MC_mass_diffs)
 
-head(MC_mass_diffs_t)
-str(MC_mass_diffs_t)
-
+#save calculated mass diffs to file
 MC_mass_diffs_t %>% write_csv("data/MC_mass_diffs_t.csv", na = "", append = FALSE)
+
 
 ####################################################################
 ##### Calulate mean  mass change (not sex-specific) across all columns (ages)
@@ -605,24 +601,16 @@ MC_female_mass_diffs  <-  MC_female_mass_diffs %>%
 #add the age column and move to front
 MC_female_mass_diffs$age_yrs <- MC_female_mass$age_yrs
 MC_female_mass_diffs <- MC_female_mass_diffs %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs)
 
-head(MC_female_mass_diffs)
-str(MC_female_mass_diffs)
 
+# transpose matrix of mass_diffs
 MC_female_mass_diffs <- t(MC_female_mass_diffs)
 
-#make ID the column name, then remove the unneeded row
-colnames(MC_female_mass_diffs) <- unlist(MC_female_mass_diffs[row.names(MC_female_mass_diffs)=='age_yrs',])
-MC_female_mass_diffs  <- MC_female_mass_diffs[!row.names(MC_female_mass_diffs)=='age_yrs',]
-    
-#turn matrix into data frame (need to include the t() to keep the matrix format)
+#convert to tibble
 MC_female_mass_diffs_t <- MC_female_mass_diffs %>% as_tibble()
 
-
-head(MC_female_mass_diffs_t)
-str(MC_female_mass_diffs_t)
-
+#save calculated mass diffs to file
 MC_female_mass_diffs_t %>% write_csv("data/MC_female_mass_diffs_t.csv", na = "", append = FALSE)
 
 
@@ -694,7 +682,7 @@ for (i in seq(from = 0, to = 12, by = 1)){  #step by 0.5 mths
 
 # move age_yrs to first column
 MC_male_mass <- MC_male_mass %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs)
 
 MC_male_mass = MC_male_mass[-1,]
 
@@ -742,31 +730,23 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
 MC_male_mass_diffs  <-  MC_male_mass_diffs %>% 
     dplyr::select(-(MC_male_mass_diffs))
 
-#add the age column and move to front
+# add the age column and move to front
 MC_male_mass_diffs$age_yrs <- MC_male_mass$age_yrs
 MC_male_mass_diffs <- MC_male_mass_diffs %>%
-  dplyr::select(age_yrs, everything())
+  relocate(age_yrs)
 
 
-head(MC_male_mass_diffs)
-str(MC_male_mass_diffs)
-
+# transpose table of mass diffs
 MC_male_mass_diffs <- t(MC_male_mass_diffs)
 
-#make ID the column name, then remove the unneeded row
-colnames(MC_male_mass_diffs) <- unlist(MC_male_mass_diffs[row.names(MC_male_mass_diffs)=='age_yrs',])
-MC_male_mass_diffs  <- MC_male_mass_diffs[!row.names(MC_male_mass_diffs)=='age_yrs',]
-    
-#turn matrix into data frame (need to include the t() to keep the matrix format)
+# convert to tibble
 MC_male_mass_diffs_t <- MC_male_mass_diffs %>% as_tibble()
 
-head(MC_male_mass_diffs_t)
-str(MC_male_mass_diffs_t)
-
+# save calculated mass diffs to file
 MC_male_mass_diffs_t %>% write_csv("data/MC_male_mass_diffs_t.csv", na = "", append = FALSE)
 
 
-#calculate mean mass changes across all columns (ages)
+# calculate mean mass changes across all columns (ages)
 mean_masschange_male <- MC_male_mass_diffs_t %>% summarise_all(funs(mean))
 
 kable(head(mean_masschange_male))

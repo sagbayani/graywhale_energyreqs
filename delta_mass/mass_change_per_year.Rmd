@@ -401,7 +401,7 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
         filter(age_yrs == 0) %>% 
         select(all_of(colname))
     
-    delta_mass_yr1 <- as.data.frame(mass_chg) 
+    delta_mass <- as.data.frame(mass_chg) 
     
     mass_column <- MC_mass %>% 
         select(all_of(colname))     
@@ -415,7 +415,7 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     #head(diffs_mass)
     #diffs_mass <- diffs_mass %>% slice(-1) #remove NA row
     
-    mass_chg <- rbind(delta_mass_yr1, diffs_mass) 
+    mass_chg <- rbind(delta_mass, diffs_mass) 
     #head(mass_chg)
     MC_mass_diffs <-cbind(MC_mass_diffs, mass_chg) 
 
@@ -533,11 +533,11 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     mass_chg_Female <- MC_mass %>% 
         dplyr::filter(age_yrs == 0) %>% 
         dplyr::select(all_of(colname))
-    delta_mass_yr1 <- mass_chg_Female 
+    delta_mass <- mass_chg_Female 
         
-    delta_mass_yr1 <- as.data.frame(mass_chg_Female) 
+    delta_mass <- as.data.frame(mass_chg_Female) 
     
-    #names(delta_mass_yr1)[1] <- colname
+    #names(delta_mass)[1] <- colname
     
     mass_column <- MC_female_mass %>% 
         dplyr:: select(all_of(colname))     
@@ -551,7 +551,7 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     #head(diffs_mass_Female)
     #diffs_mass_Female <- diffs_mass_Female %>% slice(-1) #remove NA row
     
-    mass_chg_Female <- rbind(delta_mass_yr1, diffs_mass_Female) 
+    mass_chg_Female <- rbind(delta_mass, diffs_mass_Female) 
     #head(mass_chg_Female)
     MC_female_mass_diffs <-cbind(MC_female_mass_diffs, mass_chg_Female) 
 
@@ -570,7 +570,8 @@ MC_female_mass_diffs_t <- as_tibble(MC_female_mass_diffs)
 #save calculated mass diffs to file
 MC_female_mass_diffs_t %>% write_csv("data/MC_female_mass_diffs_t_per_year.csv", na = "", append = FALSE)
 
-#calculate mean mass changes across all columns (ages)
+###################################################################
+##calculate mean mass changes across all columns (ages)
 mean_masschange_female <- MC_female_mass_diffs_t %>% summarise_all(list(mean))
 
 kable(head(mean_masschange_female))
@@ -663,7 +664,7 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
         filter(age_yrs == 0) %>% 
         select(all_of(colname))
     
-    delta_mass_yr1 <- mass_chg_male 
+    delta_mass <- mass_chg_male 
     
     
     delta_mass <- as.data.frame(mass_chg_male) 
@@ -680,28 +681,28 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     #head(diffs_mass_male)
     #diffs_mass_male <- diffs_mass_male %>% slice(-1) #remove NA row
     
-    mass_chg_male <- rbind(delta_mass_yr1, diffs_mass_male) 
+    mass_chg_male <- rbind(delta_mass, diffs_mass_male) 
     #head(mass_chg_male)
     MC_male_mass_diffs <-cbind(MC_male_mass_diffs, mass_chg_male) 
 
 }
 
-#Drop first column called MC_mass_diffs (all NA)
+# Drop first column called MC_mass_diffs (all NA)
 MC_male_mass_diffs  <-  MC_male_mass_diffs %>% 
     select(-MC_male_mass_diffs)
 
 # transpose matrix of mass_diffs
 MC_male_mass_diffs_t <- t(MC_male_mass_diffs)
 
-## transpose mass_diffs - t() will return matrix, convert to tibble
+# convert to tibble
 MC_male_mass_diffs_t <- as_tibble(MC_male_mass_diffs_t)
 
-
+#save calculated mass diffs to file
 MC_male_mass_diffs_t %>% write_csv("data/MC_male_mass_diffs_t_per_year.csv", na = "", append = FALSE)
 
 #MC_male_mass_diffs_t <- as_tibble(read_csv("data/MC_male_mass_diffs_t_per_year.csv"))
 
-#calculate mean mass changes across all columns (ages)
+# calculate mean mass changes across all columns (ages)
 mean_masschange_male <- MC_male_mass_diffs_t %>% summarise_all(list(mean))
 
 kable(head(mean_masschange_male))
