@@ -423,6 +423,7 @@ for (s in c("N/A", "Female", "Male")){
       pull(age_mth)
     
     set.seed(12345)
+    #rnorm - random normal distribution
     mean_masschange_i <- as_tibble(
       rnorm(MC_reps, mass_chg, sd), col.names = str(i))
     names(mean_masschange_i)[1] <- "mass_chg"
