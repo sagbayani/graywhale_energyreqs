@@ -1,8 +1,10 @@
 ---
 title: "Vt - Tidal Volume (in L)"
-author: "S. Agbayani"
-date: "Jan 19, 2021"
-output: github_document
+author: "Selina Agbayani"
+date: "Jan 19, 2021, updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document: default
+  github_document: default
 editor_options: 
   chunk_output_type: console
 ---
@@ -11,6 +13,7 @@ editor_options:
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
+#knitr::opts_chunk$set(warning = FALSE)
 
 
 ## Setup
@@ -329,7 +332,7 @@ The relationship between Mass and tidal volume: Vt = 0.014 x Mass^1.04  (Sumich 
 
 ```{r}
 
-# Mean Mass
+# Calculate Mean Mass for all ages (Phase 1 and 2) - not including pregnant whales
 MC_reps <- 10000
 
 kable(gw_pred_mass)

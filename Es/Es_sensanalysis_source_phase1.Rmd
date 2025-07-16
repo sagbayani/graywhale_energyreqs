@@ -1,14 +1,16 @@
 ---
 title: "Es - Sensitivity Analysis - source - Phase 1"
 author: "S. Agbayani"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: "02 March 2022 - code updated on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   github_document:
   html_document:
-  pdf_document:
+  
 editor_options: 
   chunk_output_type: console
 ---
+
+NOTE - this code will run for a long time.
 
 ```{r setup, include=FALSE}
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
@@ -31,7 +33,7 @@ knitr::opts_chunk$set(error = TRUE)
 # install.packages("ggpmisc")
 # install.packages("extrafont")
 #install.packages("truncnorm")
-
+#install.packages("grid")
 
 
 library(tidyverse)
@@ -48,10 +50,358 @@ library(ggpmisc)
 library(reshape2)
 library(extrafont)
 library(truncnorm)
+library(grid)
 
-source("functions.R")
+#source("functions.R")
 
 ```
+
+
+```{r declare functions and global variables, include=FALSE}
+
+# **Declare custom functions and global variables**
+########## Specify Decimal function ############################
+# 
+# For use in labelling the plots with equations, and rounding up the coefficients
+# to a specific no. of decimal places
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+
+############ Multiple plot function######################
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
+# If you find any errors, please email winston@stdout.org
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+########### functions used for carry out the fit ########
+
+## this function is avaible in: 
+# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
+# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
+
+##### as.lm function: ######
+
+        as.lm <- function(object, ...) UseMethod("as.lm")
+
+        as.lm.nls <- function(object, ...) {
+            if (!inherits(object, "nls")) {
+                w <- paste("expected object of class nls but got object of class:", 
+                    paste(class(object), collapse = " "))
+                warning(w)
+            }
+
+            gradient <- object$m$gradient()
+            if (is.null(colnames(gradient))) {
+                colnames(gradient) <- names(object$m$getPars())
+            }
+
+            response.name <- if (length(formula(object)) == 2) "0" else 
+                as.character(formula(object)[[2]])
+
+            lhs <- object$m$lhs()
+            L <- data.frame(lhs, gradient)
+            names(L)[1] <- response.name
+
+            fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+            fo <- as.formula(fo, env = as.proto.list(L))
+
+            do.call("lm", list(fo, offset = substitute(fitted(object))))
+
+        }
+
+############## End as.lm function 
+
+
+
+############### proto function: ############
+#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
+
+proto <- function(. = parent.env(envir), expr = {},
+                   envir = new.env(parent = parent.frame()), ...,
+                   funEnvir = envir) {
+  parent.env(envir) <- .
+  envir <- as.proto.environment(envir)  # must do this before eval(...)
+  # moved eval after for so that ... always done first
+  # eval(substitute(eval(quote({ expr }))), envir)
+  dots <- list(...); names <- names(dots)
+  for (i in seq_along(dots)) {
+    assign(names[i], dots[[i]], envir = envir)
+    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
+      environment(envir[[names[i]]]) <- funEnvir
+  }
+  eval(substitute(eval(quote({
+    expr
+  }))), envir)
+  if (length(dots))
+    as.proto.environment(envir)
+  else
+    envir
+}
+
+#' @export
+#' @rdname proto
+as.proto <- function(x, ...) {
+  UseMethod("as.proto")
+}
+
+#' @export
+#' @rdname proto
+as.proto.environment <- function(x, ...) {
+  assign(".that", x, envir = x)
+  assign(".super", parent.env(x), envir = x)
+  structure(x, class = c("proto", "environment"))
+}
+
+#' @export
+#' @rdname proto
+as.proto.proto <- function(x, ...) {
+  x
+}
+as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
+                          funEnvir = envir, SELECT = function(x) TRUE) {
+  if (missing(envir)) {
+    if (missing(parent))
+      parent <- parent.frame()
+    envir <- if (is.proto(parent))
+      parent$proto(...)
+    else
+      proto(parent, ...)
+  }
+  for (s in names(x))
+    if (SELECT(x[[s]])) {
+      assign(s, x[[s]], envir = envir)
+      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
+        environment(envir[[s]]) <- funEnvir
+    }
+  if (!missing(parent))
+    parent.env(envir) <- parent
+  as.proto.environment(envir)  # force refresh of .that and .super
+}
+
+#' @export
+"$<-.proto" <- function(this,s,value) {
+  if (s == ".super")
+    parent.env(this) <- value
+  if (is.function(value))
+    environment(value) <- this
+  this[[as.character(substitute(s))]] <- value
+  this
+}
+is.proto <- function(x) inherits(x, "proto")
+
+#' @export
+"$.proto" <- function(x, name) {
+  inherits <- substr(name, 1, 2) != ".."
+
+  res <- get(name, envir = x, inherits = inherits)
+  if (!is.function(res))
+    return(res)
+
+  if (deparse(substitute(x)) %in% c(".that", ".super"))
+    return(res)
+
+  structure(
+    function(...) res(x, ...),
+    class = "protoMethod",
+    method = res
+  )
+}
+
+#' @export
+print.protoMethod <- function(x, ...) {
+  cat("<ProtoMethod>\n")
+  print(attr(x, "method"), ...)
+}
+
+# modified from Tom Short's original
+#' @export
+str.proto <- function(object, max.level = 1, nest.lev = 0,
+                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
+                      ...) {
+  cat("proto", name.proto(object), "\n")
+  Lines <- utils::capture.output(utils::str(
+    as.list(object), max.level = max.level,
+    nest.lev = nest.lev, ...
+  ))[-1]
+  for (s in Lines)
+    cat(s, "\n")
+  if (is.proto(parent.env(object))) {
+    cat(indent.str, "parent: ", sep = "")
+    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
+  }
+}
+
+#' @export
+print.proto <- function(x, ...) {
+  if (!exists("proto_print", envir = x, inherits = TRUE))
+    return(NextMethod())
+
+  x$proto_print(...)
+}
+
+############# End proto function 
+
+############ PredictNLS - for confidence intervals  ##########
+# Source: https://rmazing.wordpress.com/2013/08/14/predictnls-part-1-monte-carlo-simulation-confidence-intervals-for-nls-models/
+
+predictNLS <- function(object,newdata,level = 0.95, nsim = 10000,
+                       ...){
+    require(MASS, quietly = TRUE)
+    ## get right-hand side of formula
+    RHS <- as.list(object$call$formula)[[3]]
+    EXPR <- as.expression(RHS)
+   
+    ## all variables in model
+    VARS <- all.vars(EXPR)
+   
+    ## coefficients
+    COEF <- coef(object)
+   
+    ## extract predictor variable    
+    predNAME <- setdiff(VARS, names(COEF))  
+   
+    ## take fitted values, if 'newdata' is missing
+    if (missing(newdata)) {
+        newdata <- eval(object$data)[predNAME]
+        colnames(newdata) <- predNAME
+        }
+       
+    ## check that 'newdata' has same name as predVAR
+    if (names(newdata)[1] != predNAME) stop("newdata should have name '",
+                                            predNAME, "'!")
+   
+    ## get parameter coefficients
+    COEF <- coef(object)
+     
+    ## get variance-covariance matrix
+    VCOV <- vcov(object)
+   
+    ## augment variance-covariance matrix for 'mvrnorm' 
+    ## by adding a column/row for 'error in x'
+    NCOL <- ncol(VCOV)
+    ADD1 <- c(rep(0, NCOL))
+    ADD1 <- matrix(ADD1, ncol = 1)
+    colnames(ADD1) <- predNAME
+    VCOV <- cbind(VCOV, ADD1)
+    ADD2 <- c(rep(0, NCOL + 1))
+    ADD2 <- matrix(ADD2, nrow = 1)
+    rownames(ADD2) <- predNAME
+    VCOV <- rbind(VCOV, ADD2) 
+         
+    ## iterate over all entries in 'newdata' as in usual 'predict.' functions
+    NR <- nrow(newdata)
+    respVEC <- numeric(NR)
+    seVEC <- numeric(NR)
+    varPLACE <- ncol(VCOV)   
+   
+    ## define counter function
+    counter <- function (i) {
+        if (i%%10 == 0) 
+            cat(i)
+        else cat(".")
+        if (i%%50 == 0) 
+            cat("\n")
+        flush.console()
+        }
+   
+    outMAT <- NULL 
+   
+    for (i in 1:NR) {
+        counter(i)
+        ## get predictor values and optional errors
+    predVAL <- newdata[i, 1]
+    if (ncol(newdata) == 2) predERROR <- newdata[i, 2] else predERROR <- 0
+    names(predVAL) <- predNAME  
+    names(predERROR) <- predNAME  
+     
+    ## create mean vector for 'mvrnorm'
+    MU <- c(COEF, predVAL)
+     
+    ## create variance-covariance matrix for 'mvrnorm'
+    ## by putting error^2 in lower-right position of VCOV
+    newVCOV <- VCOV
+    newVCOV[varPLACE, varPLACE] <- predERROR^2
+     
+    ## create MC simulation matrix
+    simMAT <- mvrnorm(n = nsim, mu = MU, Sigma = newVCOV, empirical = TRUE)
+     
+    ## evaluate expression on rows of simMAT
+    EVAL <- try(eval(EXPR, envir = as.data.frame(simMAT)), silent = TRUE)
+    if (inherits(EVAL, "try-error")) stop("There was an error evaluating the simulations!")
+     
+    ## collect statistics
+    PRED <- data.frame(predVAL)
+    colnames(PRED) <- predNAME   
+    FITTED <- predict(object, newdata = data.frame(PRED))
+    MEAN.sim <- mean(EVAL, na.rm = TRUE)
+    SD.sim <- sd(EVAL, na.rm = TRUE)
+    MEDIAN.sim <- median(EVAL, na.rm = TRUE)
+    MAD.sim <- mad(EVAL, na.rm = TRUE)  #median absolute deviation
+    QUANT <- quantile(EVAL, c((1 - level)/2, level + (1 - level)/2))
+    RES <- c(FITTED, MEAN.sim, SD.sim, MEDIAN.sim, MAD.sim, QUANT[1], QUANT[2])
+    outMAT <- rbind(outMAT, RES)
+  }
+   
+  colnames(outMAT) <- c("fit", "mean", "sd", "median", "mad", names(QUANT[1]), names(QUANT[2]))
+  rownames(outMAT) <- NULL
+   
+  cat("\n")
+   
+  return(outMAT)  
+}
+
+##########end PredictNLS ##########
+
+        
+```   
+
+
+
 
 ```{r setpaths}
 ############ Set path for output figures: ###############
@@ -120,44 +470,29 @@ age_yr_tibble <- as_tibble(
 
 ```
 
-Es - Total metabolic energy expenditure at a given stage 0.02 - Amount of heat produced in MJ/L O2 consumed (Kleiber 1961)  
-%O2 - Extraction efficiency per breath Ts - The no. of days in that stage Rs - Respiration rate (breaths/day) Vt - Tidal lung volume (L)
-
+Total metabolic energy expenditure at a given stage (E~s~) 
 ------------------------------------------------------------------------
 
-Es = 0.02 x %O2 x Ts x Rs x Vt - Sumich (1986)
+E~s~ = 0.02 x %O~2~ x T~s~ x R~s~ x V~t~ - Sumich (1986)
+
+where:  
+
+0.02 - Amount of heat produced in MJ/L O2 consumed (Kleiber 1961)  
+%O~2~ - Extraction efficiency per breath  
+T~s~ - The no. of days in that stage  
+R~s~ - Respiration rate (breaths/day)  
+V~t~ - Tidal lung volume (L)  
+
+
 
 ```{r Es_phase1_sensAnalysis}
 
 Lifestage <-  "Calf"
 
-A_cost_reference_calf <- A_cost_reference %>% filter(Lifestage == "Calf")
-
-A_cost_calf <-  A_cost_reference_calf %>%
-  dplyr::select(Lifestage, Activity_stages, age_yrs, no_days, bpm, se_bpm) %>%
+#Pull respiration rate data for calves from Activity Cost Reference (A_cost_Reference) table 
+A_cost_calf <-  A_cost_reference %>%
+  select(Lifestage, Activity_stages, age_yrs, no_days, bpm, se_bpm) %>%
   filter(Lifestage == "Calf")  
-
-# for (i in seq(from = 1, to = 12, by = 1)){
-#   
-#     age <- age_yr_tibble %>% dplyr::filter(age_mth == i) %>%  pull(age_yrs)  
-#     age_yrs <- A_cost_calf$age_yrs
-#     A_cost_tibble <- A_cost_calf %>% dplyr::filter(round(age_yrs,3) == round(age,3))
-#     act <- A_cost_tibble$Activity_stages
-#     no_days_i <- sum(A_cost_tibble$no_days)
-#     bpm_i <- A_cost_tibble$bpm
-#     se_bpm_i <- A_cost_tibble$se_bpm
-#     
-#     
-#     row <- tibble(Lifestage = Lifestage,
-#                   Activity_stages = act,
-#                   age_yrs = age,
-#                   no_days = no_days_i,
-#                   bpm = bpm_i,
-#                   se_bpm = se_bpm_i
-#     )
-#     
-#     A_cost_calf <- rbind(A_cost_calf, row)
-#   }
 
 
 kable(A_cost_calf)
@@ -207,25 +542,26 @@ Es_sensAnalysis_phase1 <-
 
 
 
+#Original code was run with MC_reps <- 10000  and took a very long time
+#To test and explore the code, use less reps 
 
-
-MC_reps = 10000
+MC_reps = 10
 
 for (a in seq(from = 1, to = 12, by = 1)){
   for (MC_var in c("all","Rs", "Vt", "pctO2")){
     
     age_yrs_i <- age_yr_tibble %>% 
-      dplyr::filter(age_mth == a)  %>% 
+     filter(age_mth == a)  %>% 
       pull(age_yrs)
     
     age_mid_i <- age_yr_tibble %>% 
-      dplyr::filter(age_mth == a-0.5) %>% 
+      filter(age_mth == a-0.5) %>% 
       pull(age_yrs)
     
     #Lifestage <-  "Calf"
     
     strcolname <- as.character(age_yrs_i)
-    A_cost_calf_i <- dplyr::filter(A_cost_calf, 
+    A_cost_calf_i <- filter(A_cost_calf, 
                                    round(A_cost_calf$age_yrs*12) == a)
     
     if (nrow(A_cost_calf_i) == 0) {
@@ -255,7 +591,7 @@ for (a in seq(from = 1, to = 12, by = 1)){
         
         
         #plot(pct_O2)
-        #No. of days at each age
+        #No. of days at each age (in months)
         no_days_i <-  A_cost_i$no_days   
         
         #Respiration rates at each activity stage 
@@ -278,7 +614,7 @@ for (a in seq(from = 1, to = 12, by = 1)){
         
         for (i in seq(from = 1, to = MC_reps, by = 1)){
           
-          #sample from lognormal distribution
+          #generate lognormal distribution of breaths per minute (bpm)
           bpm <- rlnorm(MC_reps, meanlog_bpm_i, meanlog_bpm_sd_i)  
           # draws <- rlnorm(n=1000000, location, shape)
           # https://msalganik.wordpress.com/2017/01/21/making-sense-of-the-rlnorm-function-in-r/
@@ -297,20 +633,7 @@ for (a in seq(from = 1, to = 12, by = 1)){
         
         mean_bpm_reps <- bpm_tibble$mean_bpm
         
-        # breath_hold_time <- 1/mean_bpm_reps
-        # #plot(breath_hold_time)
-        # mean(breath_hold_time)
-        # sd(breath_hold_time)
-        # 
-        # #breaths per day
-        # bpd <- 1440/breath_hold_time
-        # mean(bpd)
-        # sd(bpd)
-        # #plot(bpd)
-        
-        #other option - truncated normal distribution
-        #bpm <- rtruncnorm(MC_reps, a=0, b=Inf, mean=bpm_i, sd=bpm_sd_i)
-        
+
         # breaths/day
         bpd <- mean_bpm_reps * 60 * 24
         # plot(bpd)
@@ -323,8 +646,8 @@ for (a in seq(from = 1, to = 12, by = 1)){
         }
         
         
-        #tidal volume (mass dependent)
-        Vt_table_i <- dplyr::filter(
+        #pull in tidal volume estimates (mass dependent)
+        Vt_table_i <- filter(
           Vt_table_phase1, 
           round(Vt_table_phase1$age_yrs,digits = 3) == round(age_mid_i,digits =3)
         )
@@ -338,6 +661,7 @@ for (a in seq(from = 1, to = 12, by = 1)){
         }
         
         set.seed(12345)
+        #generate normal distribution of Vt estimates
         Vt <- rnorm(MC_reps, Vt_i, Vt_sd_i)
         Vt_mean_i <- mean(Vt)
         Vt_sd_i <- sd(Vt)
@@ -365,7 +689,7 @@ for (a in seq(from = 1, to = 12, by = 1)){
         }
         
         
-        
+        #generate normal distribution of pct_O2
         pct_O2 <- rnorm(MC_reps, pct_O2_i, pct_O2_sd_i)  
         
         
@@ -378,7 +702,7 @@ for (a in seq(from = 1, to = 12, by = 1)){
         Es_perday_quant025 <- quantile(Es_perday, 0.025, na.rm = TRUE)
         Es_perday_quant975 <- quantile(Es_perday, 0.975, na.rm = TRUE)
         
-        #Energettic expenditure per month
+        #Energetic expenditure per month
         Es = Es_perday * no_days_i
         #plot(Es)
         Es_mean = mean(Es)
@@ -407,8 +731,9 @@ for (a in seq(from = 1, to = 12, by = 1)){
                       Es_quant025 = Es_quant025, 
                       Es_quant975 = Es_quant975)
         
+        # append new row of data to Es_sensAnalysis_phase1
         Es_sensAnalysis_phase1 <- rbind(Es_sensAnalysis_phase1, row)
-        row <-  NA
+        row <-  NA #reset row for next iteration
         
       } 
     }
@@ -418,37 +743,19 @@ for (a in seq(from = 1, to = 12, by = 1)){
 
 
 
-kable(Es_sensAnalysis_phase1)
+kable(head(Es_sensAnalysis_phase1))
 
+#save Es_sensAnalysis_phase1 table
 Es_sensAnalysis_phase1 %>% write_csv("data/Es_sensAnalysis_phase1_source_bpm.csv", na = "", append = FALSE)
 
 ```
 
-```{r plots_Es_phase1_stacked}
-
-# plot_Es_table_phase1 <- Es_table_phase1 %>% 
-#   ggplot(aes(x = age_yrs, y = Es))+
-#   geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
-#                 colour = "blue", width = 0.02)+
-#   geom_point()+
-#   ggtitle("Es table - phase 1")
-# 
-# plot_Es_table_phase1
-
-
-
-```
 
 ```{r Es_phase1_permth}
 Es_sensAnalysis_phase1$age_mth <- 
   round(Es_sensAnalysis_phase1$age_yrs *12)
 
 Es_sensAnalysis_phase1_permth <- Es_sensAnalysis_phase1
-
-
-
-# Es_table_phase1_permth$Es_perday <- Es_table_phase1_permth$Es / Es_table_phase1_permth$no_days
-# Es_table_phase1_permth$Es_sd_perday <- Es_table_phase1_permth$Es_sd / Es_table_phase1_permth$no_days
 
 
 #pull out blank Es_subtable
@@ -476,7 +783,7 @@ for (i in seq(from = 1, to = 12, by = 1)){
     
     sum_of_variances <- 0
     for (row in 1:nrow(Es_subtable)){
-      #for (i in c( 0.33, 0.42, 0.5)){ 
+     
       Es_subtable_i <- Es_subtable[row, "Es"]
       Es_sd_i <- Es_subtable[row, "Es_sd"]
       sum_of_variances <- sum_of_variances + (Es_sd_i)^2
@@ -503,7 +810,7 @@ for (i in seq(from = 1, to = 12, by = 1)){
 
 
 
-Es_sensAnalysis_phase1_permth
+kable(head(Es_sensAnalysis_phase1_permth))
 
 
 
@@ -511,7 +818,9 @@ Es_sensAnalysis_phase1_permth %>% write_csv("data/Es_sensAnalysis_phase1_permth_
 
 ```
 
-```{r plots_Es_phase1_permth}
+E~s~ per month - Phase 1 - plot from sensitivity analysis
+
+```{r plots_Es_phase1_permth, echo=FALSE}
 Es_sensAnalysis_phase1_permth$MC_var_factor <- 
   factor(Es_sensAnalysis_phase1_permth$MC_variable, 
          levels=c("all","Rs", "Vt", "pctO2"))
@@ -522,7 +831,6 @@ names(MC_var_factor.labs) <- c("all","Rs", "Vt", "pctO2")
 
 
 plot_Es_sensAnalysis_phase1_permth <- Es_sensAnalysis_phase1_permth %>% 
-  #dplyr::filter(age_yrs == i) %>% 
   ggplot(aes(x = age_mth-0.5, y =Es)) +
   geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
                 linetype = 3, colour = 'gray40', width = 0) +
@@ -532,76 +840,31 @@ plot_Es_sensAnalysis_phase1_permth <- Es_sensAnalysis_phase1_permth %>%
   xlab("Age (months)") +
   ylab(bquote('Energetic expenditure (MJ)')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 11))+ 
-  #limits = c(0, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(label = comma, 
                      breaks = scales::pretty_breaks(n = 10)
-                     #limits = c(0,1500)
+                     
                      ) +
   theme_bw()+
   theme(panel.grid = element_blank())+
+  theme(panel.spacing = unit(1, "lines"))+
   theme(strip.background = element_rect(
     color="black", fill="transparent"))+
   theme(axis.title.x = element_text(size = rel(1.4),
                                     colour = "black"))+
   theme(axis.title.y = element_text(size = rel(1.4),
                                     colour = "black"))+
-  theme(axis.text = element_text(size = rel(1.2),
+  theme(axis.text = element_text(size = rel(1.0),
                                  colour = "black"))  
-#ggtitle("Es table Phase 1 - per mth")
 
 plot_Es_sensAnalysis_phase1_permth
 
 
-plot_Es_sensAnalysis_phase1_permth_black <- Es_sensAnalysis_phase1_permth %>% 
-  #dplyr::filter(age_yrs == i) %>% 
-  ggplot(aes(x = age_mth-0.5, y =Es)) +
-  geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
-                linetype = 3, colour = 'white', width = 0, size = 1) +
-  geom_point(colour = "white", size = 3) +
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
-  xlab("Age (months)") +
-  ylab(bquote('Energetic expenditure (MJ)')) +
-  
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 11))+ 
-  #limits = c(0, 30)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(label = comma, 
-                     breaks = scales::pretty_breaks(n = 10)
-                     #limits = c(0,500)
-                     )+
-  #scale_y_continuous(label = function(x){(x/1000)}, breaks = scales::pretty_breaks(n = 8), 
-  
-  theme_bw()+
-  theme(panel.spacing = unit(0.6, "lines"))+
-  theme(strip.background = element_rect(
-    color="white", fill="black"))+
-   theme(strip.text = element_text(colour = 'white'))+
-  theme(panel.grid = element_blank()) +
-  theme(legend.position = "none") +
-  theme(legend.background = element_rect(fill = "black")) +
-  theme(legend.text = element_text(colour = "white", 
-                                   size = rel(1))) +
-  theme(legend.key = element_rect(fill = "transparent")) + 
-  theme(plot.background = element_rect(fill = "black", colour = NA)) + 
-  theme(panel.background = element_rect(fill = "black")) + 
-  theme(panel.border = element_rect(colour = "white")) +
-  theme(axis.line = element_line(#size = 1, 
-                                 colour = "white")) +
-  theme(axis.text = element_text(colour = "white", 
-                                 size = rel(1))) + 
-  theme(axis.title.y = element_text(colour = "white", 
-                                    size = rel(1.2), 
-                                    angle = 90)) +
-  theme(axis.title.x = element_text(colour = "white", 
-                                    size = rel(1.2))) +
-  theme(axis.ticks = element_line(colour="white"))
-
-
-plot_Es_sensAnalysis_phase1_permth_black
 
 ```
 
-```{r plots_Es_phase1_mthly_perday}
+E~s~ per day at each age (month) - Phase 1 - plot from sensitivity analysis
+
+```{r plots_Es_phase1_mthly_perday, echo=FALSE}
 
 
 plot_Es_sensAnalysis_phase1_mthly_perday <- Es_sensAnalysis_phase1_permth %>% 
@@ -614,71 +877,23 @@ plot_Es_sensAnalysis_phase1_mthly_perday <- Es_sensAnalysis_phase1_permth %>%
   xlab("Age (months)") +
   ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 6))+ 
-  #limits = c(0, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(label = comma, 
                      breaks = scales::pretty_breaks(n = 10)
-                     #limits = c(0,1500)
-                     ) +
+                    ) +
   theme_bw()+
   theme(panel.grid = element_blank())+
+  theme(panel.spacing = unit(1, "lines"))+
   theme(strip.background = element_rect(
     color="black", fill="transparent"))+
   theme(axis.title.x = element_text(size = rel(1.4),
                                     colour = "black"))+
   theme(axis.title.y = element_text(size = rel(1.4),
                                     colour = "black"))+
-  theme(axis.text = element_text(size = rel(1.2),
+  theme(axis.text = element_text(size = rel(1.0),
                                  colour = "black"))  
 
 plot_Es_sensAnalysis_phase1_mthly_perday
 
-
-plot_Es_sensAnalysis_phase1_mthly_perday_black <-  Es_sensAnalysis_phase1_permth %>% 
-  #dplyr::filter(age_yrs == i) %>% 
-  ggplot(aes(x = age_mth-0.5, y =Es_perday)) +
-  geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                linetype = 3, colour = 'white', width = 0, size = 1) +
-  geom_point(colour = "white", size = 3) +
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
-  xlab("Age (months)") +
-  ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
-  
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 6))+ 
-  #limits = c(0, 30)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(label = comma, 
-                     breaks = scales::pretty_breaks(n = 10)
-                     #limits = c(0,500)
-                     )+
-  #scale_y_continuous(label = function(x){(x/1000)}, breaks = scales::pretty_breaks(n = 8), 
-  
-  theme_bw()+
-  theme(panel.spacing = unit(0.6, "lines"))+
-  theme(strip.background = element_rect(
-    color="white", fill="black"))+
-   theme(strip.text = element_text(colour = 'white'))+
-  theme(panel.grid = element_blank()) +
-  theme(legend.position = "none") +
-  theme(legend.background = element_rect(fill = "black")) +
-  theme(legend.text = element_text(colour = "white", 
-                                   size = rel(1))) +
-  theme(legend.key = element_rect(fill = "transparent")) + 
-  theme(plot.background = element_rect(fill = "black", colour = NA)) + 
-  theme(panel.background = element_rect(fill = "black")) + 
-  theme(panel.border = element_rect(colour = "white")) +
-  theme(axis.line = element_line(#size = 1, 
-                                 colour = "white")) +
-  theme(axis.text = element_text(colour = "white", 
-                                 size = rel(1))) + 
-  theme(axis.title.y = element_text(colour = "white", 
-                                    size = rel(1.2), 
-                                    angle = 90)) +
-  theme(axis.title.x = element_text(colour = "white", 
-                                    size = rel(1.2))) +
-  theme(axis.ticks = element_line(colour="white"))
-
-
-plot_Es_sensAnalysis_phase1_mthly_perday_black
 
 
 ```
