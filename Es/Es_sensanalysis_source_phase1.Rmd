@@ -1,6 +1,6 @@
 ---
-title: "Es - Sensitivity Analysis - source - Phase 1"
-author: "S. Agbayani"
+title: "Energy Expenditure (Es) Sensitivity Analysis - Phase 1"
+author: "Selina Agbayani"
 date: "02 March 2022 - code updated on `r format(Sys.time(), '%d %B, %Y')`"
 output:
   github_document:
@@ -452,7 +452,7 @@ A_cost_reference <- as_tibble(
   )
 )
 
-kable(A_cost_reference)
+kable(head(A_cost_reference))
 
 age_yr_tibble <- as_tibble(
   read_csv("data/age_yr_tibble.csv"), 

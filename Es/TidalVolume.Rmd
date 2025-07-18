@@ -13,7 +13,7 @@ editor_options:
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
-#knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
 
 
 ## Setup
@@ -285,9 +285,9 @@ print.proto <- function(x, ...) {
 ```   
 
 
-```{r}       
+```{r set output paths}       
 ############ Set path for output figures: ###############
-Figurespath <- paste0(getwd(), "/figures", collapse = NULL)
+Figurespath <- paste0(getwd(), "/Es/figures", collapse = NULL)
 
 ############ Set path for input & output data  ###########
 datapath <- paste0(getwd(), "/data", collapse = NULL) 
@@ -296,7 +296,7 @@ datapath <- paste0(getwd(), "/data", collapse = NULL)
 ```
 
 
-```{r}
+```{r read in data}
 #read in mths version of mass estimates
 gw_pred_mass <- as_tibble(read_csv("data/mass_table.csv"),
                                  col_types = (list(cols(age_yrs = col_double(),
@@ -330,10 +330,13 @@ age_yr_tibble <- as_tibble(
 
 The relationship between Mass and tidal volume: Vt = 0.014 x Mass^1.04  (Sumich 1986)
 
-```{r}
-
+```{r Vt phase 1}
 # Calculate Mean Mass for all ages (Phase 1 and 2) - not including pregnant whales
-MC_reps <- 10000
+
+#Original code was run with MC_reps <- 10000  
+#and took a very long time
+#To test and explore the code, use less reps 
+MC_reps <- 10
 
 kable(gw_pred_mass)
 
@@ -403,4 +406,495 @@ kable(head(Vt_table_phase1))
 Vt_table_phase1 %>% write_csv("data/Vt_table_phase1.csv", na = "", append = FALSE)
 kable(Vt_table_phase1)
 
+```
 
+
+```{r Vt phase 1 - female}
+################################ Vt Phase 1 - female  #########################################
+
+pred_mass <- gw_pred_mass %>% 
+    dplyr::select(age_yrs, female_mass, sd_mass)
+
+Vt_table_phase1_f <- as.data.frame(matrix(ncol = 6, nrow = 0))
+
+cnames <- c("age_mth", "age_yrs", "Vt_mean_f", "Vt_sd_f",  
+            "quant025_f", "quant975_f"        #2.5% and 97.5% quantile from bootstrap estimates 
+            )            
+
+colnames(Vt_table_phase1_f) <- cnames
+
+Vt_table_phase1_f <- as_tibble(Vt_table_phase1_f,
+                                 col_types = (list(ID = col_integer(),
+                                                   #age_mth = col_double(),
+                                                   age_yrs = col_double(),
+                                                   Vt_mean_f = col_double(),
+                                                   Vt_sd_f = col_double(),
+                                                   quant025_f = col_double(),
+                                                   quant975_f = col_double()
+                                                   )
+                                              )
+                                 )
+
+
+
+#for (i in seq(from = 0, to = 75, by = 0.25)){
+#for (i in c(0.00, 0.08, 0.17, 0.25, 0.33, 0.42, 0.5, 0.58, 0.67, 0.75, 0.83, 0.92)){
+for (i in seq(from= 0, to = 12, by = 1)){
+    
+    age_tibble <- age_yr_tibble %>% filter(age_mth == i)  
+    age <- age_tibble$age_yrs   #calculate age_yrs (do not round up)
+    
+    strcolname <- as.character(age)
+        
+    pred_mass_i <- pred_mass %>% filter(round(age_yrs,3) == round(age,3))
+    
+    mass <- pred_mass_i$female_mass
+    sd <- pred_mass_i$sd_mass
+        
+    mass_i <- rnorm(MC_reps, mass, sd)
+    
+    #Calculate Tidal Volume using Sumich eqn 
+    Vt_i <- 0.014 * mass_i^1.04  
+    
+    mean_Vt_i <- mean(Vt_i)    
+    sd_Vt_i <- sd(Vt_i)
+    quant025 <- quantile(Vt_i, 0.025, na.rm = TRUE)
+    quant975 <- quantile(Vt_i, 0.975, na.rm = TRUE)
+    
+    
+    row <- tibble(    age_yrs = age, 
+                      Vt_mean_f = mean_Vt_i, 
+                      Vt_sd_f = sd_Vt_i, 
+                      quant025_f = quant025, 
+                      quant975_f = quant975)
+    
+    Vt_table_phase1_f <- rbind(Vt_table_phase1_f, row)
+    
+
+    
+    
+   
+}
+
+
+kable(head(Vt_table_phase1_f))
+Vt_table_phase1_f %>% write_csv("data/Vt_table_phase1_f.csv", na = "", append = FALSE)
+kable(tail(Vt_table_phase1_f))
+
+
+```
+
+
+```{r Vt phase 1 - male}
+################################ Vt Phase 1 - male ######################################
+
+pred_mass <- gw_pred_mass %>% 
+    dplyr::select(age_yrs, male_mass, sd_mass)
+
+Vt_table_phase1_m <- as.data.frame(matrix(ncol = 6, nrow = 0))
+
+cnames <- c("age_mth", "age_yrs", "Vt_mean_m", "Vt_sd_m",  
+            "quant025_m", "quant975_m"        #2.5% and 97.5% quantile from bootstrap estimates 
+            )            
+
+colnames(Vt_table_phase1_m) <- cnames
+
+Vt_table_phase1_m <- as_tibble(Vt_table_phase1_m,
+                                 col_types = (list(ID = col_integer(),
+                                                   age_mth = col_double(),
+                                                   age_yrs = col_double(),
+                                                   Vt_mean_f = col_double(),
+                                                   Vt_sd_f = col_double(),
+                                                   quant025_f = col_double(),
+                                                   quant975_f = col_double()
+                                                   )
+                                              )
+                                 )
+
+
+
+#for (i in seq(from = 0, to = 75, by = 0.25)){
+#for (i in c(0.00, 0.08, 0.17, 0.25, 0.33, 0.42, 0.5, 0.58, 0.67, 0.75, 0.83, 0.92)){
+for (i in seq(from= 0, to = 12, by = 1)){
+      
+    
+    age_tibble <- age_yr_tibble %>% filter(age_mth == i)  
+    age <- age_tibble$age_yrs   #calculate age_yrs (do not round up)
+    
+    strcolname <- as.character(age)
+        
+    pred_mass_i <- pred_mass %>% filter(round(age_yrs,3) == round(age,3))
+    
+    mass <- pred_mass_i$male_mass
+    sd <- pred_mass_i$sd_mass
+        
+    mass_i <- rnorm(MC_reps, mass, sd)
+    
+    #Calculate Tidal Volume using Sumich eqn 
+    Vt_i <- 0.014 * mass_i^1.04  
+    
+    mean_Vt_i <- mean(Vt_i)    
+    sd_Vt_i <- sd(Vt_i)
+    quant025 <- quantile(Vt_i, 0.025, na.rm = TRUE)
+    quant975 <- quantile(Vt_i, 0.975, na.rm = TRUE)
+    
+    
+    row <- tibble(age_yrs = age, 
+                      Vt_mean_m = mean_Vt_i, 
+                      Vt_sd_m = sd_Vt_i, 
+                      quant025_m = quant025, 
+                      quant975_m = quant975)
+    
+    Vt_table_phase1_m <- rbind(Vt_table_phase1_m, row)
+    
+
+    
+    
+   
+}
+
+
+kable(head(Vt_table_phase1_m))
+Vt_table_phase1_m %>% write_csv("data/Vt_table_phase1_m.csv", na = "", append = FALSE)
+
+```
+
+```{r Vt phase 2}
+
+################################ Vt mean - Phase 2 -  ########################################
+
+Vt_table_phase2 <- as.data.frame(matrix(ncol = 5, nrow = 0))
+
+cnames <- c("age_yrs", "Vt_mean_m", "Vt_sd_m",  
+            "quant025_m", "quant975_m"        #2.5% and 97.5% quantile from bootstrap estimates 
+            )                     
+
+colnames(Vt_table_phase2) <- cnames
+
+Vt_table_phase2 <- as_tibble(Vt_table_phase2,
+                                 col_types = (list(ID = col_integer(),
+                                                   age_yrs = col_double(),
+                                                   Vt_mean_f = col_double(),
+                                                   Vt_sd_f = col_double(),
+                                                   quant025_f = col_double(),
+                                                   quant975_f = col_double()
+                                                   )
+                                              )
+                                 )
+
+
+kable(head(gw_pred_mass))
+
+pred_mass <- gw_pred_mass %>% 
+    select(age_yrs, mean_mass, sd_mass, female_mass, male_mass)
+
+Vt_table_phase2 <- rbind(Vt_table_phase2, Vt_table_phase1)
+
+for (i in seq(from = 2, to = 75, by = 1)){
+    age <-  i
+        
+    strcolname <- as.character(age)
+        
+    pred_mass_i <- filter(pred_mass, age_yrs == age)
+    
+    age_mth <- pred_mass_i$age_mth    
+    mass <- pred_mass_i$mean_mass
+    sd <- pred_mass_i$sd_mass
+    
+    set.seed(12345)    
+    mass_i <- rnorm(MC_reps, mass, sd)
+    
+    #Calculate Tidal Volume using Sumich eqn 
+    Vt_i <- 0.014 * mass_i^1.04  
+    
+    mean_Vt_i <- mean(Vt_i)    
+    sd_Vt_i <- sd(Vt_i)
+    quant025 <- quantile(Vt_i, 0.025, na.rm = TRUE)
+    quant975 <- quantile(Vt_i, 0.975, na.rm = TRUE)
+    
+    
+    row <- tibble(age_yrs = age, 
+                      Vt_mean = mean_Vt_i, 
+                      Vt_sd = sd_Vt_i, 
+                      quant025 = quant025, 
+                      quant975 = quant975)
+    
+    Vt_table_phase2 <- rbind(Vt_table_phase2, row)
+    
+
+    
+    
+   
+}
+
+kable(head(Vt_table_phase2))
+Vt_table_phase2 %>% write_csv("data/Vt_table_phase2.csv", na = "", append = FALSE)
+kable(head(Vt_table_phase2))
+
+
+```
+
+```{r Vt phase 2 by sex}
+
+#################### Vt table - Phase 2 - female #################################
+Vt_table_phase2_f <- as.data.frame(matrix(ncol = 6, nrow = 0))
+
+cnames <- c("age_mth", "age_yrs", "Vt_mean_f", "Vt_sd_f",  
+            "quant025_f", "quant975_f"        #2.5% and 97.5% quantile from bootstrap estimates 
+            )            
+
+colnames(Vt_table_phase2_f) <- cnames
+
+
+Vt_table_phase2_f <- as_tibble(Vt_table_phase2_f,
+                                 col_types = (list(ID = col_integer(),
+                                                   age_mth = col_double(),
+                                                   age_yrs = col_double(),
+                                                   Vt_mean_f = col_double(),
+                                                   Vt_sd_f = col_double(),
+                                                   quant025_f = col_double(),
+                                                   quant975_f = col_double()
+                                                   )
+                                              )
+                                 )
+
+
+
+kable(head(gw_pred_mass))
+
+pred_mass <- gw_pred_mass %>% 
+    dplyr::select(age_mth, age_yrs, mean_mass, sd_mass, female_mass, male_mass)
+
+
+Vt_table_phase2_f <- rbind(Vt_table_phase2_f, Vt_table_phase1_f)
+
+for (i in seq(from = 2, to = 75, by = 1)){
+    age <-  i
+        
+    strcolname <- as.character(age)
+        
+    pred_mass_i <- filter(pred_mass, age_yrs == age)
+        
+    age_mth <- pred_mass_i$age_mth
+    mass <- pred_mass_i$female_mass
+    sd <- pred_mass_i$sd_mass
+    
+    set.seed(12345)    
+    mass_i <- rnorm(MC_reps, mass, sd)
+    
+    #Calculate Tidal Volume using Sumich eqn 
+    Vt_i <- 0.014 * mass_i^1.04  
+    
+    mean_Vt_i <- mean(Vt_i)    
+    sd_Vt_i <- sd(Vt_i)
+    quant025 <- quantile(Vt_i, 0.025, na.rm = TRUE)
+    quant975 <- quantile(Vt_i, 0.975, na.rm = TRUE)
+    
+    
+    row <- tibble(age_mth = age_mth, 
+                      age_yrs = age, 
+                      Vt_mean_f = mean_Vt_i, 
+                      Vt_sd_f = sd_Vt_i, 
+                      quant025_f = quant025, 
+                      quant975_f = quant975)
+    
+    Vt_table_phase2_f <- rbind(Vt_table_phase2_f, row)
+    
+
+    
+    
+   
+}
+
+
+Vt_table_phase2_f %>% write_csv("data/Vt_table_phase2_f.csv", na = "", append = FALSE)
+kable(head(Vt_table_phase2_f))
+
+
+#################### Vt table - Phase 2 - male #################################
+Vt_table_phase2_m <- as.data.frame(matrix(ncol = 6, nrow = 0))
+
+cnames <- c("age_mth", "age_yrs", "Vt_mean_m", "Vt_sd_m",  
+            "quant025_m", "quant975_m"        #2.5% and 97.5% quantile from bootstrap estimates 
+            )            
+
+colnames(Vt_table_phase2_m) <- cnames
+
+
+Vt_table_phase2_m <- as_tibble(Vt_table_phase2_m,
+                                 col_types = (list(ID = col_integer(),
+                                                   age_mth = col_double(),
+                                                   age_yrs = col_double(),
+                                                   Vt_mean_m = col_double(),
+                                                   Vt_sd_m = col_double(),
+                                                   quant025_m = col_double(),
+                                                   quant975_m = col_double()
+                                                   )
+                                              )
+                                 )
+
+
+
+kable(head(gw_pred_mass))
+
+pred_mass <- gw_pred_mass %>% 
+    dplyr::select(age_mth, age_yrs, mean_mass, sd_mass, female_mass, male_mass)
+
+
+Vt_table_phase2_m <- rbind(Vt_table_phase2_m, Vt_table_phase1_m)
+
+for (i in seq(from = 2, to = 75, by = 1)){
+    age <-  i
+        
+    strcolname <- as.character(age)
+        
+    pred_mass_i <- filter(pred_mass, age_yrs == age)
+        
+    age_mth <- pred_mass_i$age_mth
+    mass <- pred_mass_i$female_mass
+    sd <- pred_mass_i$sd_mass
+    
+    set.seed(12345)    
+    mass_i <- rnorm(MC_reps, mass, sd)
+    
+    #Calculate Tidal Volume using Sumich eqn 
+    Vt_i <- 0.014 * mass_i^1.04  
+    
+    mean_Vt_i <- mean(Vt_i)    
+    sd_Vt_i <- sd(Vt_i)
+    quant025 <- quantile(Vt_i, 0.025, na.rm = TRUE)
+    quant975 <- quantile(Vt_i, 0.975, na.rm = TRUE)
+    
+    
+    row <- tibble(age_mth = age_mth, 
+                      age_yrs = age, 
+                      Vt_mean_m = mean_Vt_i, 
+                      Vt_sd_m = sd_Vt_i, 
+                      quant025_m = quant025, 
+                      quant975_m = quant975)
+    
+    Vt_table_phase2_m <- rbind(Vt_table_phase2_m, row)
+    
+
+    
+    
+   
+}
+
+
+Vt_table_phase2_m %>% write_csv("data/Vt_table_phase2_m.csv", na = "", append = FALSE)
+kable(head(Vt_table_phase2_m))
+
+
+
+```
+
+Tidal Volume plots
+
+```{r Vt plots, echo=FALSE}
+
+Vt_mean <- Vt_table_phase2$Vt_mean
+Vt_sd <- Vt_table_phase2$Vt_sd
+quant025 <-  Vt_table_phase2$quant025
+quant975 <- Vt_table_phase2$quant975
+
+plot_Vt_table <- Vt_table_phase2 %>%
+        filter(age_yrs <=40) %>% 
+        ggplot(aes(x = age_yrs, y = Vt_mean))+
+        geom_ribbon(aes(ymin = quant025, ymax = quant975),fill = "gray80") +
+        geom_line() +
+        xlab("Age (years)") +
+        ylab(bquote('Mean Tidal Volume (L)')) +
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
+                           limits = c(0, 40)) +
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
+                           labels = scales::comma) +
+        theme_bw() +
+        theme(panel.grid = element_blank(),
+              axis.title.x = element_text(size = rel(1.4), colour = "black"),
+              axis.text.x = element_text(size = rel(1.2), colour = "black"),
+              axis.title.y = element_text(size = rel(1.4), colour = "black"),
+              axis.text.y = element_text(size = rel(1.2), colour = "black"),
+              strip.background = element_blank(),
+              legend.position="none" 
+              ) 
+       
+
+plot_Vt_table
+
+
+plot_Vt_table_female <- Vt_table_phase2_f %>%
+        filter(age_yrs <=40) %>% 
+        ggplot(aes(x = age_yrs, 
+                   y = Vt_mean_f)) +
+        geom_ribbon(aes(ymin = quant025_f,
+                        ymax = quant975_f),
+                    fill = "gray80") +
+        geom_line(aes(x = age_yrs,
+                      y = Vt_mean_f)) +
+        xlab("Age (years)") +
+        ylab(bquote('Mean Tidal Volume (L)')) +
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
+                           limits = c(0, 40)) +
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
+                           labels = scales::comma) +
+        theme_bw() +
+        theme(panel.grid = element_blank(),
+              axis.title.x = element_text(size = rel(1.4), colour = "black"),
+              axis.text.x = element_text(size = rel(1.2), colour = "black"),
+              axis.title.y = element_text(size = rel(1.4), colour = "black"),
+              axis.text.y = element_text(size = rel(1.2), colour = "black"),
+              strip.background = element_blank(),
+              legend.position="none" 
+              )+
+        ggtitle("Female")
+     
+
+plot_Vt_table_male <- Vt_table_phase2_m %>%
+        filter(age_yrs <=40) %>% 
+        ggplot(aes(x = age_yrs, 
+                   y = Vt_mean_m)) +
+        geom_ribbon(aes(ymin = quant025_m,
+                        ymax = quant975_m),
+                    fill = "gray80") +
+        geom_line(aes(x = age_yrs,
+                      y = Vt_mean_m)) +
+        xlab("Age (years)") +
+        ylab(bquote('Mean Tidal Volume (L)')) +
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
+                           limits = c(0, 40)) +
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
+                           labels = scales::comma) +
+        theme_bw() +
+        theme(panel.grid = element_blank(),
+              axis.title.x = element_text(size = rel(1.4), colour = "black"),
+              axis.text.x = element_text(size = rel(1.2), colour = "black"),
+              axis.title.y = element_text(size = rel(0.8), colour = "white"),
+              axis.text.y = element_text(size = rel(0.6), colour = "white"),
+              strip.background = element_blank(),
+              legend.position="none" 
+              ) +
+        ggtitle("Male")
+     
+
+#save multi-panel plot as hi-res jpg
+multiplot(plot_Vt_table_female, plot_Vt_table_male, cols=2)
+
+
+jpeg(filename = paste0(Figurespath,"/Vt_by_sex.jpg"), 
+     width = 3000,
+     height = 3000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+p <- multiplot(plot_Vt_table_female, plot_Vt_table_male, cols=2)
+
+
+dev.off()
+
+
+```
