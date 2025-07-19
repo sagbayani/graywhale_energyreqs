@@ -1,420 +1,25 @@
----
-title: "Energy Expenditure (Es) Sensitivity Analysis - Phase 2"
-author: "Selina Agbayani"
-date: "07 Jan 2022 -code updated on `r format(Sys.time(), '%d %B, %Y')`"
-output:
-  github_document:
-  html_document:
+Energy Expenditure (Es) Sensitivity Analysis - Phase 2
+================
+Selina Agbayani
+07 Jan 2022 -code updated on 18 July, 2025
 
-editor_options: 
-  chunk_output_type: console
----
-
-```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(error = TRUE)
-
-## Setup
-
-# Initialize all libraries, set paths for output figures, then import the gw_observations.csv
-# install.packages("tidyr")
-# install.packages("tidyverse")
-# install.packages("dplyr")
-# install.packages("ggplot2")
-# install.packages("knitr")
-# install.packages("nls2")
-# install.packages("nlstools")
-# install.packages("nlme")
-# install.packages("minpack.lm")
-# install.packages("scales")
-# install.packages("ggpmisc")
-# install.packages("extrafont")
-#install.packages("truncnorm")
-
-
-
-library(tidyverse)
-# library(tidyr)
-# library(dplyr)
-# library(ggplot2)
-library(knitr)
-library(nls2)
-library(nlstools)
-library(nlme)
-library(minpack.lm)
-library(scales)
-library(ggpmisc)
-library(reshape2)
-library(extrafont)
-library(truncnorm)
-
-#source("functions.R")
-
-```
-
-
-
-```{r declare functions and global variables, include=FALSE}
-
-# **Declare custom functions and global variables**
-########## Specify Decimal function ############################
-# 
-# For use in labelling the plots with equations, and rounding up the coefficients
-# to a specific no. of decimal places
-specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
-
-
-############ Multiple plot function######################
-#
-# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
-# - cols:   Number of columns in layout
-# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
-#
-# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
-# then plot 1 will go in the upper left, 2 will go in the upper right, and
-# 3 will go all the way across the bottom.
-#
-# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
-# If you find any errors, please email winston@stdout.org
-
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-
-  numPlots = length(plots)
-
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                    ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-
- if (numPlots==1) {
-    print(plots[[1]])
-
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
-
-########### functions used for carry out the fit ########
-
-## this function is avaible in: 
-# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
-# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
-
-##### as.lm function: ######
-
-        as.lm <- function(object, ...) UseMethod("as.lm")
-
-        as.lm.nls <- function(object, ...) {
-            if (!inherits(object, "nls")) {
-                w <- paste("expected object of class nls but got object of class:", 
-                    paste(class(object), collapse = " "))
-                warning(w)
-            }
-
-            gradient <- object$m$gradient()
-            if (is.null(colnames(gradient))) {
-                colnames(gradient) <- names(object$m$getPars())
-            }
-
-            response.name <- if (length(formula(object)) == 2) "0" else 
-                as.character(formula(object)[[2]])
-
-            lhs <- object$m$lhs()
-            L <- data.frame(lhs, gradient)
-            names(L)[1] <- response.name
-
-            fo <- sprintf("%s ~ %s - 1", response.name, 
-                paste(colnames(gradient), collapse = "+"))
-            fo <- as.formula(fo, env = as.proto.list(L))
-
-            do.call("lm", list(fo, offset = substitute(fitted(object))))
-
-        }
-
-############## End as.lm function 
-
-
-
-############### proto function: ############
-#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
-
-proto <- function(. = parent.env(envir), expr = {},
-                   envir = new.env(parent = parent.frame()), ...,
-                   funEnvir = envir) {
-  parent.env(envir) <- .
-  envir <- as.proto.environment(envir)  # must do this before eval(...)
-  # moved eval after for so that ... always done first
-  # eval(substitute(eval(quote({ expr }))), envir)
-  dots <- list(...); names <- names(dots)
-  for (i in seq_along(dots)) {
-    assign(names[i], dots[[i]], envir = envir)
-    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
-      environment(envir[[names[i]]]) <- funEnvir
-  }
-  eval(substitute(eval(quote({
-    expr
-  }))), envir)
-  if (length(dots))
-    as.proto.environment(envir)
-  else
-    envir
-}
-
-#' @export
-#' @rdname proto
-as.proto <- function(x, ...) {
-  UseMethod("as.proto")
-}
-
-#' @export
-#' @rdname proto
-as.proto.environment <- function(x, ...) {
-  assign(".that", x, envir = x)
-  assign(".super", parent.env(x), envir = x)
-  structure(x, class = c("proto", "environment"))
-}
-
-#' @export
-#' @rdname proto
-as.proto.proto <- function(x, ...) {
-  x
-}
-as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
-                          funEnvir = envir, SELECT = function(x) TRUE) {
-  if (missing(envir)) {
-    if (missing(parent))
-      parent <- parent.frame()
-    envir <- if (is.proto(parent))
-      parent$proto(...)
-    else
-      proto(parent, ...)
-  }
-  for (s in names(x))
-    if (SELECT(x[[s]])) {
-      assign(s, x[[s]], envir = envir)
-      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
-        environment(envir[[s]]) <- funEnvir
-    }
-  if (!missing(parent))
-    parent.env(envir) <- parent
-  as.proto.environment(envir)  # force refresh of .that and .super
-}
-
-#' @export
-"$<-.proto" <- function(this,s,value) {
-  if (s == ".super")
-    parent.env(this) <- value
-  if (is.function(value))
-    environment(value) <- this
-  this[[as.character(substitute(s))]] <- value
-  this
-}
-is.proto <- function(x) inherits(x, "proto")
-
-#' @export
-"$.proto" <- function(x, name) {
-  inherits <- substr(name, 1, 2) != ".."
-
-  res <- get(name, envir = x, inherits = inherits)
-  if (!is.function(res))
-    return(res)
-
-  if (deparse(substitute(x)) %in% c(".that", ".super"))
-    return(res)
-
-  structure(
-    function(...) res(x, ...),
-    class = "protoMethod",
-    method = res
-  )
-}
-
-#' @export
-print.protoMethod <- function(x, ...) {
-  cat("<ProtoMethod>\n")
-  print(attr(x, "method"), ...)
-}
-
-# modified from Tom Short's original
-#' @export
-str.proto <- function(object, max.level = 1, nest.lev = 0,
-                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
-                      ...) {
-  cat("proto", name.proto(object), "\n")
-  Lines <- utils::capture.output(utils::str(
-    as.list(object), max.level = max.level,
-    nest.lev = nest.lev, ...
-  ))[-1]
-  for (s in Lines)
-    cat(s, "\n")
-  if (is.proto(parent.env(object))) {
-    cat(indent.str, "parent: ", sep = "")
-    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
-  }
-}
-
-#' @export
-print.proto <- function(x, ...) {
-  if (!exists("proto_print", envir = x, inherits = TRUE))
-    return(NextMethod())
-
-  x$proto_print(...)
-}
-
-############# End proto function 
-
-############ PredictNLS - for confidence intervals  ##########
-# Source: https://rmazing.wordpress.com/2013/08/14/predictnls-part-1-monte-carlo-simulation-confidence-intervals-for-nls-models/
-
-predictNLS <- function(object,newdata,level = 0.95, nsim = 10000,
-                       ...){
-    require(MASS, quietly = TRUE)
-    ## get right-hand side of formula
-    RHS <- as.list(object$call$formula)[[3]]
-    EXPR <- as.expression(RHS)
-   
-    ## all variables in model
-    VARS <- all.vars(EXPR)
-   
-    ## coefficients
-    COEF <- coef(object)
-   
-    ## extract predictor variable    
-    predNAME <- setdiff(VARS, names(COEF))  
-   
-    ## take fitted values, if 'newdata' is missing
-    if (missing(newdata)) {
-        newdata <- eval(object$data)[predNAME]
-        colnames(newdata) <- predNAME
-        }
-       
-    ## check that 'newdata' has same name as predVAR
-    if (names(newdata)[1] != predNAME) stop("newdata should have name '",
-                                            predNAME, "'!")
-   
-    ## get parameter coefficients
-    COEF <- coef(object)
-     
-    ## get variance-covariance matrix
-    VCOV <- vcov(object)
-   
-    ## augment variance-covariance matrix for 'mvrnorm' 
-    ## by adding a column/row for 'error in x'
-    NCOL <- ncol(VCOV)
-    ADD1 <- c(rep(0, NCOL))
-    ADD1 <- matrix(ADD1, ncol = 1)
-    colnames(ADD1) <- predNAME
-    VCOV <- cbind(VCOV, ADD1)
-    ADD2 <- c(rep(0, NCOL + 1))
-    ADD2 <- matrix(ADD2, nrow = 1)
-    rownames(ADD2) <- predNAME
-    VCOV <- rbind(VCOV, ADD2) 
-         
-    ## iterate over all entries in 'newdata' as in usual 'predict.' functions
-    NR <- nrow(newdata)
-    respVEC <- numeric(NR)
-    seVEC <- numeric(NR)
-    varPLACE <- ncol(VCOV)   
-   
-    ## define counter function
-    counter <- function (i) {
-        if (i%%10 == 0) 
-            cat(i)
-        else cat(".")
-        if (i%%50 == 0) 
-            cat("\n")
-        flush.console()
-        }
-   
-    outMAT <- NULL 
-   
-    for (i in 1:NR) {
-        counter(i)
-        ## get predictor values and optional errors
-    predVAL <- newdata[i, 1]
-    if (ncol(newdata) == 2) predERROR <- newdata[i, 2] else predERROR <- 0
-    names(predVAL) <- predNAME  
-    names(predERROR) <- predNAME  
-     
-    ## create mean vector for 'mvrnorm'
-    MU <- c(COEF, predVAL)
-     
-    ## create variance-covariance matrix for 'mvrnorm'
-    ## by putting error^2 in lower-right position of VCOV
-    newVCOV <- VCOV
-    newVCOV[varPLACE, varPLACE] <- predERROR^2
-     
-    ## create MC simulation matrix
-    simMAT <- mvrnorm(n = nsim, mu = MU, Sigma = newVCOV, empirical = TRUE)
-     
-    ## evaluate expression on rows of simMAT
-    EVAL <- try(eval(EXPR, envir = as.data.frame(simMAT)), silent = TRUE)
-    if (inherits(EVAL, "try-error")) stop("There was an error evaluating the simulations!")
-     
-    ## collect statistics
-    PRED <- data.frame(predVAL)
-    colnames(PRED) <- predNAME   
-    FITTED <- predict(object, newdata = data.frame(PRED))
-    MEAN.sim <- mean(EVAL, na.rm = TRUE)
-    SD.sim <- sd(EVAL, na.rm = TRUE)
-    MEDIAN.sim <- median(EVAL, na.rm = TRUE)
-    MAD.sim <- mad(EVAL, na.rm = TRUE)  #median absolute deviation
-    QUANT <- quantile(EVAL, c((1 - level)/2, level + (1 - level)/2))
-    RES <- c(FITTED, MEAN.sim, SD.sim, MEDIAN.sim, MAD.sim, QUANT[1], QUANT[2])
-    outMAT <- rbind(outMAT, RES)
-  }
-   
-  colnames(outMAT) <- c("fit", "mean", "sd", "median", "mad", names(QUANT[1]), names(QUANT[2]))
-  rownames(outMAT) <- NULL
-   
-  cat("\n")
-   
-  return(outMAT)  
-}
-
-##########end PredictNLS ##########
-
-        
-```   
-
-
-```{r setpaths}
+``` r
 # Set path for output figures: 
 Figurespath <- paste0(getwd(), "/FMR/figures", collapse = NULL)
 Figurespath
+```
+
+    ## [1] "C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs/FMR/figures"
+
+``` r
 # Set path for input & output data  
 datapath <- paste0(getwd(), "/data", collapse = NULL) 
 datapath
-
-
-
-
 ```
 
-```{r read_in_data}
+    ## [1] "C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs/data"
 
-
+``` r
 Es_table_phase1 <- 
   as_tibble(read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv"),
             col_types = (list(cols(age_yrs = col_double(),
@@ -438,7 +43,18 @@ Es_table_phase1 <-
             )
             )
   )
+```
 
+    ## Rows: 60 Columns: 18
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr  (3): Lifestage, Activity_stages, MC_variable
+    ## dbl (15): age_yrs, no_days, mean_bpm, se_bpm, mean_bpd, Vt_mean, Vt_sd, Es_p...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 Es_table_phase1 <- Es_table_phase1 %>% 
   filter(MC_variable == "all")
 
@@ -453,8 +69,17 @@ Vt_table_phase1 <-
             )
             )
   )
+```
 
+    ## Rows: 25 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (5): age_yrs, Vt_mean, Vt_sd, quant025, quant975
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+``` r
 Vt_table_phase2 <- 
   as_tibble(read_csv("data/Vt_table_phase2.csv"),   
             col_types = (list(cols(age_yrs = col_double(),
@@ -466,10 +91,17 @@ Vt_table_phase2 <-
             )
             )
   )
+```
 
+    ## Rows: 99 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (5): age_yrs, Vt_mean, Vt_sd, quant025, quant975
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-
-
+``` r
 Vt_table_phase2_f <- 
   as_tibble(read_csv("data/Vt_table_phase2_f.csv"),  
             col_types = (list(cols(age_yrs = col_double(),
@@ -481,9 +113,17 @@ Vt_table_phase2_f <-
             )
             )
   )
+```
 
+    ## Rows: 87 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (5): age_yrs, Vt_mean_f, Vt_sd_f, quant025_f, quant975_f
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-
+``` r
 # Read in Activity Cost Reference data from csv  ORIGINAL SOURCE VALUES
 A_cost_reference <- as_tibble(
   read_csv("data/ActivityCost_ReferenceData_BreathsPerDay_Table_VA_2017_original_sources.csv"),
@@ -505,18 +145,65 @@ A_cost_reference <- as_tibble(
   )
   )
 )
+```
 
+    ## Rows: 60 Columns: 14
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (5): Lifestage, Description, Activity_stages, source_no_days, source_bpm
+    ## dbl (9): ID, no_days, bpm, se_bpm, age_yrs, age_yrs_min, age_yrs_max, pct_O2...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 kable(head(A_cost_reference))
+```
 
+| ID | Lifestage | Description | Activity_stages | no_days | source_no_days | bpm | se_bpm | source_bpm | age_yrs | age_yrs_min | age_yrs_max | pct_O2 | pct_O2_sd |
+|---:|:---|:---|:---|---:|:---|---:|---:|:---|---:|---:|---:|---:|---:|
+| 1 | Calf | Lagoon 0-1 mths (Jan) | calving grounds | 31 | Sumich (1986); Findley & Vidal (2002); Pike 1962 | 2.14 | 0.5 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.0849315 | 0.0000100 | 0.0849315 | 10.5 | 3 |
+| 2 | Calf | Lagoon 2 mth (Feb) | calving grounds | 28 | Sumich (1986); Findley & Vidal (2002); Pike 1962 | 1.56 | 0.4 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.1616438 | 0.0849315 | 0.1616438 | 10.5 | 3 |
+| 3 | Calf | Lagoon 3 mths (Mar) | calving grounds | 15 | Sumich (1986); Findley & Vidal (2002); Rice and Wolman 1971 | 1.39 | 0.3 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.2465753 | 0.1616438 | 0.2465753 | 10.5 | 3 |
+| 4 | Calf | Northbound 3 mths (Mar) | northbound | 16 | Rodriguez de la Gala Hernandez 2008; Perryman et al. 2010; Poole 1984; Rice and Wolman 1971; Leatherwood 1974 | 0.70 | 0.1 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.2465753 | 0.1616438 | 0.2465753 | 10.5 | 3 |
+| 5 | Calf | Northbound 4 mths (Apr) | northbound | 30 | Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Leatherwood 1974 | 0.70 | 0.1 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.3287671 | 0.2465753 | 0.3287671 | 10.5 | 3 |
+| 6 | Calf | Northbound 5 mths (May) | northbound | 31 | Braham (1984), Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Rice and Wolman 1971; Leatherwood 1974 | 0.70 | 0.1 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.4136986 | 0.3287671 | 0.4136986 | 10.5 | 3 |
+
+``` r
 Activity_days <- A_cost_reference %>% 
   select(Lifestage, Activity_stages, no_days) %>%  
   group_by(Lifestage, Activity_stages) %>% 
   summarise(no_days = sum(no_days))
+```
 
+    ## `summarise()` has grouped output by 'Lifestage'. You can override using the
+    ## `.groups` argument.
+
+``` r
 kable(Activity_days)
+```
 
+| Lifestage      | Activity_stages                   | no_days |
+|:---------------|:----------------------------------|--------:|
+| Calf           | calving grounds                   |      74 |
+| Calf           | northbound                        |     100 |
+| Calf           | nursing at foraging grounds       |     119 |
+| Calf           | southbound post-weaning           |      72 |
+| Juvenile/Adult | calving grounds                   |      30 |
+| Juvenile/Adult | foraging                          |     154 |
+| Juvenile/Adult | northbound                        |      90 |
+| Juvenile/Adult | southbound                        |      91 |
+| Lactating      | calving grounds lactating         |      74 |
+| Lactating      | foraging lactating                |     119 |
+| Lactating      | northbound lactating              |     100 |
+| Lactating      | southbound post-weaning           |      72 |
+| Pregnant       | Southbound recently pregnant      |      31 |
+| Pregnant       | calving grounds recently pregnant |      51 |
+| Pregnant       | foraging pregnant                 |     153 |
+| Pregnant       | northbound pregnant               |     100 |
+| Pregnant       | southbound pregnant               |      61 |
 
-
+``` r
 age_yr_tibble <- as_tibble(
   read_csv("data/age_yr_tibble.csv"), 
   col_types = (list(ID = col_integer(),
@@ -528,18 +215,25 @@ age_yr_tibble <- as_tibble(
   )
   )
 )
-
-
-
 ```
 
-Es - Total metabolic energy expenditure at a given stage 0.02 - Amount of heat produced in MJ/L O2 consumed (Kleiber 1961)  
-%O2 - Extraction efficiency per breath Ts - The no. of days in that stage Rs - Respiration rate (breaths/day) Vt - Tidal lung volume (L)
+    ## Rows: 25 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (1): month
+    ## dbl (4): no_days_in_mth, age_mth, no_days_cumul, age_yrs
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+Es - Total metabolic energy expenditure at a given stage 0.02 - Amount
+of heat produced in MJ/L O2 consumed (Kleiber 1961)  
+%O2 - Extraction efficiency per breath Ts - The no. of days in that
+stage Rs - Respiration rate (breaths/day) Vt - Tidal lung volume (L)
 
 Es = 0.02 x %O2 x Ts x Rs x Vt - Sumich (1986)
 
-```{r Es_phase2}
-
+``` r
 #Original code was run with MC_reps <- 10000  
 #and took a very long time
 #To test and explore the code, use less reps 
@@ -548,15 +242,48 @@ MC_reps = 10
 
 Lifestage <-  "Juvenile/Adult"
 Lifestage
+```
+
+    ## [1] "Juvenile/Adult"
+
+``` r
 activity_stages <- Activity_days %>%
   filter(Lifestage == "Juvenile/Adult")
 activity_stages  <-  activity_stages$Activity_stages
 activity_stages
+```
 
+    ## [1] "calving grounds" "foraging"        "northbound"      "southbound"
+
+``` r
 A_cost_reference_phase2 <- A_cost_reference %>% 
   filter(Lifestage == "Juvenile/Adult")
 A_cost_reference_phase2
+```
 
+    ## # A tibble: 16 × 14
+    ##       ID Lifestage      Description Activity_stages no_days source_no_days   bpm
+    ##    <dbl> <chr>          <chr>       <chr>             <dbl> <chr>          <dbl>
+    ##  1    45 Juvenile/Adult Southbound… southbound           15 Rodriguez de …  0.72
+    ##  2    46 Juvenile/Adult Lagoon sol… calving grounds      16 Sumich (1986)…  0.62
+    ##  3    47 Juvenile/Adult Lagoon sol… calving grounds      14 Rice and Wolm…  0.62
+    ##  4    48 Juvenile/Adult Northbound… northbound           14 Rice and Wolm…  0.5 
+    ##  5    49 Juvenile/Adult Northbound… northbound           31 Rice and Wolm…  0.5 
+    ##  6    50 Juvenile/Adult Northbound… northbound           30 Rice and Wolm…  0.5 
+    ##  7    51 Juvenile/Adult Northbound… northbound           15 Poole (1984),…  0.5 
+    ##  8    52 Juvenile/Adult Foraging s… foraging             16 Kim and Olive…  1.04
+    ##  9    53 Juvenile/Adult Foraging s… foraging             30 Kim and Olive…  1.04
+    ## 10    54 Juvenile/Adult Foraging s… foraging             31 Kim and Olive…  1.04
+    ## 11    55 Juvenile/Adult Foraging s… foraging             31 Pike (1962); …  1.04
+    ## 12    56 Juvenile/Adult Foraging s… foraging             30 Pike (1962); …  1.04
+    ## 13    57 Juvenile/Adult Foraging s… foraging             16 Kim and Olive…  1.04
+    ## 14    58 Juvenile/Adult Southbound… southbound           15 Rugh et al. 2…  0.72
+    ## 15    59 Juvenile/Adult Southbound… southbound           30 Sumich (1986)…  0.72
+    ## 16    60 Juvenile/Adult Southbound… southbound           31 Sumich (1986)…  0.72
+    ## # ℹ 7 more variables: se_bpm <dbl>, source_bpm <chr>, age_yrs <dbl>,
+    ## #   age_yrs_min <dbl>, age_yrs_max <dbl>, pct_O2 <dbl>, pct_O2_sd <dbl>
+
+``` r
 A_cost_phase2 <-  A_cost_reference_phase2 %>% 
   filter(age_yrs == 0) %>% 
   select(Lifestage, no_days, bpm, se_bpm) 
@@ -566,8 +293,17 @@ A_cost_phase2 <-  A_cost_reference_phase2 %>%
 # Lifestage <- "Juvenile/Adult"
 no_days <- sum(A_cost_reference_phase2$no_days)
 Lifestage
-no_days
+```
 
+    ## [1] "Juvenile/Adult"
+
+``` r
+no_days
+```
+
+    ## [1] 365
+
+``` r
 bpm <- (sum(A_cost_reference_phase2$no_days * A_cost_reference_phase2$bpm))/no_days
 se_bpm <- sqrt(sum(A_cost_reference_phase2$se_bpm^2))
 
@@ -581,7 +317,13 @@ row <- tibble(Lifestage = Lifestage,
 A_cost_phase2 <- rbind(A_cost_phase2, row)
 
 kable(A_cost_phase2)
+```
 
+| Lifestage      | no_days |       bpm |    se_bpm |
+|:---------------|--------:|----------:|----------:|
+| Juvenile/Adult |     365 | 0.7925479 | 0.6954135 |
+
+``` r
 #adult/juveniles
 Es_table_phase2 <- as.data.frame(matrix(ncol = 17, nrow = 0))
 
@@ -781,19 +523,36 @@ for (i in seq(from = 1, to = 75, by = 1)){
     
   }    
 }
-
-
-
-kable(Es_table_phase2)
-
-
-Es_table_phase2 %>% write_csv("data/Es_table_phase2_source_bpm.csv", na = "", append = FALSE)
-
 ```
 
-```{r plots_Es_phase2_stacked}
-Es_table_phase2 <- read_csv("data/Es_table_phase2_source_bpm.csv")
+    ## Error in eval(expr, envir, enclos): object 'bpd' not found
 
+![](Es_phase2_source_bpm_files/figure-gfm/Es_phase2-1.png)<!-- -->
+
+``` r
+kable(Es_table_phase2)
+```
+
+| age_yrs | Lifestage | Activity_stages | no_days | mean_bpm | se_bpm | mean_bpd | Vt_mean | Vt_sd | Es_perday | Es_perday_sd | Es_perday_quant025 | Es_perday_quant975 | Es | Es_sd | Es_quant025 | Es_quant975 |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+
+``` r
+Es_table_phase2 %>% write_csv("data/Es_table_phase2_source_bpm.csv", na = "", append = FALSE)
+```
+
+``` r
+Es_table_phase2 <- read_csv("data/Es_table_phase2_source_bpm.csv")
+```
+
+    ## Rows: 0 Columns: 17
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (17): age_yrs, Lifestage, Activity_stages, no_days, mean_bpm, se_bpm, me...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 plot_Es_table_phase2 <- Es_table_phase2 %>% 
   ggplot(aes(x = age_yrs, y = Es))+
   geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
@@ -802,17 +561,24 @@ plot_Es_table_phase2 <- Es_table_phase2 %>%
   ggtitle("Es table - phase 2")
 
 plot_Es_table_phase2
-
-
 ```
 
-```{r Es_phase2_peryear}
+    ## Error in `geom_errorbar()`:
+    ## ! Problem while computing aesthetics.
+    ## ℹ Error occurred in the 1st layer.
+    ## Caused by error in `Es - Es_sd`:
+    ## ! non-numeric argument to binary operator
 
+``` r
 #pull out blank Es_subtable
 Es_subtable <- Es_table_phase2 %>% dplyr::filter(age_yrs >999, Lifestage == Lifestage)
 kable(Es_subtable)
+```
 
+| age_yrs | Lifestage | Activity_stages | no_days | mean_bpm | se_bpm | mean_bpd | Vt_mean | Vt_sd | Es_perday | Es_perday_sd | Es_perday_quant025 | Es_perday_quant975 | Es | Es_sd | Es_quant025 | Es_quant975 |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
 
+``` r
 Es_table_2  <- Es_subtable %>%  dplyr::select(age_yrs, Lifestage, no_days, Es, Es_sd)
 
 ## Calculate sum of Es for ages 1+
@@ -842,23 +608,29 @@ for (i in seq(from = 1, to = 75, by = 1)){
   
   Es_table_2 <- rbind(Es_table_2, newRow)
 }
+```
 
+    ## Error in sum(Es_subtable$no_days): invalid 'type' (character) of argument
 
-
-
-
-
+``` r
 Es_table_phase2_peryear <- Es_table_2
 
 Es_table_phase2_peryear$Es_perday <- Es_table_phase2_peryear$Es / Es_table_phase2_peryear$no_days
-Es_table_phase2_peryear$Es_sd_perday <- Es_table_phase2_peryear$Es_sd / Es_table_phase2_peryear$no_days
-
-Es_table_phase2_peryear %>% write_csv("data/Es_table_phase2_peryear_source_bpm.csv", na = "", append = FALSE)
-
 ```
 
-```{r plots_Es_phase2_peryear}
+    ## Error in Es_table_phase2_peryear$Es/Es_table_phase2_peryear$no_days: non-numeric argument to binary operator
 
+``` r
+Es_table_phase2_peryear$Es_sd_perday <- Es_table_phase2_peryear$Es_sd / Es_table_phase2_peryear$no_days
+```
+
+    ## Error in Es_table_phase2_peryear$Es_sd/Es_table_phase2_peryear$no_days: non-numeric argument to binary operator
+
+``` r
+Es_table_phase2_peryear %>% write_csv("data/Es_table_phase2_peryear_source_bpm.csv", na = "", append = FALSE)
+```
+
+``` r
 plot_Es_table_phase2_perday <- Es_table_phase2_peryear %>% 
   dplyr::filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30) %>% 
   ggplot() +
@@ -886,7 +658,27 @@ theme_bw() +
                                     size = rel(1.4), angle = 90))+
   theme(axis.title.x = element_text(colour = "black", 
                                     size = rel(1.4)))
-
-plot_Es_table_phase2_perday
-
 ```
+
+    ## Warning: A numeric `legend.position` argument in `theme()` was deprecated in ggplot2
+    ## 3.5.0.
+    ## ℹ Please use the `legend.position.inside` argument of `theme()` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+    ## Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
+    ## ℹ Please use the `linewidth` argument instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+``` r
+plot_Es_table_phase2_perday
+```
+
+    ## Error in `geom_errorbar()`:
+    ## ! Problem while computing aesthetics.
+    ## ℹ Error occurred in the 1st layer.
+    ## Caused by error:
+    ## ! object 'Es_perday' not found

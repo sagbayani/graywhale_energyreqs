@@ -439,7 +439,7 @@ Vt_table_phase1_f <- as_tibble(Vt_table_phase1_f,
 
 #for (i in seq(from = 0, to = 75, by = 0.25)){
 #for (i in c(0.00, 0.08, 0.17, 0.25, 0.33, 0.42, 0.5, 0.58, 0.67, 0.75, 0.83, 0.92)){
-for (i in seq(from= 0, to = 12, by = 1)){
+for (i in seq(from= 0, to = 12, by = 0.5)){
     
     age_tibble <- age_yr_tibble %>% filter(age_mth == i)  
     age <- age_tibble$age_yrs   #calculate age_yrs (do not round up)
@@ -515,7 +515,7 @@ Vt_table_phase1_m <- as_tibble(Vt_table_phase1_m,
 
 #for (i in seq(from = 0, to = 75, by = 0.25)){
 #for (i in c(0.00, 0.08, 0.17, 0.25, 0.33, 0.42, 0.5, 0.58, 0.67, 0.75, 0.83, 0.92)){
-for (i in seq(from= 0, to = 12, by = 1)){
+for (i in seq(from= 0, to = 12, by = 0.5)){
       
     
     age_tibble <- age_yr_tibble %>% filter(age_mth == i)  
@@ -590,7 +590,7 @@ pred_mass <- gw_pred_mass %>%
 
 Vt_table_phase2 <- rbind(Vt_table_phase2, Vt_table_phase1)
 
-for (i in seq(from = 2, to = 75, by = 1)){
+for (i in seq(from = 2, to = 75, by = 0.5)){
     age <-  i
         
     strcolname <- as.character(age)
@@ -629,7 +629,7 @@ for (i in seq(from = 2, to = 75, by = 1)){
 
 kable(head(Vt_table_phase2))
 Vt_table_phase2 %>% write_csv("data/Vt_table_phase2.csv", na = "", append = FALSE)
-kable(head(Vt_table_phase2))
+kable(tail(Vt_table_phase2))
 
 
 ```
@@ -668,7 +668,7 @@ pred_mass <- gw_pred_mass %>%
 
 Vt_table_phase2_f <- rbind(Vt_table_phase2_f, Vt_table_phase1_f)
 
-for (i in seq(from = 2, to = 75, by = 1)){
+for (i in seq(from = 2, to = 75, by = 0.5)){
     age <-  i
         
     strcolname <- as.character(age)
@@ -708,7 +708,7 @@ for (i in seq(from = 2, to = 75, by = 1)){
 
 
 Vt_table_phase2_f %>% write_csv("data/Vt_table_phase2_f.csv", na = "", append = FALSE)
-kable(head(Vt_table_phase2_f))
+kable(tail(Vt_table_phase2_f))
 
 
 #################### Vt table - Phase 2 - male #################################
@@ -743,7 +743,7 @@ pred_mass <- gw_pred_mass %>%
 
 Vt_table_phase2_m <- rbind(Vt_table_phase2_m, Vt_table_phase1_m)
 
-for (i in seq(from = 2, to = 75, by = 1)){
+for (i in seq(from = 2, to = 75, by = 0.5)){
     age <-  i
         
     strcolname <- as.character(age)
@@ -783,7 +783,7 @@ for (i in seq(from = 2, to = 75, by = 1)){
 
 
 Vt_table_phase2_m %>% write_csv("data/Vt_table_phase2_m.csv", na = "", append = FALSE)
-kable(head(Vt_table_phase2_m))
+kable(tail(Vt_table_phase2_m))
 
 
 
@@ -883,7 +883,7 @@ multiplot(plot_Vt_table_female, plot_Vt_table_male, cols=2)
 
 jpeg(filename = paste0(Figurespath,"/Vt_by_sex.jpg"), 
      width = 3000,
-     height = 3000,
+     height = 1500,
      pointsize = 35, 
      quality = 100, 
      bg = "white", 
