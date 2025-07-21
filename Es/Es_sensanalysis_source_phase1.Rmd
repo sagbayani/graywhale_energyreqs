@@ -818,6 +818,26 @@ Es_sensAnalysis_phase1_permth %>% write_csv("data/Es_sensAnalysis_phase1_permth_
 
 ```
 
+E~s~ per month - Phase 1 - stacked plot from sensitivity analysis
+
+
+```{r plots_Es_phase1_stacked}
+Es_sensAnalysis_phase1 <- read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv")
+
+plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>% 
+  ggplot(aes(x = age_yrs, y = Es))+
+  geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
+                colour = "blue", width = 0.02)+
+  geom_point()+
+  facet_grid(MC_variable ~ Activity_stages)+
+  ggtitle("Es table - phase 1")
+
+plot_Es_sensAnalysis_phase1
+
+
+```
+
+
 E~s~ per month - Phase 1 - plot from sensitivity analysis
 
 ```{r plots_Es_phase1_permth, echo=FALSE}
