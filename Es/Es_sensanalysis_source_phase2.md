@@ -1,7 +1,7 @@
 Energy Expenditure (Es) Sensitivity Analysis - Phase 2
 ================
 Selina Agbayani
-02 March 2022 - code updated 18 July, 2025
+02 March 2022 - code updated 21 July, 2025
 
 ``` r
 # Set path for output figures: 
@@ -582,7 +582,8 @@ plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>%
   geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
                 colour = "blue", width = 0.02)+
   geom_point()+
-  facet_grid(~MC_variable)+
+  facet_grid(MC_variable ~ Activity_stages,
+             labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
   ggtitle("Es table - phase 2")
 
 plot_Es_sensAnalysis_phase2

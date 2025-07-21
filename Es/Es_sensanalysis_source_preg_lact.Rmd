@@ -1100,10 +1100,13 @@ Es_sensAnalysis_lact_females %>% write_csv("data/Es_sensAnalysis_lact_females_so
 ```{r Es_lact_stacked}
 
 plot_Es_sensAnalysis_lact_females <- Es_sensAnalysis_lact_females %>% 
+  filter(age_yrs<=40) %>% 
   ggplot(aes(x = age_yrs, y = Es))+
   geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
                 colour = "blue", width = 0.02)+
-  facet_grid(~MC_variable)+
+   facet_grid(MC_variable ~ Activity_stages,
+              labeller = label_wrap_gen(#width = 2, 
+                                        multi_line = TRUE)) +
   geom_point()+
   ggtitle("Es table - lact females")
 
