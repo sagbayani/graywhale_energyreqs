@@ -1,11 +1,11 @@
 ---
-title: "ES_sensanalysis_source_preg_lact"
-author: "S. Agbayani"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+title:  "Energy Expenditure (Es) Sensitivity Analysis - Pregnant and Lactating"
+author: "Selina Agbayani"
+date: "10 March 2022 - code updated `r format(Sys.time(), '%d %B, %Y')`"
 output:
   github_document:
   html_document:
-  pdf_document:
+
 editor_options: 
   chunk_output_type: console
 ---
@@ -14,6 +14,7 @@ editor_options:
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
+knitr::opts_chunk$set(warning = TRUE)
 
 ## Setup
 
