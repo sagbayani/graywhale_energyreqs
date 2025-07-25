@@ -18,7 +18,7 @@ classoption: landscape
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
-knitr::opts_chunk$set(warning = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
 
 
 ## Setup
@@ -651,7 +651,7 @@ kable(TotalGER_for_0to6_7to9.6_tibble)
 ED_milk = 22.33 #MJ/kg   Average between Tomilin 1946 and Zenkovich 1938,    (Sumich 1986 - cited 22.4  MJ/kg)
 
 
-MC_reps = 10
+MC_reps = 100
 
 
 ```
@@ -977,7 +977,7 @@ predict_GER_table_sensAnalysis_preg %>%
 ```{r plots_GER_preg}
 
 plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
-  #dplyr::filter(sex=="Female") %>% 
+  filter(age_yrs<=40) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -1274,7 +1274,7 @@ predict_GER_table_sensAnalysis_lact %>% write_csv("data/predict_GER_table_sensAn
 
 ```{r plots_GER_lact}
 plot_predict_GER_table_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
-  
+  filter(age_yrs<=40) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
