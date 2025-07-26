@@ -3,10 +3,9 @@ title: "Gross Energetic Requirements(GER) Sensitivity Analysis - Preg/Lact"
 author: "Selina Agbayani"
 date: "09 March 2022 -  code updated `r format(Sys.time(), '%d %B, %Y')`"
 output:
-  github_document:
   html_document:
-
     
+  github_document:
 editor_options:
   chunk_output_type: console
 classoption: landscape
@@ -488,7 +487,7 @@ P_cost_table_preg  <-  as_tibble(
 )
 
 
-P_cost_table_preg$Ts <-  396
+P_cost_table_preg$Ts <-  396 #total no. of days pregnant
 
 P_cost_table_lact <- as_tibble(
   read_csv("data/P_cost_table_lact.csv"),
@@ -504,7 +503,8 @@ P_cost_table_lact <- as_tibble(
   )
 )
 
-P_cost_table_lact$Ts <-  365
+P_cost_table_lact$Ts <-  365 
+#should this be 293 days??? i.e. total no. of days lactating?
 
 
 Es_preg_table <- as_tibble(
@@ -568,7 +568,7 @@ mean_masschange <- as_tibble(
 )
 
 
-mean_masschange <- mean_masschange %>% dplyr::filter(age_yrs >=0)
+mean_masschange <- mean_masschange %>% filter(age_yrs >=0)
 kable(head(mean_masschange))
 
 mean_masschange_peryear <- as_tibble(
@@ -582,7 +582,7 @@ mean_masschange_peryear <- as_tibble(
   )
 )
 
-mean_masschange_peryear <- mean_masschange_peryear %>% dplyr::filter(age_yrs >= 0)
+mean_masschange_peryear <- mean_masschange_peryear %>% filter(age_yrs >= 0)
 kable(head(mean_masschange_peryear))
 
 
@@ -716,20 +716,20 @@ for (i in seq(from = 8, to = 75, by = 1)){
     phase <- "Pregnant"
     
     # Mass values
-    mass_foetus <- mass_table %>% dplyr::filter(age_yrs == 0) 
+    mass_foetus <- mass_table %>% filter(age_yrs == 0) 
     mass_foetus_40pct <- mass_foetus$mean_mass * 0.4 
     
     mass_female <- mass_table %>% 
-      dplyr::filter(age_yrs == age) %>% 
-      dplyr::select(female_mass) %>% 
+      filter(age_yrs == age) %>% 
+      select(female_mass) %>% 
       pull(female_mass)
     mass_preg <- mass_female + mass_foetus_40pct
     
     if (MC_var == "all"){
       mass_foetus_40pct_sd <- mass_foetus$sd_mass * 0.4
       mass_female_sd <- mass_table %>% 
-        dplyr::filter(age_yrs == age) %>% 
-        dplyr::select(sd_mass) %>% 
+        filter(age_yrs == age) %>% 
+        select(sd_mass) %>% 
         pull(sd_mass)
       mass_preg_sd <- sqrt((mass_female_sd^2)+(mass_foetus_40pct_sd^2))
     } else {
@@ -747,9 +747,9 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # Production cost values
     P_cost_i <- P_cost_table_preg %>%
-      dplyr::filter(P_cost_table_preg$age_yrs == age)
+      filter(P_cost_table_preg$age_yrs == age)
     P_cost_i <- P_cost_i %>%
-      dplyr::filter(P_cost_i$sex == s)
+      filter(P_cost_i$sex == s)
     
     mean_P <- P_cost_i$mean_P_perday * 396
     
@@ -761,7 +761,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # Production cost - newborn
     P_nb_table <- P_cost_table %>% 
-      dplyr::filter(age_yrs == 0 & sex == "N/A")
+      filter(age_yrs == 0 & sex == "N/A")
     
     P_nb <- P_nb_table %>% pull(mean_P)
     if (MC_var == "all" || MC_var == "P_nb"){
@@ -772,7 +772,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # Energetic expenditure values
     Es_table_i <- Es_preg_table %>%
-      dplyr::filter(Es_preg_table$age_yrs  == age)
+      filter(Es_preg_table$age_yrs  == age)
     
     Es <- Es_table_i$Es
     if (MC_var == "all" || MC_var == "Es"){
@@ -801,7 +801,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # GER calf 6 mths
     GERcalf_6mths_tibble <- TotalGER_for_0to6_7to9.6_tibble %>% 
-      dplyr::filter(age_range == "0 to 6 mths") 
+      filter(age_range == "0 to 6 mths") 
     
     GERcalf_6mths <- GERcalf_6mths_tibble %>% pull(Total_GER)
     
@@ -818,8 +818,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     MC_vars_i$sex <- s   # do i need to identify sex here?
     MC_vars_i$GER <- NA
-    MC_vars_i<- MC_vars_i %>%  
-      dplyr::select(sex, GER, everything()) #move sex to the first column
+    MC_vars_i<- MC_vars_i %>% relocate(sex, GER) #move sex and GER to the front of column
     
     # Monte carlo - Es
     set.seed(12345)
@@ -890,15 +889,15 @@ for (i in seq(from = 8, to = 75, by = 1)){
     #Es includes digestion, maintenance and activity          
 
     MC_vars_i$GER <- ((P_cost + Es + Hg + P_nb + GERcalf_0to6m)/396)/E_FnU  #preg total days = 396
-    MC_vars_i$GER_foraging <- ((P_cost + Es + Hg + P_nb + GERcalf_0to6m )/153)/E_FnU  #foraging pregnant = 153
+    MC_vars_i$GER_foraging <- ((P_cost + Es + Hg + P_nb + GERcalf_0to6m )/153)/E_FnU #days foraging while pregnant = 153
     
     MC_vars_i$FR_foraging <- (MC_vars_i$GER_foraging / MC_vars_i$ED_prey) 
     MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 
     
-    #192 days foraging while preg, 134 days foraging while lact)
-    MC_vars_i <- MC_vars_i %>% dplyr::mutate(ID = row_number())
-    # move ID to the first column
-    MC_vars_i<- MC_vars_i %>% dplyr::select(ID,everything()) 
+    #153 days foraging while preg, 134 days foraging while lact)
+    MC_vars_i <- MC_vars_i %>% 
+      mutate(ID = row_number()) %>%
+      relocate(ID) # move ID to the first column
     
     mean_GER_i <- mean(MC_vars_i$GER)
     sd_GER_i <- sd(MC_vars_i$GER)
@@ -931,8 +930,9 @@ for (i in seq(from = 8, to = 75, by = 1)){
     P_nb_i <- mean(P_nb)
     GERcalf_0to6m_i <- mean(GERcalf_0to6m)
     
-    MC_vars_i <- MC_vars_i %>%  dplyr::mutate(ID = row_number())
-    MC_vars_i<- MC_vars_i %>%  dplyr::select(ID,everything()) # move ID to the first column
+    MC_vars_i <- MC_vars_i %>%  
+      mutate(ID = row_number()) %>%
+      relocate(ID) # move ID to the first column
     
     
     row <- tibble(phase = phase,
@@ -1068,14 +1068,14 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     
     mass <- mass_table %>% 
-      dplyr::filter(age_yrs == age) %>% 
-      dplyr::select(mean_mass) %>% 
+      filter(age_yrs == age) %>% 
+      select(mean_mass) %>% 
       pull(mean_mass)
     
     if (MC_var == "all"){
       mass_sd <- mass_table %>% 
-        dplyr::filter(age_yrs == age) %>% 
-        dplyr::select(sd_mass) %>% 
+        filter(age_yrs == age) %>% 
+        select(sd_mass) %>% 
         pull(sd_mass)
     } else {
       mass_sd <-0
@@ -1083,9 +1083,9 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     # Production cost values
     P_cost_i <- P_cost_table_lact %>% 
-      dplyr::filter(P_cost_table_lact$age_yrs == age)  
+      filter(P_cost_table_lact$age_yrs == age)  
     P_cost_i <- P_cost_i %>% 
-      dplyr::filter(P_cost_i$sex == s) 
+      filter(P_cost_i$sex == s) 
     
     # no of days
     Ts <- P_cost_i$Ts
@@ -1100,7 +1100,7 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     # Energy expenditure values
     Es_table_i <- Es_lact_table %>% 
-      dplyr::filter(Es_lact_table$age_yrs == age & 
+      filter(Es_lact_table$age_yrs == age & 
                       Lifestage == "Lactating") 
     Es <- Es_table_i$Es
     
@@ -1147,7 +1147,7 @@ for (i in seq(from = 8, to = 74, by = 1)){
     MC_vars_i$sex <- s   # do i need to identify sex here?
     MC_vars_i$GER <- NA
     MC_vars_i<- MC_vars_i %>%  
-      dplyr::select(sex, GER, everything()) #move sex to the first column
+      relocate(sex, GER) #move sex and GER to the front columns
     
     # Monte carlo - Es
     set.seed(12345)
@@ -1202,9 +1202,9 @@ for (i in seq(from = 8, to = 74, by = 1)){
     MC_vars_i$FR_foraging <- (MC_vars_i$GER_foraging / MC_vars_i$ED_prey) 
     MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 
     
-    MC_vars_i <- MC_vars_i %>%  dplyr::mutate(ID = row_number())
-    MC_vars_i<- MC_vars_i %>%  
-      dplyr::select(ID,everything()) # move ID to the first column
+    MC_vars_i <- MC_vars_i %>% 
+      mutate(ID = row_number()) %>% 
+      relocate(ID) # move ID to the first column
     
     mean_GER_i <- mean(MC_vars_i$GER)
     sd_GER_i <- sd(MC_vars_i$GER)
@@ -1232,9 +1232,9 @@ for (i in seq(from = 8, to = 74, by = 1)){
     GERcalf7to9.6mths_i <- mean(GERcalf7to9.6mths)
     
     
-    MC_vars_i <- MC_vars_i %>%  dplyr::mutate(ID = row_number())
-    MC_vars_i<- MC_vars_i %>% 
-      dplyr::select(ID,everything()) # move ID to the first column
+    MC_vars_i <- MC_vars_i %>%  
+      mutate(ID = row_number()) %>% 
+      relocate(ID) # move ID to the first column
     
     
     newrow <- tibble(phase = phase, 

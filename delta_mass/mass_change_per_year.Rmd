@@ -330,7 +330,7 @@ Calculate change in mass per year.
 
 #Original code was run with MC_reps <- 10000  and took a very long time
 #To test and explore the code, use less reps 
-MC_reps <- 10
+MC_reps <- 10000
 
 kable(head(gw_pred_mass))
 
