@@ -1,7 +1,7 @@
 Mass change needed to calculate cost of lactation
 ================
 Selina Agbayani
-Feb 11, 2021, updated and cleaned 04 July, 2025
+Feb 11, 2021, updated and cleaned 27 July, 2025
 
 ``` r
 ############ Set path for output figures: ###############
@@ -76,14 +76,14 @@ masschange_lactation_sd <- sd(mass_change_lactation_reps)
 masschange_lactation_mean
 ```
 
-    ## [1] 4819.082
+    ## [1] 4816.96
 
 ``` r
 masschange_lactation_sd
 ```
 
-    ## [1] 212.6991
+    ## [1] 212.495
 
-Mean mass change: 4819.0817626.
+Mean mass change: 4816.959845.
 
-Sd mass change: 212.6990788.
+Sd mass change: 212.4950221.
