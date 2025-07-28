@@ -3,9 +3,9 @@ title: "Mass change - phase 1 per month"
 author: "Selina Agbayani"
 date: "Jan 19, 2021, updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
 output: 
-  html_document: 
   github_document: 
-  keep_md: yes
+  html_document: 
+
 editor_options: 
   chunk_output_type: console
 ---
@@ -368,7 +368,7 @@ Calculate change in mass per month (up to 1 yr).
 
 #Original code was run with MC_reps <- 10000  and took a very long time
 #To test and explore the code, use less reps 
-MC_reps <- 10
+MC_reps <- 10000
 
 kable(gw_pred_mass)
 
@@ -586,16 +586,16 @@ for (i in seq(from = 1, to = MC_reps, by = 1)){
     mass_column <- MC_female_mass %>% 
         dplyr:: select(colname)     
     
-    str(mass_column)
+    #(mass_column)
     
     diffs_mass_Female <-  diff(as.matrix(mass_column))  #calculate delta mass
     diffs_mass_Female <- as.data.frame(diffs_mass_Female) 
     names(diffs_mass_Female)[1] <- as.character(colname)
     
-    head(diffs_mass_Female)
+    #head(diffs_mass_Female)
     
     mass_chg_Female <- rbind(delta_mass, diffs_mass_Female) 
-    head(mass_chg_Female)
+    #head(mass_chg_Female)
     MC_female_mass_diffs <-cbind(MC_female_mass_diffs, mass_chg_Female) 
 
 }
@@ -786,7 +786,7 @@ Combine mass change tables into one for plotting
 ```{r consolidate mass change tables}
 mean_masschange <- rbind(mean_masschange, mean_masschange_female, mean_masschange_male)
 
-kable(mean_masschange)
+kable(head(mean_masschange))
 #keep this 
 mean_masschange$age_mth <- round(mean_masschange$age_yrs * 12)
 
