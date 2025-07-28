@@ -202,7 +202,9 @@ Es_table_phase1 <- as_tibble(Es_table_phase1,
 
 
 
-
+#Original code was run with MC_reps <- 10000  
+#and took a very long time
+#To test and explore the code, use less reps 
 
 MC_reps = 10000
 
