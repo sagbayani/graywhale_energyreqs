@@ -1,302 +1,17 @@
----
-title: "Vt - Tidal Volume (in L)"
-author: "Selina Agbayani"
-date: "Jan 19, 2021, updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
-output: 
-  github_document: 
-  html_document:
-editor_options: 
-  chunk_output_type: console
----
+Vt - Tidal Volume (in L)
+================
+Selina Agbayani
+Jan 19, 2021, updated and cleaned 29 July, 2025
 
-```{r setup, include=FALSE}
-knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(error = TRUE)
-knitr::opts_chunk$set(warning = FALSE)
-
-
-## Setup
-
-# Initialize all libraries, set paths for output figures, then import the gw_observations.csv
-# install.packages("tidyr")
-# install.packages("tidyverse")
-# install.packages("dplyr")
-# install.packages("ggplot2")
-# install.packages("knitr")
-# install.packages("nls2")
-# install.packages("nlstools")
-# install.packages("nlme")
-# install.packages("minpack.lm")
-# install.packages("scales")
-# install.packages("ggpmisc")
-# install.packages("extrafont")
-
-
-library(tidyr)
-library(tidyverse)
-library(dplyr)
-library(ggplot2)
-library(knitr)
-library(nls2)
-library(nlstools)
-library(nlme)
-library(minpack.lm)
-library(scales)
-library(ggpmisc)
-library(reshape2)
-library(extrafont)
-
-
-
-```
-
-
-
-```{r declare functions and global variables, include=FALSE}
-
-# **Declare custom functions and global variables**
-########## Specify Decimal function ############################
-# 
-# For use in labelling the plots with equations, and rounding up the coefficients
-# to a specific no. of decimal places
-specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
-
-
-############ Multiple plot function######################
-#
-# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
-# - cols:   Number of columns in layout
-# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
-#
-# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
-# then plot 1 will go in the upper left, 2 will go in the upper right, and
-# 3 will go all the way across the bottom.
-#
-# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
-# If you find any errors, please email winston@stdout.org
-
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-
-  numPlots = length(plots)
-
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                    ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-
- if (numPlots==1) {
-    print(plots[[1]])
-
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
-
-########### functions used for carry out the fit ########
-
-## this function is avaible in: 
-# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
-# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
-
-##### as.lm function: ######
-
-        as.lm <- function(object, ...) UseMethod("as.lm")
-
-        as.lm.nls <- function(object, ...) {
-            if (!inherits(object, "nls")) {
-                w <- paste("expected object of class nls but got object of class:", 
-                    paste(class(object), collapse = " "))
-                warning(w)
-            }
-
-            gradient <- object$m$gradient()
-            if (is.null(colnames(gradient))) {
-                colnames(gradient) <- names(object$m$getPars())
-            }
-
-            response.name <- if (length(formula(object)) == 2) "0" else 
-                as.character(formula(object)[[2]])
-
-            lhs <- object$m$lhs()
-            L <- data.frame(lhs, gradient)
-            names(L)[1] <- response.name
-
-            fo <- sprintf("%s ~ %s - 1", response.name, 
-                paste(colnames(gradient), collapse = "+"))
-            fo <- as.formula(fo, env = as.proto.list(L))
-
-            do.call("lm", list(fo, offset = substitute(fitted(object))))
-
-        }
-
-############## End as.lm function 
-
-
-
-############### proto function: ############
-#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
-
-proto <- function(. = parent.env(envir), expr = {},
-                   envir = new.env(parent = parent.frame()), ...,
-                   funEnvir = envir) {
-  parent.env(envir) <- .
-  envir <- as.proto.environment(envir)  # must do this before eval(...)
-  # moved eval after for so that ... always done first
-  # eval(substitute(eval(quote({ expr }))), envir)
-  dots <- list(...); names <- names(dots)
-  for (i in seq_along(dots)) {
-    assign(names[i], dots[[i]], envir = envir)
-    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
-      environment(envir[[names[i]]]) <- funEnvir
-  }
-  eval(substitute(eval(quote({
-    expr
-  }))), envir)
-  if (length(dots))
-    as.proto.environment(envir)
-  else
-    envir
-}
-
-#' @export
-#' @rdname proto
-as.proto <- function(x, ...) {
-  UseMethod("as.proto")
-}
-
-#' @export
-#' @rdname proto
-as.proto.environment <- function(x, ...) {
-  assign(".that", x, envir = x)
-  assign(".super", parent.env(x), envir = x)
-  structure(x, class = c("proto", "environment"))
-}
-
-#' @export
-#' @rdname proto
-as.proto.proto <- function(x, ...) {
-  x
-}
-as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
-                          funEnvir = envir, SELECT = function(x) TRUE) {
-  if (missing(envir)) {
-    if (missing(parent))
-      parent <- parent.frame()
-    envir <- if (is.proto(parent))
-      parent$proto(...)
-    else
-      proto(parent, ...)
-  }
-  for (s in names(x))
-    if (SELECT(x[[s]])) {
-      assign(s, x[[s]], envir = envir)
-      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
-        environment(envir[[s]]) <- funEnvir
-    }
-  if (!missing(parent))
-    parent.env(envir) <- parent
-  as.proto.environment(envir)  # force refresh of .that and .super
-}
-
-#' @export
-"$<-.proto" <- function(this,s,value) {
-  if (s == ".super")
-    parent.env(this) <- value
-  if (is.function(value))
-    environment(value) <- this
-  this[[as.character(substitute(s))]] <- value
-  this
-}
-is.proto <- function(x) inherits(x, "proto")
-
-#' @export
-"$.proto" <- function(x, name) {
-  inherits <- substr(name, 1, 2) != ".."
-
-  res <- get(name, envir = x, inherits = inherits)
-  if (!is.function(res))
-    return(res)
-
-  if (deparse(substitute(x)) %in% c(".that", ".super"))
-    return(res)
-
-  structure(
-    function(...) res(x, ...),
-    class = "protoMethod",
-    method = res
-  )
-}
-
-#' @export
-print.protoMethod <- function(x, ...) {
-  cat("<ProtoMethod>\n")
-  print(attr(x, "method"), ...)
-}
-
-# modified from Tom Short's original
-#' @export
-str.proto <- function(object, max.level = 1, nest.lev = 0,
-                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
-                      ...) {
-  cat("proto", name.proto(object), "\n")
-  Lines <- utils::capture.output(utils::str(
-    as.list(object), max.level = max.level,
-    nest.lev = nest.lev, ...
-  ))[-1]
-  for (s in Lines)
-    cat(s, "\n")
-  if (is.proto(parent.env(object))) {
-    cat(indent.str, "parent: ", sep = "")
-    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
-  }
-}
-
-#' @export
-print.proto <- function(x, ...) {
-  if (!exists("proto_print", envir = x, inherits = TRUE))
-    return(NextMethod())
-
-  x$proto_print(...)
-}
-
-############# End proto function 
-        
-```   
-
-
-```{r set output paths}       
+``` r
 ############ Set path for output figures: ###############
 Figurespath <- paste0(getwd(), "/Es/figures", collapse = NULL)
 
 ############ Set path for input & output data  ###########
 datapath <- paste0(getwd(), "/data", collapse = NULL) 
-
-
 ```
 
-
-```{r read in data}
+``` r
 #read in mths version of mass estimates
 gw_pred_mass <- as_tibble(read_csv("data/mass_table.csv"),
                                  col_types = (list(cols(age_yrs = col_double(),
@@ -312,7 +27,17 @@ gw_pred_mass <- as_tibble(read_csv("data/mass_table.csv"),
                                                    )
                                               )
                                  )
+```
 
+    ## Rows: 173 Columns: 9
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (9): age_yrs, mean_mass, sd_mass, mean_lwr, mean_upr, quant025, quant975...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 age_yr_tibble <- as_tibble(
   read_csv("data/age_yr_tibble.csv"), 
   col_types = (list(ID = col_integer(),
@@ -324,13 +49,21 @@ age_yr_tibble <- as_tibble(
   )
   )
 )
-
 ```
 
+    ## Rows: 25 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (1): month
+    ## dbl (4): no_days_in_mth, age_mth, no_days_cumul, age_yrs
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-The relationship between Mass and tidal volume: Vt = 0.014 x Mass^1.04  (Sumich 1986)
+The relationship between Mass and tidal volume: Vt = 0.014 x Mass^1.04
+(Sumich 1986)
 
-```{r Vt phase 1}
+``` r
 # Calculate Mean Mass for all ages (Phase 1 and 2) - not including pregnant whales
 
 #Original code was run with MC_reps <- 10000  
@@ -339,7 +72,18 @@ The relationship between Mass and tidal volume: Vt = 0.014 x Mass^1.04  (Sumich 
 MC_reps <- 10000
 
 kable(head(gw_pred_mass))
+```
 
+| age_yrs | mean_mass | sd_mass | mean_lwr | mean_upr | quant025 | quant975 | female_mass | male_mass |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.0000000 | 983.0272 | 26.76770 | 769.3864 | 1256.003 | 931.5244 | 1036.295 | 1011.028 | 967.3705 |
+| 0.0424658 | 1232.8231 | 30.08225 | 990.0386 | 1535.157 | 1174.8634 | 1292.607 | 1267.939 | 1213.1879 |
+| 0.0849315 | 1498.2581 | 37.14344 | 1229.5370 | 1825.723 | 1426.7071 | 1572.089 | 1540.935 | 1474.3954 |
+| 0.1232877 | 1747.8713 | 45.25512 | 1458.4778 | 2094.703 | 1660.7409 | 1837.873 | 1797.658 | 1720.0329 |
+| 0.1616438 | 2003.8171 | 53.21868 | 1696.1860 | 2367.260 | 1901.3875 | 2109.690 | 2060.895 | 1971.9023 |
+| 0.2041096 | 2291.4431 | 62.29993 | 1966.1135 | 2670.624 | 2171.5715 | 2415.419 | 2356.713 | 2254.9473 |
+
+``` r
 pred_mass <- gw_pred_mass %>% 
     dplyr::select(age_yrs, mean_mass, sd_mass)
 
@@ -403,12 +147,22 @@ for (i in seq(from = 0, to = 12, by = 0.5)){
 
 
 kable(head(Vt_table_phase1))
-Vt_table_phase1 %>% write_csv("data/Vt_table_phase1.csv", na = "", append = FALSE)
-
 ```
 
+|   age_yrs |  Vt_mean |     Vt_sd | quant025 | quant975 |
+|----------:|---------:|----------:|---------:|---------:|
+| 0.0000000 | 18.12581 | 0.5147521 | 17.13168 | 19.14827 |
+| 0.0424658 | 22.92860 | 0.5862581 | 21.78283 | 24.06423 |
+| 0.0849315 | 28.10492 | 0.7201252 | 26.70529 | 29.52348 |
+| 0.1232877 | 32.98235 | 0.8853440 | 31.23818 | 34.71713 |
+| 0.1616438 | 38.01827 | 1.0540049 | 35.93777 | 40.09095 |
+| 0.2041096 | 43.72446 | 1.2212020 | 41.28144 | 46.10464 |
 
-```{r Vt phase 1 - female}
+``` r
+Vt_table_phase1 %>% write_csv("data/Vt_table_phase1.csv", na = "", append = FALSE)
+```
+
+``` r
 ################################ Vt Phase 1 - female  #########################################
 
 pred_mass <- gw_pred_mass %>% 
@@ -477,14 +231,23 @@ for (i in seq(from= 0, to = 12, by = 0.5)){
 
 
 kable(head(Vt_table_phase1_f))
-Vt_table_phase1_f %>% write_csv("data/Vt_table_phase1_f.csv", na = "", append = FALSE)
-# kable(tail(Vt_table_phase1_f))
-
-
 ```
 
+|   age_yrs | Vt_mean_f |   Vt_sd_f | quant025_f | quant975_f |
+|----------:|----------:|----------:|-----------:|-----------:|
+| 0.0000000 |  18.68426 | 0.5157792 |   17.66552 |   19.70053 |
+| 0.0424658 |  23.60793 | 0.5866110 |   22.46470 |   24.74850 |
+| 0.0849315 |  28.93601 | 0.7258655 |   27.52234 |   30.36434 |
+| 0.1232877 |  33.96348 | 0.8945695 |   32.23420 |   35.71526 |
+| 0.1616438 |  39.15456 | 1.0564942 |   37.07269 |   41.21279 |
+| 0.2041096 |  45.01013 | 1.2369293 |   42.59606 |   47.47038 |
 
-```{r Vt phase 1 - male}
+``` r
+Vt_table_phase1_f %>% write_csv("data/Vt_table_phase1_f.csv", na = "", append = FALSE)
+# kable(tail(Vt_table_phase1_f))
+```
+
+``` r
 ################################ Vt Phase 1 - male ######################################
 
 pred_mass <- gw_pred_mass %>% 
@@ -554,12 +317,22 @@ for (i in seq(from= 0, to = 12, by = 0.5)){
 
 
 kable(head(Vt_table_phase1_m))
-Vt_table_phase1_m %>% write_csv("data/Vt_table_phase1_m.csv", na = "", append = FALSE)
-
 ```
 
-```{r Vt phase 2}
+|   age_yrs | Vt_mean_m |   Vt_sd_m | quant025_m | quant975_m |
+|----------:|----------:|----------:|-----------:|-----------:|
+| 0.0000000 |  17.83288 | 0.5175812 |   16.82389 |   18.84292 |
+| 0.0424658 |  22.56787 | 0.5845476 |   21.43950 |   23.71248 |
+| 0.0849315 |  27.64071 | 0.7202812 |   26.23252 |   29.05670 |
+| 0.1232877 |  32.44336 | 0.8869619 |   30.70077 |   34.19187 |
+| 0.1616438 |  37.38348 | 1.0432061 |   35.36805 |   39.46719 |
+| 0.2041096 |  42.98900 | 1.2432576 |   40.54423 |   45.44639 |
 
+``` r
+Vt_table_phase1_m %>% write_csv("data/Vt_table_phase1_m.csv", na = "", append = FALSE)
+```
+
+``` r
 ################################ Vt mean - Phase 2 -  ########################################
 
 Vt_table_phase2 <- as.data.frame(matrix(ncol = 5, nrow = 0))
@@ -583,7 +356,18 @@ Vt_table_phase2 <- as_tibble(Vt_table_phase2,
 
 
 kable(head(gw_pred_mass))
+```
 
+| age_yrs | mean_mass | sd_mass | mean_lwr | mean_upr | quant025 | quant975 | female_mass | male_mass |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.0000000 | 983.0272 | 26.76770 | 769.3864 | 1256.003 | 931.5244 | 1036.295 | 1011.028 | 967.3705 |
+| 0.0424658 | 1232.8231 | 30.08225 | 990.0386 | 1535.157 | 1174.8634 | 1292.607 | 1267.939 | 1213.1879 |
+| 0.0849315 | 1498.2581 | 37.14344 | 1229.5370 | 1825.723 | 1426.7071 | 1572.089 | 1540.935 | 1474.3954 |
+| 0.1232877 | 1747.8713 | 45.25512 | 1458.4778 | 2094.703 | 1660.7409 | 1837.873 | 1797.658 | 1720.0329 |
+| 0.1616438 | 2003.8171 | 53.21868 | 1696.1860 | 2367.260 | 1901.3875 | 2109.690 | 2060.895 | 1971.9023 |
+| 0.2041096 | 2291.4431 | 62.29993 | 1966.1135 | 2670.624 | 2171.5715 | 2415.419 | 2356.713 | 2254.9473 |
+
+``` r
 pred_mass <- gw_pred_mass %>% 
     select(age_yrs, mean_mass, sd_mass, female_mass, male_mass)
 
@@ -627,15 +411,26 @@ for (i in seq(from = 1.5, to = 75, by = 0.5)){
 }
 
 Vt_table_phase2 %>% filter(age_yrs >=1 & age_yrs <=5) %>% kable()
-
-Vt_table_phase2 %>% write_csv("data/Vt_table_phase2.csv", na = "", append = FALSE)
-# kable(tail(Vt_table_phase2))
-
-
 ```
 
-```{r Vt phase 2 by sex}
+| age_yrs |  Vt_mean |    Vt_sd | quant025 | quant975 |
+|--------:|---------:|---------:|---------:|---------:|
+|     1.0 | 120.4387 | 4.194378 | 112.1974 | 128.6753 |
+|     1.5 | 137.1352 | 3.717027 | 129.7506 | 144.4359 |
+|     2.0 | 153.6801 | 3.378019 | 146.9680 | 160.3140 |
+|     2.5 | 169.9373 | 3.168788 | 163.6403 | 176.1597 |
+|     3.0 | 185.7780 | 3.103697 | 179.6100 | 191.8722 |
+|     3.5 | 201.1014 | 3.151769 | 194.8378 | 207.2899 |
+|     4.0 | 215.8324 | 3.300676 | 209.2728 | 222.3132 |
+|     4.5 | 229.9168 | 3.496525 | 222.9680 | 236.7821 |
+|     5.0 | 243.3192 | 3.714912 | 235.9364 | 250.6133 |
 
+``` r
+Vt_table_phase2 %>% write_csv("data/Vt_table_phase2.csv", na = "", append = FALSE)
+# kable(tail(Vt_table_phase2))
+```
+
+``` r
 #################### Vt table - Phase 2 - female #################################
 Vt_table_phase2_f <- as.data.frame(matrix(ncol = 6, nrow = 0))
 
@@ -661,7 +456,18 @@ Vt_table_phase2_f <- as_tibble(Vt_table_phase2_f,
 
 
 kable(head(gw_pred_mass))
+```
 
+| age_yrs | mean_mass | sd_mass | mean_lwr | mean_upr | quant025 | quant975 | female_mass | male_mass |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.0000000 | 983.0272 | 26.76770 | 769.3864 | 1256.003 | 931.5244 | 1036.295 | 1011.028 | 967.3705 |
+| 0.0424658 | 1232.8231 | 30.08225 | 990.0386 | 1535.157 | 1174.8634 | 1292.607 | 1267.939 | 1213.1879 |
+| 0.0849315 | 1498.2581 | 37.14344 | 1229.5370 | 1825.723 | 1426.7071 | 1572.089 | 1540.935 | 1474.3954 |
+| 0.1232877 | 1747.8713 | 45.25512 | 1458.4778 | 2094.703 | 1660.7409 | 1837.873 | 1797.658 | 1720.0329 |
+| 0.1616438 | 2003.8171 | 53.21868 | 1696.1860 | 2367.260 | 1901.3875 | 2109.690 | 2060.895 | 1971.9023 |
+| 0.2041096 | 2291.4431 | 62.29993 | 1966.1135 | 2670.624 | 2171.5715 | 2415.419 | 2356.713 | 2254.9473 |
+
+``` r
 pred_mass <- gw_pred_mass %>% 
     dplyr::select(age_mth, age_yrs, mean_mass, sd_mass, female_mass, male_mass)
 
@@ -709,8 +515,18 @@ for (i in seq(from = 2, to = 75, by = 0.5)){
 
 Vt_table_phase2_f %>% write_csv("data/Vt_table_phase2_f.csv", na = "", append = FALSE)
 kable(tail(Vt_table_phase2_f))
+```
 
+| age_yrs | Vt_mean_f |  Vt_sd_f | quant025_f | quant975_f |
+|--------:|----------:|---------:|-----------:|-----------:|
+|    72.5 |  431.8188 | 5.520291 |   420.8472 |   442.6569 |
+|    73.0 |  431.8189 | 5.520349 |   420.8472 |   442.6571 |
+|    73.5 |  431.8190 | 5.520390 |   420.8472 |   442.6573 |
+|    74.0 |  431.8191 | 5.520442 |   420.8472 |   442.6575 |
+|    74.5 |  431.8191 | 5.520502 |   420.8471 |   442.6577 |
+|    75.0 |  431.8192 | 5.520538 |   420.8471 |   442.6578 |
 
+``` r
 #################### Vt table - Phase 2 - male #################################
 Vt_table_phase2_m <- as.data.frame(matrix(ncol = 6, nrow = 0))
 
@@ -736,7 +552,18 @@ Vt_table_phase2_m <- as_tibble(Vt_table_phase2_m,
 
 
 kable(head(gw_pred_mass))
+```
 
+| age_yrs | mean_mass | sd_mass | mean_lwr | mean_upr | quant025 | quant975 | female_mass | male_mass |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.0000000 | 983.0272 | 26.76770 | 769.3864 | 1256.003 | 931.5244 | 1036.295 | 1011.028 | 967.3705 |
+| 0.0424658 | 1232.8231 | 30.08225 | 990.0386 | 1535.157 | 1174.8634 | 1292.607 | 1267.939 | 1213.1879 |
+| 0.0849315 | 1498.2581 | 37.14344 | 1229.5370 | 1825.723 | 1426.7071 | 1572.089 | 1540.935 | 1474.3954 |
+| 0.1232877 | 1747.8713 | 45.25512 | 1458.4778 | 2094.703 | 1660.7409 | 1837.873 | 1797.658 | 1720.0329 |
+| 0.1616438 | 2003.8171 | 53.21868 | 1696.1860 | 2367.260 | 1901.3875 | 2109.690 | 2060.895 | 1971.9023 |
+| 0.2041096 | 2291.4431 | 62.29993 | 1966.1135 | 2670.624 | 2171.5715 | 2415.419 | 2356.713 | 2254.9473 |
+
+``` r
 pred_mass <- gw_pred_mass %>% 
     dplyr::select(age_mth, age_yrs, mean_mass, sd_mass, female_mass, male_mass)
 
@@ -784,117 +611,20 @@ for (i in seq(from = 2, to = 75, by = 0.5)){
 
 Vt_table_phase2_m %>% write_csv("data/Vt_table_phase2_m.csv", na = "", append = FALSE)
 kable(tail(Vt_table_phase2_m))
-
-
-
 ```
+
+| age_yrs | Vt_mean_m |  Vt_sd_m | quant025_m | quant975_m |
+|--------:|----------:|---------:|-----------:|-----------:|
+|    72.5 |  431.8188 | 5.520291 |   420.8472 |   442.6569 |
+|    73.0 |  431.8189 | 5.520349 |   420.8472 |   442.6571 |
+|    73.5 |  431.8190 | 5.520390 |   420.8472 |   442.6573 |
+|    74.0 |  431.8191 | 5.520442 |   420.8472 |   442.6575 |
+|    74.5 |  431.8191 | 5.520502 |   420.8471 |   442.6577 |
+|    75.0 |  431.8192 | 5.520538 |   420.8471 |   442.6578 |
 
 Tidal Volume plots
 
-```{r Vt plots, echo=FALSE}
+![](TidalVolume_files/figure-gfm/Vt%20plots-1.png)<!-- -->![](TidalVolume_files/figure-gfm/Vt%20plots-2.png)<!-- -->
 
-Vt_mean <- Vt_table_phase2$Vt_mean
-Vt_sd <- Vt_table_phase2$Vt_sd
-quant025 <-  Vt_table_phase2$quant025
-quant975 <- Vt_table_phase2$quant975
-
-plot_Vt_table <- Vt_table_phase2 %>%
-        filter(age_yrs <=40) %>% 
-        ggplot(aes(x = age_yrs, y = Vt_mean))+
-        geom_ribbon(aes(ymin = quant025, ymax = quant975),fill = "gray80") +
-        geom_line() +
-        xlab("Age (years)") +
-        ylab(bquote('Mean Tidal Volume (L)')) +
-        scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
-                           limits = c(0, 40)) +
-        scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                           labels = scales::comma) +
-        theme_bw() +
-        theme(panel.grid = element_blank(),
-              axis.title.x = element_text(size = rel(1.4), colour = "black"),
-              axis.text.x = element_text(size = rel(1.2), colour = "black"),
-              axis.title.y = element_text(size = rel(1.4), colour = "black"),
-              axis.text.y = element_text(size = rel(1.2), colour = "black"),
-              strip.background = element_blank(),
-              legend.position="none" 
-              ) 
-       
-
-plot_Vt_table
-
-
-plot_Vt_table_female <- Vt_table_phase2_f %>%
-        filter(age_yrs <=40) %>% 
-        ggplot(aes(x = age_yrs, 
-                   y = Vt_mean_f)) +
-        geom_ribbon(aes(ymin = quant025_f,
-                        ymax = quant975_f),
-                    fill = "gray80") +
-        geom_line(aes(x = age_yrs,
-                      y = Vt_mean_f)) +
-        xlab("Age (years)") +
-        ylab(bquote('Mean Tidal Volume (L)')) +
-        scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
-                           limits = c(0, 40)) +
-        scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                           labels = scales::comma) +
-        theme_bw() +
-        theme(panel.grid = element_blank(),
-              axis.title.x = element_text(size = rel(1.4), colour = "black"),
-              axis.text.x = element_text(size = rel(1.2), colour = "black"),
-              axis.title.y = element_text(size = rel(1.4), colour = "black"),
-              axis.text.y = element_text(size = rel(1.2), colour = "black"),
-              strip.background = element_blank(),
-              legend.position="none" 
-              )+
-        ggtitle("Female")
-     
-
-plot_Vt_table_male <- Vt_table_phase2_m %>%
-        filter(age_yrs <=40) %>% 
-        ggplot(aes(x = age_yrs, 
-                   y = Vt_mean_m)) +
-        geom_ribbon(aes(ymin = quant025_m,
-                        ymax = quant975_m),
-                    fill = "gray80") +
-        geom_line(aes(x = age_yrs,
-                      y = Vt_mean_m)) +
-        xlab("Age (years)") +
-        ylab(bquote('Mean Tidal Volume (L)')) +
-        scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
-                           limits = c(0, 40)) +
-        scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                           labels = scales::comma) +
-        theme_bw() +
-        theme(panel.grid = element_blank(),
-              axis.title.x = element_text(size = rel(1.4), colour = "black"),
-              axis.text.x = element_text(size = rel(1.2), colour = "black"),
-              axis.title.y = element_text(size = rel(0.8), colour = "white"),
-              axis.text.y = element_text(size = rel(0.6), colour = "white"),
-              strip.background = element_blank(),
-              legend.position="none" 
-              ) +
-        ggtitle("Male")
-     
-
-#save multi-panel plot as hi-res jpg
-multiplot(plot_Vt_table_female, plot_Vt_table_male, cols=2)
-
-
-jpeg(filename = paste0(Figurespath,"/Vt_by_sex.jpg"), 
-     width = 3000,
-     height = 1500,
-     pointsize = 35, 
-     quality = 100, 
-     bg = "white", 
-     res = 300, 
-     restoreConsole = TRUE)
-
-
-p <- multiplot(plot_Vt_table_female, plot_Vt_table_male, cols=2)
-
-
-dev.off()
-
-
-```
+    ## png 
+    ##   2
