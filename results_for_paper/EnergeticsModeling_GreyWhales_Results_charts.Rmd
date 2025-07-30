@@ -1463,60 +1463,14 @@ theme_bw() +
 plot_Es_sensAnalysis_phase2_peryear
 
 ```
-`
+
+Es for all life stages including pregnant and lactating
+
 ```{r Es preg lact, echo=FALSE}
 
 #read in preg and lact table. 
-
-
-
-plot_Es_preg_lact <- Es_lact_table %>%
-  ggplot() +
-  geom_errorbar(data = Es_lact_table,
-                aes(x = age_yrs,
-                    ymin = Es - Es_sd,
-                    ymax = Es + Es_sd),
-                linetype = 3, colour = 'red', width = 0) +
-  geom_point(data = Es_lact_table, aes(x = age_yrs, y =Es)) +
-  geom_point(data = Es_preg_table, aes(x = age_yrs, y =Es)) +
-
-  geom_errorbar(data = Es_preg_table,
-                aes(x = age_yrs,
-                    ymin = Es - Es_sd,
-                    ymax = Es + Es_sd),
-                linetype = 3, colour = 'blue', width = 0) +
-  facet_grid(~MC_variable)+
-   xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
-  theme_bw()+
-    theme(panel.grid = element_blank())+
-  theme(legend.position = 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
-  theme(panel.border = element_blank())+
-  theme(axis.line = element_line(size = 1, colour = "gray75"))+
-  theme(axis.text = element_text(colour = "black", size = rel(1)))+
-  theme(axis.title.y = element_text(colour = "black",
-                                    size = rel(1), angle = 90))+
-  theme(axis.title.x = element_text(colour = "black",
-                                    size = rel(1)))+
-  ggtitle("Es preg (blue) and lact (red) table")
-
-plot_Es_preg_lact
-
-# ggplot()+
-#   geom_point(data = Es_lact_table, aes(x= age_yrs, y = Es))+
-#   geom_line(data = Es_preg_table, aes(x= age_yrs, y = Es))
-
-### figure out how to put lactating and pregnant into one table and plot with legend/key
-
-```
-
-Es for all adults including pregnant and lactating
-
-```{r plots_Es_preg_lact_annual_perday}
-#read in preg and lact tables
-
+Es_preg_table  <-  read_csv("data/Es_sensAnalysis_preg_peryear_source_bpm.csv")
+Es_lact_table <- read_csv("data/Es_sensAnalysis_lact_peryear_source_bpm.csv")
 
 
 #Limit tibbles to 30 yrs
