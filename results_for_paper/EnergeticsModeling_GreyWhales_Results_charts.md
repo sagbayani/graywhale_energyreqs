@@ -1,7 +1,7 @@
 ENERGY REQUIREMENTS OF GREY WHALES
 ================
 Selina Agbayani
-29 July, 2025
+31 July, 2025
 
 ## RESULTS
 
@@ -19,11 +19,7 @@ Selina Agbayani
 
 #### Grey whale calves
 
-    ## Error: 'data/Es_table_phase1_permth_source_bpm.csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
-
-    ## Error in eval(expr, envir, enclos): object 'Es_table_phase1_permth' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_Es_table_phase1_mthly_perday' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_table_phase1_permth-1.png)<!-- -->
 
 Figure 4. Estimates of daily energetic expenditure from activity (MJ
 day<sup>-1</sup>) for each month in the first year (Phase 1). Error bars
@@ -42,44 +38,20 @@ Error bars represent SD.
 
 #### Grey whale calves
 
-    ## Error: 'data/predict_GER_table_phase1_permth_source_bpm.csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_phase1_permth' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_predict_GER_phase1_permth' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_phase1_permth-1.png)<!-- -->
 
 Figure 6. Daily Gross Energy Requirements (GER) for calves in the first
 year in MJ day<sup>-1</sup>. Error bars represent SD.
 
 #### Grey whale juveniles / adults
 
-    ## Error: 'data/predict_GER_table_phase2_source_bpm.csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_phase2' not found
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_phase2' not found
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_phase2' not found
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_phase2' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_predict_GER_all_yr_phase2' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_predict_GER_phase2_both_annual_foraging' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_phase2-1.png)<!-- -->
 
 Figure 7. Daily gross energy requirements over the year compared to
 gross daily requirements when foraging is limited to the summer season.
 Foraging season spans ~154 days for juveniles and adults.
 
-    ## Error: 'data/predict_GER_table_all_preg_lact_source_bpm.csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_3panel' not found
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_3panel' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_GER_3panel' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_GER_3panel' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_preg_lact-1.png)<!-- -->
 
 Figure 8. Estimates for gross energy requirements for pregnant,
 lactating females, and others (juvenile and other adult grey whales).
@@ -94,15 +66,7 @@ lactating females. Error bars represent SD.
 
 #### Grey whale calves
 
-    ## Error: 'data/predict_GER_table_phase1_permth_source_bpm.csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_phase1_permth' not found
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_phase1_permth' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_MilkReqs_phase1' not found
-
-    ## Error in eval(expr, envir, enclos): object 'milkreqs_figure' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plot_milk_food_reqs_phase1-1.png)<!-- -->
 
 Figure 9. Daily milk requirements for calves. The left panel represents
 milk requirements (L day<sup>-1</sup>) for calves up to 9 months (left
@@ -111,13 +75,7 @@ invertebrate prey day<sup>-1</sup>) for weaned calves over 9 months.
 
 #### Grey whale juveniles and adults, including pregnant and lactating
 
-    ## Error: 'data/predict_GER_table_all_preg_lact_source_bpm.csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_3panel' not found
-
-    ## Error in eval(expr, envir, enclos): object 'predict_GER_table_3panel' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_FoodReqs_3panel' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plot_FoodReqs_3panel-1.png)<!-- -->
 
 Figure 10. Food requirements (kg day-1) of benthic invertebrate prey for
 pregnant females, lactating females, and others (juveniles and other
@@ -126,13 +84,7 @@ be ~154 days for single juveniles (1-7 y) and adults (\> 8 y), ~153 days
 for pregnant females, and ~119 days for lactating females. Error bars
 represent SD.
 
-    ## Error: 'data/pct_bodyweight_all_lact_preg.csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
-
-    ## Error in eval(expr, envir, enclos): object 'pct_bodyweight_all' not found
-
-    ## Error in eval(expr, envir, enclos): object 'pct_bodyweight_all' not found
-
-    ## Error in eval(expr, envir, enclos): object 'plot_pct_bodyweight_all' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plot_pct_bodywt_consumed_3panel-1.png)<!-- -->
 
 Figure 11. Percentage of body weight consumed day-1 during the foraging
 season for juveniles and other adults, pregnant females, and lactating
@@ -202,41 +154,20 @@ Figure 19. Results for the sensitivity analysis on *E<sub>s</sub>*
 (total energetic expenditure) for Juvenile and adult grey whales,
 including pregnant and lactating females.
 
-``` r
-plot_Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>% 
-  dplyr::filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, 
-                    ymax = Es_perday + Es_sd_perday),
-                linetype = 3, colour = 'gray40', width = 0) +
-  geom_point(aes(x = age_yrs, y =Es_perday)) +
-  facet_grid(~MC_variable)+
-  xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
-  scale_y_continuous(label=comma,
-                     breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0,1400), expand=c(0,0))+
-  theme_bw()+
-theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(legend.position = 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
-  theme(panel.border = element_blank())+
-  theme(axis.line = element_line(size = 1, colour = "gray75"))+
-  theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
-  theme(axis.title.y = element_text(colour = "black", 
-                                    size = rel(1.4), angle = 90))+
-  theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1.4)))
-```
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plots_Es_phase2_peryear-1.png)<!-- -->
 
-    ## Error in eval(expr, envir, enclos): object 'Es_sensAnalysis_phase2_peryear' not found
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plots_Es_phase2_stacked-1.png)<!-- -->
 
-``` r
-plot_Es_sensAnalysis_phase2_peryear
-```
+Es for all life stages including pregnant and lactating
 
-    ## Error in eval(expr, envir, enclos): object 'plot_Es_sensAnalysis_phase2_peryear' not found
+    ## Error in `vroom::vroom()`:
+    ## ! `file` is not one of the supported inputs:
+    ## • A filepath or character vector of filepaths
+    ## • A connection or list of connections
+    ## • Literal or raw input
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20preg%20lact-1.png)<!-- -->
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_preg_stacked-1.png)<!-- -->
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_lact_stacked-1.png)<!-- -->
