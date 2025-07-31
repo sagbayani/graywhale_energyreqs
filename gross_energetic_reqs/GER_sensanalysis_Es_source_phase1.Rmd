@@ -522,7 +522,7 @@ MC calculations for Production Cost and Es
 #Energy Density values
 ED_milk = 22.33 #MJ/kg   Average between Tomilin 1946 and Zenkovich 1938,    (Sumich 1986 - cited 22.4  MJ/kg)
 
-MC_reps = 10
+MC_reps = 10000
 
 
 ```
