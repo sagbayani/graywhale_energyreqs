@@ -3,8 +3,8 @@ title:  "Energy Expenditure (Es) Sensitivity Analysis - Pregnant"
 author: "Selina Agbayani"
 date: "10 March 2022 - code updated `r format(Sys.time(), '%d %B, %Y')`"
 output:
-  html_document:
   github_document:
+  html_document:
 editor_options: 
   chunk_output_type: console
 ---
