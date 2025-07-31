@@ -564,7 +564,7 @@ V~t~ - Tidal lung volume (L)
 #Original code was run with MC_reps <- 10000  and took a very long time
 #To test and explore the code, use less reps 
 
-MC_reps = 10000
+MC_reps = 100
 
 # lactating only 
 Lifestage <-  "Lactating"
@@ -768,12 +768,12 @@ Es_sensAnalysis_lact_females <- read_csv("data/Es_sensAnalysis_lact_females_sour
 plot_Es_sensAnalysis_lact_females <- Es_sensAnalysis_lact_females %>% 
   filter(age_yrs<=40) %>% 
   ggplot(aes(x = age_yrs, y = Es_perday))+
-  # geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-  #               colour = "gray80", width = 0.02)+
-  #  geom_point()+
-   geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                fill = "gray70")+
-  geom_line(linewidth = 0.5)+
+  geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+                linetype = 1, colour = "gray40", width = 0.02)+
+   geom_point(size = 0.5)+
+  #  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  #               fill = "gray70")+
+  # geom_line(linewidth = 0.5)+
    facet_grid(MC_variable ~ Activity_stages,
               labeller = label_wrap_gen(width = 2, 
                                         multi_line = TRUE)) +
@@ -787,19 +787,21 @@ plot_Es_sensAnalysis_lact_females <- Es_sensAnalysis_lact_females %>%
                       limits =  c(0, 2500))+
 
  
-  ggtitle("Lactating")+
+  #ggtitle("Lactating")+
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position.inside = 0)+
   # theme(plot.background = element_rect(fill = "black"))+
   # theme(panel.background = element_rect(fill = "black"))+
-  theme(panel.border = element_blank())+
+  #theme(panel.border = element_blank())+
   theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 
                                     size = rel(1), angle = 90))+
   theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1)))
+                                    size = rel(1)))+
+    theme(strip.background = element_rect(colour = "transparent", fill = "transparent"))+
+  theme(strip.text = element_text(colour = "black", size = rel(1)))
 
 plot_Es_sensAnalysis_lact_females
 
@@ -866,11 +868,11 @@ Es_lact_table %>%
 plot_Es_lact_table <- Es_lact_table %>% 
   filter(age_yrs <= 30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) +
-  # geom_errorbar(aes(ymin = Es_perday - Es_sd_perday, 
+  # geom_errorbar(aes(ymin = Es_perday - Es_sd_perday,
   #                   ymax = Es_perday + Es_sd_perday),
-  #               linetype = 3, colour = 'gray40', width = 0) +
-  # geom_point() +
-  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  #               linetype = 1, colour = 'gray40', width = 0) +
+  # geom_point(size = 0.5) +
+  geom_ribbon(aes(ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
                 fill = "gray70")+
   geom_line(linewidth = 0.5)+
   facet_grid(~MC_variable)+
@@ -890,13 +892,15 @@ plot_Es_lact_table <- Es_lact_table %>%
   theme(legend.position.inside= 0)+
   # theme(plot.background = element_rect(fill = "black"))+
   # theme(panel.background = element_rect(fill = "black"))+
-  theme(panel.border = element_blank())+
+  #theme(panel.border = element_blank())+
   theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 
                                     size = rel(1), angle = 90))+
   theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1)))
+                                    size = rel(1)))+
+  theme(strip.background = element_rect(colour = "transparent", fill = "transparent"))+
+  theme(strip.text = element_text(colour = "black", size = rel(1)))
 
 plot_Es_lact_table
 
