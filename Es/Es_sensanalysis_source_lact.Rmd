@@ -1,5 +1,5 @@
 ---
-title:  "Energy Expenditure (Es) Sensitivity Analysis - Pregnant"
+title:  "Energy Expenditure (Es) Sensitivity Analysis - Lactating"
 author: "Selina Agbayani"
 date: "10 March 2022 - code updated `r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -16,7 +16,6 @@ knitr::opts_chunk$set(error = TRUE)
 knitr::opts_chunk$set(warning = TRUE)
 
 options(readr.show_col_types = FALSE) #quiet col types messages
-
 ## Setup
 
 # Initialize all libraries, set paths for output figures, then import the gw_observations.csv
@@ -561,20 +560,20 @@ T~s~ - The no. of days in that stage
 R~s~ - Respiration rate (breaths/day)  
 V~t~ - Tidal lung volume (L)  
 
-```{r Es_preg}
-
+```{r Es_lact}
 #Original code was run with MC_reps <- 10000  and took a very long time
 #To test and explore the code, use less reps 
 
 MC_reps = 10000
 
-Lifestage <- "Pregnant"
+# lactating only 
+Lifestage <-  "Lactating"
 activity_stages <- Activity_days %>%
-  filter(Lifestage == "Pregnant")
+  filter(Lifestage == "Lactating")
 
 activity_stages  <-  activity_stages$Activity_stages
 
-Es_sensAnalysis_preg_females <- as.data.frame(matrix(ncol = 18, nrow = 0))
+Es_sensAnalysis_lact_females <- as.data.frame(matrix(ncol = 18, nrow = 0))
 
 cnames <- c("age_yrs","Lifestage","Activity_stages","MC_variable",
             "no_days", "mean_bpm", "se_bpm", "mean_bpd",
@@ -583,14 +582,12 @@ cnames <- c("age_yrs","Lifestage","Activity_stages","MC_variable",
             "Es_perday_quant025", "Es_perday_quant975", #2.5% and 97.5% quantile from bootstrap estimates
             "Es","Es_sd","Es_quant025","Es_quant975"
 )
-        
+     
 
+colnames(Es_sensAnalysis_lact_females) <- cnames
 
-
-colnames(Es_sensAnalysis_preg_females) <- cnames
-
-Es_sensAnalysis_preg_females <- 
-  as_tibble(Es_sensAnalysis_preg_females,
+Es_sensAnalysis_lact_females <- 
+  as_tibble(Es_sensAnalysis_lact_females,
             col_types = (list(ID = col_integer(), 
                               age_yrs = col_double(),
                               Lifestage = col_double(),
@@ -618,23 +615,24 @@ Es_sensAnalysis_preg_females <-
 
 
 for (age in seq(from = 8, to = 75, by = 1)){
+  
   for (MC_var in c("all","Rs", "Vt", "pctO2")){
     
-     
-    for (activity in activity_stages){
+    
+    for (activity in activity_stages){   
       
       strcolname <- as.character(age)
       
-      A_cost_i <- dplyr::filter(A_cost_reference, 
-                                Lifestage == Lifestage &
-                                  Activity_stages == activity &
-                                  age >= age_yrs_min &
-                                  age <= age_yrs_max)
+      A_cost_i <- filter(A_cost_reference, 
+                         Lifestage == Lifestage &
+                           Activity_stages == activity &
+                           age >= age_yrs_min &
+                           age <= age_yrs_max)
       
       if (nrow(A_cost_i) > 0) {
         Vt_table_i <- filter(Vt_table_phase2, age_yrs == age-0.5)
-        
 
+        
         # O2 extraction efficiency
         pct_O2_i <- A_cost_i$pct_O2 /100
         if (MC_var == "all" || MC_var == "pctO2"){
@@ -658,12 +656,13 @@ for (age in seq(from = 8, to = 75, by = 1)){
         
         bpm_tibble <- as.data.frame(matrix(ncol = 2, nrow=0))
         colnames(bpm_tibble) <- c("mean_bpm", "sd_bpm")
-        bpm_tibble <- as_tibble(bpm_tibble,
-                                col_types = (list(ID = col_integer(), 
-                                                  mean_bpm = col_double(),
-                                                  sd_bpm = col_double()
-                                                  
-                                )))
+        bpm_tibble <- 
+          as_tibble(bpm_tibble,
+                    col_types = (list(ID = col_integer(), 
+                                      mean_bpm = col_double(),
+                                      sd_bpm = col_double()
+                                      
+                    )))
         
         for (i in seq(from = 1, to = MC_reps, by = 1)){
           
@@ -686,6 +685,7 @@ for (age in seq(from = 8, to = 75, by = 1)){
         
         mean_bpm_reps <- bpm_tibble$mean_bpm
         
+       
         # breaths/day
         bpd <- mean_bpm_reps * 60 * 24
         # plot(bpd)
@@ -699,14 +699,17 @@ for (age in seq(from = 8, to = 75, by = 1)){
         
         #tidal volume (mass dependent)
         Vt_i <- Vt_table_i$Vt_mean
+        
         if (MC_var == "all" || MC_var == "Vt"){
           Vt_sd_i <- Vt_table_i$Vt_sd  
         } else {
           Vt_sd_i = 0
         }
         
+        
         set.seed(12345)
         Vt <- rnorm(MC_reps, Vt_i, Vt_sd_i)
+        #plot(Vt)
         Vt_mean_i <- mean(Vt)
         Vt_sd_i <- sd(Vt)
         #plot(Vt)
@@ -744,47 +747,52 @@ for (age in seq(from = 8, to = 75, by = 1)){
                       Es_quant025 = Es_quant025, 
                       Es_quant975 = Es_quant975)
         
-        Es_sensAnalysis_preg_females  <- 
-          rbind(Es_sensAnalysis_preg_females , row)
+        Es_sensAnalysis_lact_females <- rbind(Es_sensAnalysis_lact_females, row)
       }
     }    
   }}
 
 
 
-kable(head(Es_sensAnalysis_preg_females))
+kable(head(Es_sensAnalysis_lact_females))
 
-Es_sensAnalysis_preg_females  %>% write_csv("data/Es_sensAnalysis_preg_source_bpm.csv", na = "", append = FALSE)
+
+
+Es_sensAnalysis_lact_females %>% write_csv("data/Es_sensAnalysis_lact_females_source_bpm.csv", na = "", append = FALSE)
 
 ```
 
-```{r plots_Es_preg_stacked}
-Es_sensAnalysis_preg_females <- read_csv("data/Es_sensAnalysis_preg_source_bpm.csv")
+```{r Es_lact_stacked}
+Es_sensAnalysis_lact_females <- read_csv("data/Es_sensAnalysis_lact_females_source_bpm.csv")
 
-plot_Es_sensAnalysis_preg_females <- Es_sensAnalysis_preg_females %>% 
-  filter(age_yrs <=40) %>% 
+plot_Es_sensAnalysis_lact_females <- Es_sensAnalysis_lact_females %>% 
+  filter(age_yrs<=40) %>% 
   ggplot(aes(x = age_yrs, y = Es_perday))+
   # geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
   #               colour = "gray80", width = 0.02)+
   #  geom_point()+
-  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+   geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 fill = "gray70")+
   geom_line(linewidth = 0.5)+
    facet_grid(MC_variable ~ Activity_stages,
-              labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
-  xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
+              labeller = label_wrap_gen(width = 2, 
+                                        multi_line = TRUE)) +
+   xlab("Age (years)") +
+   ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) + 
+   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
                      limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
+   #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
    scale_y_continuous(label=comma,
                       breaks = scales::pretty_breaks(n = 5),
                       limits =  c(0, 2500))+
+
  
-  ggtitle("Pregnant females")+
+  ggtitle("Lactating")+
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position.inside = 0)+
+  # theme(plot.background = element_rect(fill = "black"))+
+  # theme(panel.background = element_rect(fill = "black"))+
   theme(panel.border = element_blank())+
   theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
@@ -793,70 +801,69 @@ plot_Es_sensAnalysis_preg_females <- Es_sensAnalysis_preg_females %>%
   theme(axis.title.x = element_text(colour = "black", 
                                     size = rel(1)))
 
-plot_Es_sensAnalysis_preg_females
+plot_Es_sensAnalysis_lact_females
+
 
 ```
 
-```{r Es_preg_peryear}
-# pregnant only 
-#pull out blank Es_subtable
-Es_subtable_preg <- Es_sensAnalysis_preg_females %>%
-  filter(age_yrs >999, Lifestage == Lifestage)
+```{r Es_lact_peryear}
 
-kable(head(Es_sensAnalysis_preg_females))
+# lactating only
+Es_subtable_lact <- Es_sensAnalysis_lact_females %>% dplyr::filter(age_yrs >999, Lifestage == Lifestage)
+kable(head(Es_sensAnalysis_lact_females))
 
-
-Es_preg_table  <- Es_subtable_preg %>%  
+Es_lact_table  <- Es_subtable_lact %>%  
   select(age_yrs, Lifestage, no_days, MC_variable, Es, Es_sd)
+
 
 
 ## Calculate sum of Es for pregnant females aged 8+
 for (age in seq(from = 8, to = 75, by = 1)){
   for (MC_var in c("all","Rs", "Vt", "pctO2")){
-  #i = 8
-  max_age <- age + 1
-  Es_subtable_preg <- 
-    Es_sensAnalysis_preg_females %>% 
-    filter(age_yrs==age & MC_variable == MC_var) %>% 
-    select(age_yrs, Lifestage, no_days, MC_variable, Es, Es_sd)
-  
-  no_days <- sum(Es_subtable_preg$no_days)
-  Es_preg <- sum(Es_subtable_preg$Es)
-  
-  sum_of_variances <- 0
-  for (row in 1:nrow(Es_subtable_preg)){
-    Es_subtable_preg_i <- Es_subtable_preg[row, "Es"]
-    Es_sd_i <- Es_subtable_preg[row, "Es_sd"]
-    sum_of_variances <- sum_of_variances + (Es_sd_i)^2
-  }
-  Es_preg_sd  <-  sqrt(sum_of_variances$Es_sd)
-  
-  
-  
-  newRow <- tibble(age_yrs = age,
-                   Lifestage = Lifestage,
-                   no_days = no_days,
-                   MC_variable = MC_var, 
-                   Es = Es_preg,
-                   Es_sd = Es_preg_sd
-  )
-  
-  Es_preg_table <- rbind(Es_preg_table, newRow)
-}}
-
-Es_preg_table$Es_perday <- Es_preg_table$Es/Es_preg_table$no_days
-Es_preg_table$Es_sd_perday <- Es_preg_table$Es_sd/Es_preg_table$no_days
+    max_age <- age + 1
+    Es_subtable_lact <- 
+      Es_sensAnalysis_lact_females %>%
+      dplyr::filter(age_yrs==age & MC_variable == MC_var) %>% 
+      dplyr::select(age_yrs, Lifestage, Activity_stages, no_days, MC_variable, Es, Es_sd)
+    
+    no_days <- sum(Es_subtable_lact$no_days)
+    Es_lact <- sum(Es_subtable_lact$Es)
+    
+    sum_of_variances <- 0
+    for (row in 1:nrow(Es_subtable_lact)){
+      Es_subtable_lact_i <- Es_subtable_lact[row, "Es"]
+      Es_sd_i <- Es_subtable_lact[row, "Es_sd"]
+      sum_of_variances <- sum_of_variances + (Es_sd_i)^2
+    }
+    Es_lact_sd  <-  sqrt(sum_of_variances$Es_sd)
+    
+    
+    
+    newRow <- tibble(age_yrs = age,
+                     Lifestage = Lifestage,
+                     no_days = no_days,
+                     MC_variable = MC_var, 
+                     Es = Es_lact,
+                     Es_sd = Es_lact_sd
+    )
+    
+    Es_lact_table <- rbind(Es_lact_table, newRow)
+  }}
 
 
-Es_preg_table %>% 
-  write_csv("data/Es_sensAnalysis_preg_peryear_source_bpm.csv", 
+Es_lact_table$Es_perday <- Es_lact_table$Es / Es_lact_table$no_days 
+Es_lact_table$Es_sd_perday <- Es_lact_table$Es_sd / Es_lact_table$no_days
+
+Es_lact_table %>% 
+  write_csv("data/Es_sensAnalysis_lact_peryear_source_bpm.csv", 
             na = "", append = FALSE)
 
 ```
 
-```{r plots_Es_preg_peryear}
 
-plot_Es_preg_table <- Es_preg_table %>% 
+```{r plots_Es_lact_peryear}
+
+plot_Es_lact_table <- Es_lact_table %>% 
   filter(age_yrs <= 30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) +
   # geom_errorbar(aes(ymin = Es_perday - Es_sd_perday, 
@@ -877,7 +884,7 @@ plot_Es_preg_table <- Es_preg_table %>%
                      limits =  c(0, 1500))+
   
   #limits = c(0,1400), expand=c(0,0))+
-  ggtitle("Pregnant")+
+  ggtitle("Lactating")+
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position.inside= 0)+
@@ -891,10 +898,9 @@ plot_Es_preg_table <- Es_preg_table %>%
   theme(axis.title.x = element_text(colour = "black", 
                                     size = rel(1)))
 
-plot_Es_preg_table
+plot_Es_lact_table
 
 
 
 ```
-
 

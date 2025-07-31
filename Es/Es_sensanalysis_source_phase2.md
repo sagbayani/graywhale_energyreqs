@@ -1,7 +1,7 @@
 Energy Expenditure (Es) Sensitivity Analysis - Phase 2
 ================
 Selina Agbayani
-02 March 2022 - code updated 29 July, 2025
+02 March 2022 - code updated 30 July, 2025
 
 ``` r
 # Set path for output figures: 
@@ -578,13 +578,35 @@ Es_sensAnalysis_phase2 <- read_csv("data/Es_sensAnalysis_phase2_source_bpm.csv")
 
 ``` r
 plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>% 
-  ggplot(aes(x = age_yrs, y = Es))+
-  geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
-                colour = "blue", width = 0.02)+
-  geom_point()+
+  ggplot(aes(x = age_yrs, y = Es_perday))+
+  # geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  #               colour = "gray45", width = 0.02)+
+  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+                fill = "gray70")+
+  geom_line(linewidth = 0.5)+
   facet_grid(MC_variable ~ Activity_stages,
              labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
-  ggtitle("Es table - phase 2")
+  ggtitle("Phase 2 - Juveniles/Adults")+
+  xlab("Age (years)") +
+  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
+                     limits = c(0, 30.5))+
+  #limits = c(0, 30.5), expand=c(0,0) +  # max x-axis 30 yrs.
+  scale_y_continuous(label=comma,
+                      breaks = scales::pretty_breaks(n = 4),
+                      limits =  c(0, 2000))+
+
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  theme(legend.position.inside = 0)+
+  theme(panel.border = element_blank())+
+  theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
+  theme(axis.text = element_text(colour = "black", size = rel(1)))+
+  theme(axis.title.y = element_text(colour = "black", 
+                                    size = rel(1), angle = 90))+
+  theme(axis.title.x = element_text(colour = "black", 
+                                    size = rel(1)))
+
 
 plot_Es_sensAnalysis_phase2
 ```
