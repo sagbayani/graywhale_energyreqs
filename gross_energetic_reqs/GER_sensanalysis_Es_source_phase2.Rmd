@@ -579,7 +579,7 @@ ED_prey_sd = 0.0408  #calculated from table 3
 ED_prey_min = 2.51   #from Coyle et al. 2007
 ED_prey_max = 3.41   #from Stoker 1978
 
-MC_reps = 10
+MC_reps = 10000
 
 
 
