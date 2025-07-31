@@ -49,9 +49,355 @@ library(reshape2)
 library(extrafont)
 library(truncnorm)
 
-source("functions.R")
+#source("functions.R")
 
 ```
+
+
+```{r declare functions and global variables, include=FALSE}
+
+# **Declare custom functions and global variables**
+########## Specify Decimal function ############################
+# 
+# For use in labelling the plots with equations, and rounding up the coefficients
+# to a specific no. of decimal places
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+
+############ Multiple plot function######################
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
+# If you find any errors, please email winston@stdout.org
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+########### functions used for carry out the fit ########
+
+## this function is avaible in: 
+# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
+# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
+
+##### as.lm function: ######
+
+        as.lm <- function(object, ...) UseMethod("as.lm")
+
+        as.lm.nls <- function(object, ...) {
+            if (!inherits(object, "nls")) {
+                w <- paste("expected object of class nls but got object of class:", 
+                    paste(class(object), collapse = " "))
+                warning(w)
+            }
+
+            gradient <- object$m$gradient()
+            if (is.null(colnames(gradient))) {
+                colnames(gradient) <- names(object$m$getPars())
+            }
+
+            response.name <- if (length(formula(object)) == 2) "0" else 
+                as.character(formula(object)[[2]])
+
+            lhs <- object$m$lhs()
+            L <- data.frame(lhs, gradient)
+            names(L)[1] <- response.name
+
+            fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+            fo <- as.formula(fo, env = as.proto.list(L))
+
+            do.call("lm", list(fo, offset = substitute(fitted(object))))
+
+        }
+
+############## End as.lm function 
+
+
+
+############### proto function: ############
+#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
+
+proto <- function(. = parent.env(envir), expr = {},
+                   envir = new.env(parent = parent.frame()), ...,
+                   funEnvir = envir) {
+  parent.env(envir) <- .
+  envir <- as.proto.environment(envir)  # must do this before eval(...)
+  # moved eval after for so that ... always done first
+  # eval(substitute(eval(quote({ expr }))), envir)
+  dots <- list(...); names <- names(dots)
+  for (i in seq_along(dots)) {
+    assign(names[i], dots[[i]], envir = envir)
+    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
+      environment(envir[[names[i]]]) <- funEnvir
+  }
+  eval(substitute(eval(quote({
+    expr
+  }))), envir)
+  if (length(dots))
+    as.proto.environment(envir)
+  else
+    envir
+}
+
+#' @export
+#' @rdname proto
+as.proto <- function(x, ...) {
+  UseMethod("as.proto")
+}
+
+#' @export
+#' @rdname proto
+as.proto.environment <- function(x, ...) {
+  assign(".that", x, envir = x)
+  assign(".super", parent.env(x), envir = x)
+  structure(x, class = c("proto", "environment"))
+}
+
+#' @export
+#' @rdname proto
+as.proto.proto <- function(x, ...) {
+  x
+}
+as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
+                          funEnvir = envir, SELECT = function(x) TRUE) {
+  if (missing(envir)) {
+    if (missing(parent))
+      parent <- parent.frame()
+    envir <- if (is.proto(parent))
+      parent$proto(...)
+    else
+      proto(parent, ...)
+  }
+  for (s in names(x))
+    if (SELECT(x[[s]])) {
+      assign(s, x[[s]], envir = envir)
+      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
+        environment(envir[[s]]) <- funEnvir
+    }
+  if (!missing(parent))
+    parent.env(envir) <- parent
+  as.proto.environment(envir)  # force refresh of .that and .super
+}
+
+#' @export
+"$<-.proto" <- function(this,s,value) {
+  if (s == ".super")
+    parent.env(this) <- value
+  if (is.function(value))
+    environment(value) <- this
+  this[[as.character(substitute(s))]] <- value
+  this
+}
+is.proto <- function(x) inherits(x, "proto")
+
+#' @export
+"$.proto" <- function(x, name) {
+  inherits <- substr(name, 1, 2) != ".."
+
+  res <- get(name, envir = x, inherits = inherits)
+  if (!is.function(res))
+    return(res)
+
+  if (deparse(substitute(x)) %in% c(".that", ".super"))
+    return(res)
+
+  structure(
+    function(...) res(x, ...),
+    class = "protoMethod",
+    method = res
+  )
+}
+
+#' @export
+print.protoMethod <- function(x, ...) {
+  cat("<ProtoMethod>\n")
+  print(attr(x, "method"), ...)
+}
+
+# modified from Tom Short's original
+#' @export
+str.proto <- function(object, max.level = 1, nest.lev = 0,
+                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
+                      ...) {
+  cat("proto", name.proto(object), "\n")
+  Lines <- utils::capture.output(utils::str(
+    as.list(object), max.level = max.level,
+    nest.lev = nest.lev, ...
+  ))[-1]
+  for (s in Lines)
+    cat(s, "\n")
+  if (is.proto(parent.env(object))) {
+    cat(indent.str, "parent: ", sep = "")
+    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
+  }
+}
+
+#' @export
+print.proto <- function(x, ...) {
+  if (!exists("proto_print", envir = x, inherits = TRUE))
+    return(NextMethod())
+
+  x$proto_print(...)
+}
+
+############# End proto function 
+
+############ PredictNLS - for confidence intervals  ##########
+# Source: https://rmazing.wordpress.com/2013/08/14/predictnls-part-1-monte-carlo-simulation-confidence-intervals-for-nls-models/
+
+predictNLS <- function(object,newdata,level = 0.95, nsim = 10000,
+                       ...){
+    require(MASS, quietly = TRUE)
+    ## get right-hand side of formula
+    RHS <- as.list(object$call$formula)[[3]]
+    EXPR <- as.expression(RHS)
+   
+    ## all variables in model
+    VARS <- all.vars(EXPR)
+   
+    ## coefficients
+    COEF <- coef(object)
+   
+    ## extract predictor variable    
+    predNAME <- setdiff(VARS, names(COEF))  
+   
+    ## take fitted values, if 'newdata' is missing
+    if (missing(newdata)) {
+        newdata <- eval(object$data)[predNAME]
+        colnames(newdata) <- predNAME
+        }
+       
+    ## check that 'newdata' has same name as predVAR
+    if (names(newdata)[1] != predNAME) stop("newdata should have name '",
+                                            predNAME, "'!")
+   
+    ## get parameter coefficients
+    COEF <- coef(object)
+     
+    ## get variance-covariance matrix
+    VCOV <- vcov(object)
+   
+    ## augment variance-covariance matrix for 'mvrnorm' 
+    ## by adding a column/row for 'error in x'
+    NCOL <- ncol(VCOV)
+    ADD1 <- c(rep(0, NCOL))
+    ADD1 <- matrix(ADD1, ncol = 1)
+    colnames(ADD1) <- predNAME
+    VCOV <- cbind(VCOV, ADD1)
+    ADD2 <- c(rep(0, NCOL + 1))
+    ADD2 <- matrix(ADD2, nrow = 1)
+    rownames(ADD2) <- predNAME
+    VCOV <- rbind(VCOV, ADD2) 
+         
+    ## iterate over all entries in 'newdata' as in usual 'predict.' functions
+    NR <- nrow(newdata)
+    respVEC <- numeric(NR)
+    seVEC <- numeric(NR)
+    varPLACE <- ncol(VCOV)   
+   
+    ## define counter function
+    counter <- function (i) {
+        if (i%%10 == 0) 
+            cat(i)
+        else cat(".")
+        if (i%%50 == 0) 
+            cat("\n")
+        flush.console()
+        }
+   
+    outMAT <- NULL 
+   
+    for (i in 1:NR) {
+        counter(i)
+        ## get predictor values and optional errors
+    predVAL <- newdata[i, 1]
+    if (ncol(newdata) == 2) predERROR <- newdata[i, 2] else predERROR <- 0
+    names(predVAL) <- predNAME  
+    names(predERROR) <- predNAME  
+     
+    ## create mean vector for 'mvrnorm'
+    MU <- c(COEF, predVAL)
+     
+    ## create variance-covariance matrix for 'mvrnorm'
+    ## by putting error^2 in lower-right position of VCOV
+    newVCOV <- VCOV
+    newVCOV[varPLACE, varPLACE] <- predERROR^2
+     
+    ## create MC simulation matrix
+    simMAT <- mvrnorm(n = nsim, mu = MU, Sigma = newVCOV, empirical = TRUE)
+     
+    ## evaluate expression on rows of simMAT
+    EVAL <- try(eval(EXPR, envir = as.data.frame(simMAT)), silent = TRUE)
+    if (inherits(EVAL, "try-error")) stop("There was an error evaluating the simulations!")
+     
+    ## collect statistics
+    PRED <- data.frame(predVAL)
+    colnames(PRED) <- predNAME   
+    FITTED <- predict(object, newdata = data.frame(PRED))
+    MEAN.sim <- mean(EVAL, na.rm = TRUE)
+    SD.sim <- sd(EVAL, na.rm = TRUE)
+    MEDIAN.sim <- median(EVAL, na.rm = TRUE)
+    MAD.sim <- mad(EVAL, na.rm = TRUE)  #median absolute deviation
+    QUANT <- quantile(EVAL, c((1 - level)/2, level + (1 - level)/2))
+    RES <- c(FITTED, MEAN.sim, SD.sim, MEDIAN.sim, MAD.sim, QUANT[1], QUANT[2])
+    outMAT <- rbind(outMAT, RES)
+  }
+   
+  colnames(outMAT) <- c("fit", "mean", "sd", "median", "mad", names(QUANT[1]), names(QUANT[2]))
+  rownames(outMAT) <- NULL
+   
+  cat("\n")
+   
+  return(outMAT)  
+}
+
+##########end PredictNLS ##########
+
+        
+```   
+
+
 
 ```{r setpaths}
 # Set path for output figures: 
@@ -67,725 +413,20 @@ datapath
 ```
 
 ```{r read_in_data}
-# Read in Tidal Volume table - Vt
-
-Es_table_phase1 <- as_tibble(read_csv("data/Es_table_phase1_source_bpm.csv"),
-                             col_types = (list(cols(age_yrs = col_double(),
-                                                    Lifestage = col_character(),
-                                                    no_days = col_double(),
-                                                    mean_bpm = col_double(),
-                                                    se_bpm = col_double(),
-                                                    mean_bpd = col_double(),
-                                                    Vt_mean = col_double(),
-                                                    Vt_sd = col_double(),
-                                                    Es_perday = col_double(),
-                                                    Es_perday_sd = col_double(),
-                                                    Es_perday_quant025 = col_double(),
-                                                    Es_perday_quant975 = col_double(),
-                                                    Es = col_double(),
-                                                    Es_sd = col_double(),
-                                                    Es_quant025 = col_double(),
-                                                    Es_quant975 = col_double()
-                                                    )
-                                               )
-                             )
-                             )
-
-Es_table_phase2_peryear <- as_tibble(
-  read_csv("data/Es_table_phase2_peryear_source_bpm.csv"), 
-  col_types = (cols(
-  age_yrs = col_double(),
-  Lifestage = col_character(),
-  no_days = col_double(),
-  Es = col_double(),
-  Es_sd = col_double(),
-  Es_perday = col_double(),
-  Es_sd_perday = col_double()
-  )
-  )
-  )
-
-
-Vt_table_phase1 <- as_tibble(read_csv("data/Vt_table_phase1.csv"),                                
-                          col_types = (list(cols(age_yrs = col_double(),
-                                                 Vt_mean = col_double(),
-                                                 Vt_sd = col_double(),
-                                                 quant025 = col_double(),
-                                                 quant975 = col_double()
-                                                 )
-                                            )
-                                       )
-                          )
-
-                             
-Vt_table_phase2 <- as_tibble(read_csv("data/Vt_table_phase2.csv"),                                
-                             col_types = (list(cols(age_yrs = col_double(),
-                                                    Vt_mean = col_double(),
-                                                    Vt_sd = col_double(),
-                                                    quant025 = col_double(),
-                                                    quant975 = col_double()
-                             )
-                             )
-                             )
-)
-
-
-
-
-Vt_table_phase2_f <- as_tibble(read_csv("data/Vt_table_phase2_f.csv"),                                
-                               col_types = (list(cols(age_yrs = col_double(),
-                                                      Vt_mean_f = col_double(),
-                                                      Vt_sd_f = col_double(),
-                                                      quant025_f = col_double(),
-                                                      quant975_f = col_double()
-                               )
-                               )
-                               )
-)
-
-
-
-# Read in Activity Cost Reference data from csv  ORIGINAL SOURCE VALUES
-A_cost_reference <- as_tibble(
-  read_csv("data/ActivityCost_ReferenceData_BreathsPerDay_Table_VA_2017_original_sources.csv"),
-  col_types = (list(cols(  ID = col_double(),
-                           Lifestage = col_character(),
-                           Description = col_character(),
-                           Activity_stages = col_character(),
-                           no_days = col_double(),
-                           source_no_days = col_character(),
-                           bpm = col_double(),
-                           se_bpm = col_double(),
-                           source_bpm = col_character(),
-                           age_yrs = col_double(),
-                           age_yrs_min = col_double(),
-                           age_yrs_max = col_double(),
-                           pct_O2 = col_double(),
-                           pct_O2_sd = col_double()
-  )
-  )
-  )
-)
-
-kable(A_cost_reference)
-
-Activity_days <- A_cost_reference %>% dplyr::select(Lifestage, Activity_stages, no_days) %>%  
-  group_by(Lifestage, Activity_stages) %>% 
-  summarise(no_days = sum(no_days))
-
-kable(Activity_days)
-
-
-
-age_yr_tibble <- as_tibble(
-  read_csv("data/age_yr_tibble.csv"), 
-  col_types = (list(ID = col_integer(),
-                    month = col_character(),
-                    no_days_in_mth = col_double(),
-                    age_mth = col_double(),
-                    no_days_cumul = col_double(),
-                    age_yrs = col_double()
-  )
-  )
-)
-
+# Run Es preg and lact first, then read in data here
+Es_preg_table <-  read_csv("data/Es_sensAnalysis_preg_peryear_source_bpm.csv")
+Es_lact_table  <-  read_csv("data/Es_sensAnalysis_lact_peryear_source_bpm.csv")
+Es_table_phase2_peryear <- read_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv")
 
 
 ```
 
-Es - Total metabolic energy expenditure at a given stage 0.02 - Amount of heat produced in MJ/L O2 consumed (Kleiber 1961)  
-%O2 - Extraction efficiency per breath Ts - The no. of days in that stage Rs - Respiration rate (breaths/day) Vt - Tidal lung volume (L)
 
-Es = 0.02 x %O2 x Ts x Rs x Vt - Sumich (1986)
-
-```{r Es_preg}
-
-MC_reps = 10000
-
-Lifestage <- "Pregnant"
-activity_stages <- Activity_days %>%
-  dplyr::filter(Lifestage == "Pregnant")
-
-activity_stages  <-  activity_stages$Activity_stages
-
-Es_table_preg_females <- as.data.frame(matrix(ncol = 14, nrow = 0))
-
-cnames <- c("age_yrs","Lifestage", 
-            "Activity_stages", "no_days",  "mean_bpm", "se_bpm",
-            "Es_perday", "Es_perday_sd",
-            "Es_perday_quant025", "Es_perday_quant975", 
-            #2.5% and 97.5% quantile from bootstrap estimates 
-            "Es","Es_sd","Es_quant025","Es_quant975"
-)            
-
-
-
-colnames(Es_table_preg_females) <- cnames
-
-Es_table_preg_females <- 
-  as_tibble(Es_table_preg_females,
-            col_types = (list(ID = col_integer(), 
-                              age_yrs = col_double(),
-                              Lifestage = col_double(),
-                              Activity_stages = col_double(),
-                              no_days = col_double(),
-                              mean_bpm = col_double(),
-                              se_bpm = col_double(),
-                              Es_perday = col_double(),
-                              Es_perday_sd  = col_double(),
-                              Es_perday_quant025  = col_double(),
-                              Es_perday_quant975 = col_double(),
-                              Es = col_double(),
-                              Es_sd = col_double(),
-                              Es_quant025 = col_double(),
-                              Es_quant975 = col_double()
-            )
-            )
-  )
-
-
-
-
-for (i in seq(from = 8, to = 75, by = 1)){
-  
-  age <- i
-  #Lifestage <-  "Reproductive females"
-  
-  for (a in activity_stages){
-  # for (a in c("calving grounds pregnant","northbound pregnant","foraging pregnant",
-  #             "southbound pregnant")
-  # ){
-    
-    
-    activity <- a
-    
-    strcolname <- as.character(age)
-    
-    A_cost_i <- dplyr::filter(A_cost_reference, 
-                       Lifestage == "Pregnant" &
-                         Activity_stages == activity
-                       & age_yrs_min <= age
-                       & age_yrs_max >= age)
-    
-    if (nrow(A_cost_i) > 0) {
-      Vt_table_i <- dplyr::filter(Vt_table_phase2, age_yrs == age-0.5)
-      
-      #Lifestage <- Lifestage
-      
-      
-      set.seed(12345)
-      # O2 extraction efficiency
-      pct_O2_i <- A_cost_i$pct_O2 /100
-      pct_O2_sd_i <- A_cost_i$pct_O2_sd /100
-      
-      pct_O2 <- rnorm(MC_reps, pct_O2_i, pct_O2_sd_i)  
-      #plot(pct_O2)
-      #No. of days at each actvity stage
-      Ts_i <-  sum(A_cost_i$no_days)   
-      
-      #Respiration rates at each activity stage 
-      bpm_i <- A_cost_i$bpm 
-      bpm_sd_i <- A_cost_i$se_bpm 
-      
-      meanlog_bpm_i <- log(bpm_i^2 / sqrt(bpm_sd_i^2 + bpm_i^2))
-      meanlog_bpm_sd_i <- sqrt(log(1 + (bpm_sd_i^2 / bpm_i^2)))
-      
-      bpm_tibble <- as.data.frame(matrix(ncol = 2, nrow=0))
-      colnames(bpm_tibble) <- c("mean_bpm", "sd_bpm")
-      bpm_tibble <- as_tibble(bpm_tibble,
-                              col_types = (list(ID = col_integer(), 
-                                                mean_bpm = col_double(),
-                                                sd_bpm = col_double()
-                                                
-                              )))
-      
-      for (i in seq(from = 1, to = MC_reps, by = 1)){
-        
-        #sample from lognormal distribution
-        bpm <- rlnorm(MC_reps, meanlog_bpm_i, meanlog_bpm_sd_i)  
-        # draws <- rlnorm(n=1000000, location, shape)
-        # https://msalganik.wordpress.com/2017/01/21/making-sense-of-the-rlnorm-function-in-r/
-        # plot(bpm)
-        mean_bpm <- mean(bpm)
-        sd_bpm <- sd(bpm)
-        bpm_row <- tibble(mean_bpm = mean_bpm,
-                          sd_bpm = sd_bpm)
-        bpm_tibble <- rbind(bpm_tibble, bpm_row) 
-        bpm_row <- NA
-      }
-      
-      
-      mean_bpm_i <- mean(bpm_tibble$mean_bpm)
-      se_bpm_i <- sd(bpm_tibble$mean_bpm)     #sd of mean of means
-      
-      mean_bpm_reps <- bpm_tibble$mean_bpm
-      
-      breath_hold_time <- 1/mean_bpm_reps
-      #plot(breath_hold_time)
-      mean(breath_hold_time)
-      sd(breath_hold_time)
-      
-      #breaths per day
-      # bpd <- 1440/breath_hold_time
-      # mean(bpd)
-      # sd(bpd)
-      #plot(bpd)
-      
-      #other option - truncated normal distribution
-      #bpm <- rtruncnorm(MC_reps, a=0, b=Inf, mean=bpm_i, sd=bpm_sd_i)
-      
-      # breaths/day
-      bpd <- bpm * 60 * 24
-      #plot(Rs)
-      bpd_mean <-  mean(bpd)
-      bpd_sd <- sd(bpd)
-      
-      #tidal volume (mass dependent)
-      Vt_i <- Vt_table_i$Vt_mean
-      Vt_sd_i <- Vt_table_i$Vt_sd
-      
-      set.seed(12345)
-      Vt <- rnorm(MC_reps, Vt_i, Vt_sd_i)
-      #plot(Vt)
-      
-      Es_perday <- 0.02 * pct_O2* bpd * Vt  # * Ts_i 
-      #plot(MR_perday)
-      
-      Es_perday_mean <- mean(Es_perday)
-      Es_perday_sd <- sd(Es_perday)
-      Es_perday_quant025 <- quantile(Es_perday, 0.025, na.rm = TRUE)
-      Es_perday_quant975 <- quantile(Es_perday, 0.975, na.rm = TRUE)
-      
-      Es = Es_perday * Ts_i
-      #plot(Es)
-      Es_mean = mean(Es)
-      Es_sd = sd(Es)
-      Es_quant025 <- quantile(Es, 0.025, na.rm = TRUE)
-      Es_quant975 <- quantile(Es, 0.975, na.rm = TRUE)
-      
-      
-      # "age_yrs", "Es", "Es_sd", "quant025", "quant975" 
-      row <- tibble(age_yrs = age,
-                    Lifestage = Lifestage,
-                    Activity_stages = activity,
-                    no_days = Ts_i,
-                    mean_bpm = mean_bpm_i,
-                    se_bpm = se_bpm_i,
-                    Es_perday = Es_perday_mean, 
-                    Es_perday_sd = Es_perday_sd, 
-                    Es_perday_quant025 = Es_perday_quant025,
-                    Es_perday_quant975  = Es_perday_quant975,
-                    Es = Es_mean, 
-                    Es_sd = Es_sd,
-                    Es_quant025 = Es_quant025, 
-                    Es_quant975 = Es_quant975)
-      
-      Es_table_preg_females <- rbind(Es_table_preg_females, row)
-    }
-  }    
-}
-
-
-
-kable(Es_table_preg_females)
-
-Es_table_preg_females %>% write_csv("data/Es_table_preg_females_source_bpm.csv", na = "", append = FALSE)
-
-```
-
-```{r plots_Es_preg_stacked}
-
-plot_Es_table_preg_females <- Es_table_preg_females %>% 
-  ggplot(aes(x = age_yrs, y = Es))+
-  geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
-                colour = "blue", width = 0.02)+
-  geom_point()+
-  ggtitle("Es table - preg females")
-
-plot_Es_table_preg_females
-
-```
-
-```{r Es_preg_peryear}
-# pregnant only 
-
-Es_preg_table <-  as.data.frame(matrix(ncol = 5, nrow = 0))
-
-cnames <- c("age_yrs","Lifestage","no_days","Es","Es_sd")            
-
-colnames(Es_preg_table) <- cnames
-
-Es_preg_table <- as_tibble(Es_preg_table,
-                           col_types = list(ID = col_integer(),
-                                            age_yrs = col_double(),
-                                            Lifestage = col_character(),
-                                            no_days = col_double(),
-                                            Es = col_double(),
-                                            Es_sd = col_double()  
-                           )
-)
-
-
-## Calculate sum of Es for pregnant females aged 8+
-for (i in seq(from = 8, to = 75, by = 1)){
-  #i = 8
-  max_i <- i + 1
-  Es_subtable_preg <- Es_table_preg_females %>% dplyr::filter(age_yrs==i)
-  Es_subtable_preg <- Es_subtable_preg %>%  dplyr::select(age_yrs, Lifestage, no_days, Es, Es_sd)
-  no_days <- sum(Es_subtable_preg$no_days)
-  Es_preg <- sum(Es_subtable_preg$Es)
-  
-  sum_of_variances <- 0
-  for (row in 1:nrow(Es_subtable_preg)){
-    #for (i in c( 0.33, 0.42, 0.5)){
-    Es_subtable_preg_i <- Es_subtable_preg[row, "Es"]
-    Es_sd_i <- Es_subtable_preg[row, "Es_sd"]
-    sum_of_variances <- sum_of_variances + (Es_sd_i)^2
-  }
-  Es_preg_sd  <-  sqrt(sum_of_variances$Es_sd)
-  
-  
-  
-  newRow <- tibble(age_yrs = i,
-                   Lifestage = Lifestage,
-                   no_days = no_days,
-                   Es = Es_preg,
-                   Es_sd = Es_preg_sd
-  )
-  
-  Es_preg_table <- rbind(Es_preg_table, newRow)
-}
-
-Es_preg_table$Es_perday <- Es_preg_table$Es / Es_preg_table$no_days
-Es_preg_table$Es_sd_perday <- Es_preg_table$Es_sd / Es_preg_table$no_days
-
-
-Es_preg_table %>% write_csv("data/Es_preg_table_source_bpm.csv", na = "", append = FALSE)
-
-```
-
-```{r plots_Es_preg_peryear}
-
-plot_Es_preg_table <- Es_preg_table %>% 
-  ggplot(aes(x = age_yrs, y =Es_perday)) +
-  geom_errorbar(aes(ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
-                colour = 'red', width = 0.1) +
-  geom_point() +
-  theme_bw()+
-  theme(panel.grid = element_blank())+
-  ggtitle("Es preg table  (in MJ per day)")+
-  scale_y_continuous(name="Es", labels = comma)
-
-plot_Es_preg_table
-
-
-
-```
-
-```{r Es_lact}
-
-# lactating only 
-
-
-Lifestage <-  "Lactating"
-
-activity_stages <- Activity_days %>%
-  filter(Lifestage == "Lactating")
-
-activity_stages  <-  activity_stages$Activity_stages
-
-
-Es_table_lact_females <- as.data.frame(matrix(ncol = 14, nrow = 0))
-
-cnames <- c("age_yrs","Lifestage", 
-            "Activity_stages", "no_days", "mean_bpm", "se_bpm",
-            "Es_perday", "Es_perday_sd",
-            "Es_perday_quant025", "Es_perday_quant975",
-            #2.5% and 97.5% quantile from bootstrap estimates 
-            "Es","Es_sd","Es_quant025","Es_quant975"
-)            
-
-
-
-colnames(Es_table_lact_females) <- cnames
-
-Es_table_lact_females <- 
-  as_tibble(Es_table_lact_females,
-            col_types = (list(ID = col_integer(), 
-                              age_yrs = col_double(),
-                              Lifestage = col_double(),
-                              Activity_stages = col_double(),
-                              no_days = col_double(),
-                              mean_bpm = col_double(),
-                              se_bpm = col_double(),
-                              Es_per_day = col_double(),
-                              Es_per_day_sd  = col_double(),
-                              Es_perday_quant025  = col_double(),
-                              Es_perday_quant975 = col_double(),
-                              Es = col_double(),
-                              Es_sd = col_double(),
-                              Es_quant025 = col_double(),
-                              Es_quant975 = col_double()
-            )
-            )
-  )
-
-
-
-
-for (age in seq(from = 8, to = 75, by = 1)){
-  #age <- i
-
-  for (activity in activity_stages){   
-    
-    #activity <- a
-    
-    strcolname <- as.character(age)
-    
-    A_cost_i <- filter(A_cost_reference, 
-                       Lifestage == Lifestage 
-                       & Activity_stages == activity
-                       & age_yrs_min <= age 
-                       & age_yrs_max >= age)
-    
-    if (nrow(A_cost_i) > 0) {
-      Vt_table_i <- filter(Vt_table_phase2, age_yrs == age-0.5)
-      
-      # Lifestage <- Lifestage
-      
-      # 
-      set.seed(12345)
-      # O2 extraction efficiency
-      pct_O2_i <- A_cost_i$pct_O2 /100
-      pct_O2_sd_i <- A_cost_i$pct_O2_sd /100
-      
-      pct_O2 <- rnorm(MC_reps, pct_O2_i, pct_O2_sd_i)  
-      #plot(pct_O2)
-      #No. of days at each actvity stage
-      Ts_i <-  sum(A_cost_i$no_days)   
-      
-      #Respiration rates at each activity stage 
-      bpm_i <- A_cost_i$bpm 
-      bpm_sd_i <- A_cost_i$se_bpm 
-      
-      meanlog_bpm_i <- log(bpm_i^2 / sqrt(bpm_sd_i^2 + bpm_i^2))
-      meanlog_bpm_sd_i <- sqrt(log(1 + (bpm_sd_i^2 / bpm_i^2)))
-      
-      bpm_tibble <- as.data.frame(matrix(ncol = 2, nrow=0))
-      colnames(bpm_tibble) <- c("mean_bpm", "sd_bpm")
-      bpm_tibble <- as_tibble(bpm_tibble,
-                              col_types = (list(ID = col_integer(), 
-                                                mean_bpm = col_double(),
-                                                sd_bpm = col_double()
-                                                
-                              )))
-      
-      for (i in seq(from = 1, to = MC_reps, by = 1)){
-        
-        #sample from lognormal distribution
-        bpm <- rlnorm(MC_reps, meanlog_bpm_i, meanlog_bpm_sd_i)  
-        # draws <- rlnorm(n=1000000, location, shape)
-        # https://msalganik.wordpress.com/2017/01/21/making-sense-of-the-rlnorm-function-in-r/
-        # plot(bpm)
-        mean_bpm <- mean(bpm)
-        sd_bpm <- sd(bpm)
-        bpm_row <- tibble(mean_bpm = mean_bpm,
-                          sd_bpm = sd_bpm)
-        bpm_tibble <- rbind(bpm_tibble, bpm_row) 
-        bpm_row <- NA
-      }
-      
-      
-      mean_bpm_i <- mean(bpm_tibble$mean_bpm)
-      se_bpm_i <- sd(bpm_tibble$mean_bpm)     #sd of mean of means
-      
-      mean_bpm_reps <- bpm_tibble$mean_bpm
-      
-      breath_hold_time <- 1/mean_bpm_reps
-      #plot(breath_hold_time)
-      mean(breath_hold_time)
-      sd(breath_hold_time)
-      
-      #breaths per day
-      # bpd <- 1440/breath_hold_time
-      # mean(bpd)
-      # sd(bpd)
-      #plot(bpd)
-      
-      #other option - truncated normal distribution
-      #bpm <- rtruncnorm(MC_reps, a=0, b=Inf, mean=bpm_i, sd=bpm_sd_i)
-      
-      # breaths/day
-      bpd <- bpm * 60 * 24
-      #plot(bpd)
-      bpd_mean <-  mean(bpd)
-      bpd_sd <- sd(bpd)
-      
-      #tidal volume (mass dependent)
-      Vt_i <- Vt_table_i$Vt_mean
-      Vt_sd_i <- Vt_table_i$Vt_sd
-      
-      set.seed(12345)
-      Vt <- rnorm(MC_reps, Vt_i, Vt_sd_i)
-      #plot(Vt)
-      
-      Es_perday <- 0.02 * pct_O2* bpd * Vt  # * Ts_i 
-      #plot(MR_perday)
-      
-      Es_perday_mean <- mean(Es_perday)
-      Es_perday_sd <- sd(Es_perday)
-      Es_perday_quant025 <- quantile(Es_perday, 0.025, na.rm = TRUE)
-      Es_perday_quant975 <- quantile(Es_perday, 0.975, na.rm = TRUE)
-      
-      Es = Es_perday * Ts_i
-      #plot(Es)
-      Es_mean = mean(Es)
-      Es_sd = sd(Es)
-      Es_quant025 <- quantile(Es, 0.025, na.rm = TRUE)
-      Es_quant975 <- quantile(Es, 0.975, na.rm = TRUE)
-      
-      
-      # "age_yrs", "Es", "Es_sd", "quant025", "quant975" 
-      row <- tibble(age_yrs = age,
-                    Lifestage = Lifestage,
-                    Activity_stages = activity,
-                    no_days = Ts_i,
-                    mean_bpm = mean_bpm_i,
-                    se_bpm = se_bpm_i,
-                    Es_perday = Es_perday_mean, 
-                    Es_perday_sd = Es_perday_sd, 
-                    Es_perday_quant025 = Es_perday_quant025,
-                    Es_perday_quant975  = Es_perday_quant975,
-                    Es = Es_mean, 
-                    Es_sd = Es_sd,
-                    Es_quant025 = Es_quant025, 
-                    Es_quant975 = Es_quant975)
-      
-      Es_table_lact_females <- rbind(Es_table_lact_females, row)
-    }
-  }    
-}
-
-
-
-kable(head(Es_table_lact_females))
-
-
-
-Es_table_lact_females %>% write_csv("data/Es_table_lact_females_source_bpm.csv", na = "", append = FALSE)
-
-```
-
-```{r Es_lact_stacked}
-
-plot_Es_table_lact_females <- Es_table_lact_females %>% 
-  ggplot(aes(x = age_yrs, y = Es))+
-  geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
-                colour = "blue", width = 0.02)+
-  geom_point()+
-  ggtitle("Es table - lact females")
-
-plot_Es_table_lact_females
-
-
-```
-
-```{r Es_lact_peryear}
-
-# lactating only
-
-Es_lact_table <-  as.data.frame(matrix(ncol = 5, nrow = 0))
-
-cnames <- c("age_yrs","Lifestage","no_days","Es","Es_sd")            
-
-colnames(Es_lact_table) <- cnames
-
-Es_lact_table <- as_tibble(Es_lact_table,
-                           col_types = list(ID = col_integer(),
-                                            age_yrs = col_double(),
-                                            Lifestage = col_character(),
-                                            no_days = col_double(),
-                                            Es = col_double(),
-                                            Es_sd = col_double()  
-                           )
-)
-
-
-## Calculate sum of Es for pregnant females aged 8+
-for (age in seq(from = 8, to = 75, by = 1)){
-  #i = 8
-  max_age <- age + 1
-  Es_subtable_lact <- Es_table_lact_females %>% 
-    dplyr::filter(age_yrs==age)
-  Es_subtable_lact <- Es_subtable_lact %>%  
-    dplyr::select(age_yrs, Lifestage, no_days, Es, Es_sd)
-  no_days <- sum(Es_subtable_lact$no_days)
-  Es_lact <- sum(Es_subtable_lact$Es)
-  
-  sum_of_variances <- 0
-  for (row in 1:nrow(Es_subtable_lact)){
-    #for (i in c( 0.33, 0.42, 0.5)){
-    Es_subtable_lact_i <- Es_subtable_lact[row, "Es"]
-    Es_sd_i <- Es_subtable_lact[row, "Es_sd"]
-    sum_of_variances <- sum_of_variances + (Es_sd_i)^2
-  }
-  Es_lact_sd  <-  sqrt(sum_of_variances$Es_sd)
-  
-  
-  
-  newRow <- tibble(age_yrs = age,
-                   Lifestage = Lifestage,
-                   no_days = no_days,
-                   Es = Es_lact,
-                   Es_sd = Es_lact_sd
-  )
-  
-  Es_lact_table <- rbind(Es_lact_table, newRow)
-}
-
-
-Es_lact_table$Es_perday <- Es_lact_table$Es / Es_lact_table$no_days 
-Es_lact_table$Es_sd_perday <- Es_lact_table$Es_sd / Es_lact_table$no_days
-
-Es_lact_table %>% write_csv("data/Es_lact_table_source_bpm.csv", na = "", append = FALSE)
-
-```
-
-```{r plots_Es_preg_lact_peryear}
-
-plot_Es_preg_lact <- Es_lact_table %>% 
-  ggplot() +
-  geom_errorbar(data = Es_lact_table,
-                aes(x = age_yrs, 
-                    ymin = Es - Es_sd, 
-                    ymax = Es + Es_sd),
-                colour = 'red', 
-                width = 0.1) +
-  geom_point(data = Es_lact_table, aes(x = age_yrs, y =Es)) +
-  geom_point(data = Es_preg_table, aes(x = age_yrs, y =Es)) +
-  #geom_line(data = Es_preg_table, aes(x = age_yrs, y =Es),
-  #         colour = "black", size = 2)+
-  geom_errorbar(data = Es_preg_table,
-                aes(x = age_yrs, 
-                    ymin = Es - Es_sd, 
-                    ymax = Es + Es_sd),
-                colour = 'blue', 
-                width = 0.1) +
-  theme_bw()+
-  theme(panel.grid = element_blank())+
-  ggtitle("Es preg (blue) and lact (red) table")
-
-plot_Es_preg_lact
-
-# ggplot()+
-#   geom_point(data = Es_lact_table, aes(x= age_yrs, y = Es))+
-#   geom_line(data = Es_preg_table, aes(x= age_yrs, y = Es))
-
-### figure out how to put lactating and pregnant into one table and plot with legend/key
-
-```
 
 ```{r plots_Es_preg_lact_annual_perday}
+
+
+
 
 #Limit tibbles to 30 yrs
 Es_lact_table_max30 <-   Es_lact_table %>% dplyr::filter(age_yrs <= 30)
@@ -809,12 +450,12 @@ Es_table_alladults_preg_lact_peryear$Lifestage_f = factor(Es_table_alladults_pre
 
 plot_Es_table_alladults_preg_lact_yearly_perday <- Es_table_alladults_preg_lact_peryear %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
-  facet_grid(. ~Lifestage_f)+
+  facet_grid(MC_variable~Lifestage_f)+
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
-                colour = 'gray40', width = 0, linetype = 3) +
+                colour = 'gray40', width = 0, linetype = 1) +
   # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
   #                 fill = 'gray40', alpha = 0.3) +
-  geom_point()+
+  geom_point(size =0.5)+
   #geom_line()   +
   xlab("Age (years)") +
   
@@ -846,7 +487,7 @@ plot_Es_table_alladults_preg_lact_yearly_perday
 
 plot_Es_table_alladults_preg_lact_yearly_perday_black <-  Es_table_alladults_preg_lact_peryear %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) +
-  facet_grid(.~Lifestage_f)+  
+  facet_grid(MC_variable~Lifestage_f)+  
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
                 colour = 'gray20', width = 0, linetype = 1, size = 0.5) +
   geom_point(colour = "white", size = 1)+
