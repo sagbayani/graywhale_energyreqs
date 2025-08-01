@@ -55,9 +55,353 @@ library(extrafont)
 library(gtable)
 library(ggpubr)
 
-source("functions.R")
-#test 
+#source("functions.R")
+
 ```
+
+
+```{r declare functions and global variables, include=FALSE}
+
+# **Declare custom functions and global variables**
+########## Specify Decimal function ############################
+# 
+# For use in labelling the plots with equations, and rounding up the coefficients
+# to a specific no. of decimal places
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+
+############ Multiple plot function######################
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
+# If you find any errors, please email winston@stdout.org
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+########### functions used for carry out the fit ########
+
+## this function is avaible in: 
+# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
+# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
+
+##### as.lm function: ######
+
+        as.lm <- function(object, ...) UseMethod("as.lm")
+
+        as.lm.nls <- function(object, ...) {
+            if (!inherits(object, "nls")) {
+                w <- paste("expected object of class nls but got object of class:", 
+                    paste(class(object), collapse = " "))
+                warning(w)
+            }
+
+            gradient <- object$m$gradient()
+            if (is.null(colnames(gradient))) {
+                colnames(gradient) <- names(object$m$getPars())
+            }
+
+            response.name <- if (length(formula(object)) == 2) "0" else 
+                as.character(formula(object)[[2]])
+
+            lhs <- object$m$lhs()
+            L <- data.frame(lhs, gradient)
+            names(L)[1] <- response.name
+
+            fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+            fo <- as.formula(fo, env = as.proto.list(L))
+
+            do.call("lm", list(fo, offset = substitute(fitted(object))))
+
+        }
+
+############## End as.lm function 
+
+
+
+############### proto function: ############
+#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
+
+proto <- function(. = parent.env(envir), expr = {},
+                   envir = new.env(parent = parent.frame()), ...,
+                   funEnvir = envir) {
+  parent.env(envir) <- .
+  envir <- as.proto.environment(envir)  # must do this before eval(...)
+  # moved eval after for so that ... always done first
+  # eval(substitute(eval(quote({ expr }))), envir)
+  dots <- list(...); names <- names(dots)
+  for (i in seq_along(dots)) {
+    assign(names[i], dots[[i]], envir = envir)
+    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
+      environment(envir[[names[i]]]) <- funEnvir
+  }
+  eval(substitute(eval(quote({
+    expr
+  }))), envir)
+  if (length(dots))
+    as.proto.environment(envir)
+  else
+    envir
+}
+
+#' @export
+#' @rdname proto
+as.proto <- function(x, ...) {
+  UseMethod("as.proto")
+}
+
+#' @export
+#' @rdname proto
+as.proto.environment <- function(x, ...) {
+  assign(".that", x, envir = x)
+  assign(".super", parent.env(x), envir = x)
+  structure(x, class = c("proto", "environment"))
+}
+
+#' @export
+#' @rdname proto
+as.proto.proto <- function(x, ...) {
+  x
+}
+as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
+                          funEnvir = envir, SELECT = function(x) TRUE) {
+  if (missing(envir)) {
+    if (missing(parent))
+      parent <- parent.frame()
+    envir <- if (is.proto(parent))
+      parent$proto(...)
+    else
+      proto(parent, ...)
+  }
+  for (s in names(x))
+    if (SELECT(x[[s]])) {
+      assign(s, x[[s]], envir = envir)
+      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
+        environment(envir[[s]]) <- funEnvir
+    }
+  if (!missing(parent))
+    parent.env(envir) <- parent
+  as.proto.environment(envir)  # force refresh of .that and .super
+}
+
+#' @export
+"$<-.proto" <- function(this,s,value) {
+  if (s == ".super")
+    parent.env(this) <- value
+  if (is.function(value))
+    environment(value) <- this
+  this[[as.character(substitute(s))]] <- value
+  this
+}
+is.proto <- function(x) inherits(x, "proto")
+
+#' @export
+"$.proto" <- function(x, name) {
+  inherits <- substr(name, 1, 2) != ".."
+
+  res <- get(name, envir = x, inherits = inherits)
+  if (!is.function(res))
+    return(res)
+
+  if (deparse(substitute(x)) %in% c(".that", ".super"))
+    return(res)
+
+  structure(
+    function(...) res(x, ...),
+    class = "protoMethod",
+    method = res
+  )
+}
+
+#' @export
+print.protoMethod <- function(x, ...) {
+  cat("<ProtoMethod>\n")
+  print(attr(x, "method"), ...)
+}
+
+# modified from Tom Short's original
+#' @export
+str.proto <- function(object, max.level = 1, nest.lev = 0,
+                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
+                      ...) {
+  cat("proto", name.proto(object), "\n")
+  Lines <- utils::capture.output(utils::str(
+    as.list(object), max.level = max.level,
+    nest.lev = nest.lev, ...
+  ))[-1]
+  for (s in Lines)
+    cat(s, "\n")
+  if (is.proto(parent.env(object))) {
+    cat(indent.str, "parent: ", sep = "")
+    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
+  }
+}
+
+#' @export
+print.proto <- function(x, ...) {
+  if (!exists("proto_print", envir = x, inherits = TRUE))
+    return(NextMethod())
+
+  x$proto_print(...)
+}
+
+############# End proto function 
+
+############ PredictNLS - for confidence intervals  ##########
+# Source: https://rmazing.wordpress.com/2013/08/14/predictnls-part-1-monte-carlo-simulation-confidence-intervals-for-nls-models/
+
+predictNLS <- function(object,newdata,level = 0.95, nsim = 10000,
+                       ...){
+    require(MASS, quietly = TRUE)
+    ## get right-hand side of formula
+    RHS <- as.list(object$call$formula)[[3]]
+    EXPR <- as.expression(RHS)
+   
+    ## all variables in model
+    VARS <- all.vars(EXPR)
+   
+    ## coefficients
+    COEF <- coef(object)
+   
+    ## extract predictor variable    
+    predNAME <- setdiff(VARS, names(COEF))  
+   
+    ## take fitted values, if 'newdata' is missing
+    if (missing(newdata)) {
+        newdata <- eval(object$data)[predNAME]
+        colnames(newdata) <- predNAME
+        }
+       
+    ## check that 'newdata' has same name as predVAR
+    if (names(newdata)[1] != predNAME) stop("newdata should have name '",
+                                            predNAME, "'!")
+   
+    ## get parameter coefficients
+    COEF <- coef(object)
+     
+    ## get variance-covariance matrix
+    VCOV <- vcov(object)
+   
+    ## augment variance-covariance matrix for 'mvrnorm' 
+    ## by adding a column/row for 'error in x'
+    NCOL <- ncol(VCOV)
+    ADD1 <- c(rep(0, NCOL))
+    ADD1 <- matrix(ADD1, ncol = 1)
+    colnames(ADD1) <- predNAME
+    VCOV <- cbind(VCOV, ADD1)
+    ADD2 <- c(rep(0, NCOL + 1))
+    ADD2 <- matrix(ADD2, nrow = 1)
+    rownames(ADD2) <- predNAME
+    VCOV <- rbind(VCOV, ADD2) 
+         
+    ## iterate over all entries in 'newdata' as in usual 'predict.' functions
+    NR <- nrow(newdata)
+    respVEC <- numeric(NR)
+    seVEC <- numeric(NR)
+    varPLACE <- ncol(VCOV)   
+   
+    ## define counter function
+    counter <- function (i) {
+        if (i%%10 == 0) 
+            cat(i)
+        else cat(".")
+        if (i%%50 == 0) 
+            cat("\n")
+        flush.console()
+        }
+   
+    outMAT <- NULL 
+   
+    for (i in 1:NR) {
+        counter(i)
+        ## get predictor values and optional errors
+    predVAL <- newdata[i, 1]
+    if (ncol(newdata) == 2) predERROR <- newdata[i, 2] else predERROR <- 0
+    names(predVAL) <- predNAME  
+    names(predERROR) <- predNAME  
+     
+    ## create mean vector for 'mvrnorm'
+    MU <- c(COEF, predVAL)
+     
+    ## create variance-covariance matrix for 'mvrnorm'
+    ## by putting error^2 in lower-right position of VCOV
+    newVCOV <- VCOV
+    newVCOV[varPLACE, varPLACE] <- predERROR^2
+     
+    ## create MC simulation matrix
+    simMAT <- mvrnorm(n = nsim, mu = MU, Sigma = newVCOV, empirical = TRUE)
+     
+    ## evaluate expression on rows of simMAT
+    EVAL <- try(eval(EXPR, envir = as.data.frame(simMAT)), silent = TRUE)
+    if (inherits(EVAL, "try-error")) stop("There was an error evaluating the simulations!")
+     
+    ## collect statistics
+    PRED <- data.frame(predVAL)
+    colnames(PRED) <- predNAME   
+    FITTED <- predict(object, newdata = data.frame(PRED))
+    MEAN.sim <- mean(EVAL, na.rm = TRUE)
+    SD.sim <- sd(EVAL, na.rm = TRUE)
+    MEDIAN.sim <- median(EVAL, na.rm = TRUE)
+    MAD.sim <- mad(EVAL, na.rm = TRUE)  #median absolute deviation
+    QUANT <- quantile(EVAL, c((1 - level)/2, level + (1 - level)/2))
+    RES <- c(FITTED, MEAN.sim, SD.sim, MEDIAN.sim, MAD.sim, QUANT[1], QUANT[2])
+    outMAT <- rbind(outMAT, RES)
+  }
+   
+  colnames(outMAT) <- c("fit", "mean", "sd", "median", "mad", names(QUANT[1]), names(QUANT[2]))
+  rownames(outMAT) <- NULL
+   
+  cat("\n")
+   
+  return(outMAT)  
+}
+
+##########end PredictNLS ##########
+
+        
+```   
 
 
 
@@ -160,9 +504,8 @@ P_cost_table_lact <- as_tibble(
 
 P_cost_table_lact$Ts <-  365
 
-
 Es_preg_table <- as_tibble(
-  read_csv("data/Es_preg_table_source_bpm.csv"),
+  read_csv("data/Es_sensAnalysis_preg_peryear_source_bpm.csv"),
   col_types = (list(cols(age_yrs = col_double(),
                          Lifestage = col_character(),
                          no_days = col_double(),
@@ -172,14 +515,14 @@ Es_preg_table <- as_tibble(
   )
   )
 )
-
 kable(head(Es_preg_table))
 
 
 
 
+
 Es_lact_table <- as_tibble(
-  read_csv("data/Es_lact_table_source_bpm.csv"),
+  read_csv("data/Es_sensAnalysis_lact_peryear_source_bpm.csv"),
   col_types = (list(cols(age_yrs = col_double(),
                          Lifestage = col_character(),
                          no_days = col_double(),
@@ -189,6 +532,7 @@ Es_lact_table <- as_tibble(
   )
   )
 )
+
 
 kable(head(Es_lact_table))
 
@@ -281,17 +625,19 @@ predict_GER_table_sensAnalysis_phase2  <- as_tibble(
 
 
 
-TotalGER_for_0to6_7to9.6_tibble <- as_tibble(
-  read_csv("data/TotalGER_for_0to6_7to9.6_tibble.csv"),
+
+TotalGER_birth_to_weaning_tibble <- as_tibble(
+  read_csv("data/TotalGER_birth_to_weaning_tibble.csv"),
   col_types = (list(ID = col_integer(),
                     age_range = col_character(),
                     sex = col_character(),
                     Total_GER = col_double(),
-                    Total_GER_sd = col_double()
+                    Total_GER_sd = col_double(), 
+                    details = col_character()
   )))
 
 
-kable(TotalGER_for_0to6_7to9.6_tibble)
+kable(TotalGER_birth_to_weaning_tibble)
 
 
 
@@ -454,7 +800,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     }
     
     # GER calf 6 mths
-    GERcalf_6mths_tibble <- TotalGER_for_0to6_7to9.6_tibble %>% 
+    GERcalf_6mths_tibble <- TotalGER_birth_to_weaning_tibble %>% 
       dplyr::filter(age_range == "0 to 6 mths") 
     
     GERcalf_6mths <- GERcalf_6mths_tibble %>% pull(Total_GER)
@@ -527,7 +873,8 @@ for (i in seq(from = 8, to = 75, by = 1)){
     #Cost of nursing calf for first 6 mths
     #GER from birth to 6mths
     GERcalf_0to6m <- as_tibble(rnorm(MC_reps, GERcalf_6mths, GERcalf_6mths_sd))
-    names(GERcalf_0to6m)[1] <- "GERcalf_0to6m"
+    #names(GERcalf_0to6m)[1] <- "GERcalf_0to6m"
+    GERcalf_0to6m <- GERcalf_0to6m %>% rename("GERcalf_0to6m"="value")
     MC_vars_i <- cbind(MC_vars_i, GERcalf_0to6m)
     
     
@@ -631,7 +978,7 @@ predict_GER_table_sensAnalysis_preg %>%
 ```{r plots_GER_preg}
 
 plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
-  #dplyr::filter(sex=="Female") %>% 
+  filter(age_yrs<=40) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -782,7 +1129,7 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     
     # GER Calf 7 to 9.6 (nursing)
-    GERcalf7to9.6mths_tibble <-  TotalGER_for_0to6_7to9.6_tibble %>% 
+    GERcalf7to9.6mths_tibble <-  TotalGER_birth_to_weaning_tibble %>% 
       filter(age_range == "7 to 9.6 mths") 
     GERcalf7to9.6mths <- GERcalf7to9.6mths_tibble$Total_GER
     
@@ -836,7 +1183,8 @@ for (i in seq(from = 8, to = 74, by = 1)){
 
     # Monte carlo - GER Calf - 7 to 9.6 mths (nursing)
     GERcalf7to9.6mths_tibble <- as_tibble(rnorm(MC_reps, GERcalf7to9.6mths, GERcalf7to9.6mths_sd))
-    names(GERcalf7to9.6mths)[1] <- "GERcalf7to9.6mths"
+    #names(GERcalf7to9.6mths)[1] <- "GERcalf7to9.6mths"
+    GERcalf7to9.6mths_tibble <- GERcalf7to9.6mths_tibble %>% rename("GERcalf7to9.6mths_tibble"="value")
     
     MC_vars_i <- cbind(MC_vars_i, GERcalf7to9.6mths)
     
@@ -928,7 +1276,7 @@ predict_GER_table_sensAnalysis_lact %>% write_csv("data/predict_GER_table_sensAn
 
 ```{r plots_GER_lact}
 plot_predict_GER_table_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
-  
+  filter(age_yrs<=40) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -957,4 +1305,6 @@ xlab("Age (years)") +
 plot_predict_GER_table_sensAnalysis_lact
 
 ```
+
+
 
