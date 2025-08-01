@@ -1,7 +1,7 @@
 ENERGY REQUIREMENTS OF GREY WHALES
 ================
 Selina Agbayani
-31 July, 2025
+01 August, 2025
 
 ## RESULTS
 
@@ -51,18 +51,22 @@ Figure 7. Daily gross energy requirements over the year compared to
 gross daily requirements when foraging is limited to the summer season.
 Foraging season spans ~154 days for juveniles and adults.
 
-    ## Error in eval(expr, envir, enclos): object 'ann_text_annual' not found
-
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_preg_lact-1.png)<!-- -->
 
-Figure 8. Estimates for gross energy requirements for pregnant,
+Figure 8. Estimates for gross energy requirements (GER) for pregnant,
 lactating females, and others (juvenile and other adult grey whales).
 Daily gross energy requirements for a full year (annual) are represented
-with black circles. White circles represent daily gross energy
-requirements for when feeding is limited during the foraging season.
-Foraging season is assumed to be ~154 days for single juveniles (1-7 y)
-and adults (\> 8 y), ~153 days for pregnant females, and ~119 days for
-lactating females. Error bars represent SD.
+with black circles (365 for adults/juveniles, 396 for pregnant whales,
+and 293 days for lactating whales). White circles represent daily gross
+energy requirements for when feeding is limited during the foraging
+season. Foraging season is assumed to be ~154 days for single juveniles
+(1-7 y) and adults (\> 8 y), ~153 days for pregnant females, and ~119
+days for lactating females. GER for pregnant whales shown here assumes
+that the GER for first the 6 months of lactation while the mother is
+fasting need to be consumed the previous year, when foraging while
+pregnant. GER for lactating whales shown here is the GER for the
+remaining 3.6 months of lactation when the mother resumes foraging while
+lactating. Error bars represent SD.
 
 ### Milk / Food Requirements
 
@@ -122,7 +126,7 @@ requirements (*GER*) for grey whale calves.
 Figure 15. Results for the sensitivity analysis on gross energy
 requirements (*GER*) for juveniles and non-reproductive adults.
 
-#### Pregnant grey whales
+#### Pregnant grey whales (assuming GER for foraging while pregnant includes first 6 months of lactation)
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_sensAnalysis_preg-1.png)<!-- -->
 
@@ -130,7 +134,7 @@ Figure 16. Results for the sensitivity analysis on gross energy
 requirements (*GER*) for pregnant females. GER calf represents the
 energy required for the first 6 months.
 
-#### Lactating grey whales
+#### Lactating grey whales (assuming GER for foraging while nursing includes only last 3.6 months of lactation)
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_sensAnalysis_lact-1.png)<!-- -->
 

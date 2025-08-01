@@ -1,0 +1,707 @@
+---
+title: "Gross Energetic Requirements(GER) Sensitivity Analysis outputs - alladults - including classic pregnant/lactating only and frontloading while pregnant"
+author: "Selina Agbayani"
+date: " `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  github_document:
+  html_document:
+    
+editor_options:
+  chunk_output_type: console
+classoption: landscape
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(error = TRUE)
+knitr::opts_chunk$set(warning = TRUE)
+
+
+
+
+## Setup
+
+# Initialize all libraries, set paths for output figures, then import the gw_observations.csv
+# install.packages("tidyr")
+# install.packages("readr")
+# install.packages("tidyverse")
+# install.packages("dplyr")
+# install.packages("ggplot2")
+# install.packages("knitr")
+# install.packages("nls2")
+# install.packages("nlstools")
+# install.packages("nlme")
+# install.packages("minpack.lm")
+# install.packages("scales")
+# install.packages("ggpmisc")
+# install.packages("extrafont")
+# install.packages("gtable")
+# install.packages("ggpubr")
+
+library(tidyverse)
+library(tidyr)
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(nls2)
+library(nlstools)
+library(nlme)
+library(minpack.lm)
+library(scales)
+library(ggpmisc)
+library(reshape2)
+library(extrafont)
+library(gtable)
+library(ggpubr)
+
+#source("functions.R")
+
+```
+
+
+```{r declare functions and global variables, include=FALSE}
+
+# **Declare custom functions and global variables**
+########## Specify Decimal function ############################
+# 
+# For use in labelling the plots with equations, and rounding up the coefficients
+# to a specific no. of decimal places
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+
+############ Multiple plot function######################
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+# Code extracted from Cookbook for R. This site is powered by knitr and Jekyll. 
+# If you find any errors, please email winston@stdout.org
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
+########### functions used for carry out the fit ########
+
+## this function is avaible in: 
+# http://www.leg.ufpr.br/~walmes/cursoR/ciaeear/as.lm.R   or in 
+# https://gist.github.com/TonyLadson/2d63ca70eef92583001dece607127759 (from the line 269)
+
+##### as.lm function: ######
+
+        as.lm <- function(object, ...) UseMethod("as.lm")
+
+        as.lm.nls <- function(object, ...) {
+            if (!inherits(object, "nls")) {
+                w <- paste("expected object of class nls but got object of class:", 
+                    paste(class(object), collapse = " "))
+                warning(w)
+            }
+
+            gradient <- object$m$gradient()
+            if (is.null(colnames(gradient))) {
+                colnames(gradient) <- names(object$m$getPars())
+            }
+
+            response.name <- if (length(formula(object)) == 2) "0" else 
+                as.character(formula(object)[[2]])
+
+            lhs <- object$m$lhs()
+            L <- data.frame(lhs, gradient)
+            names(L)[1] <- response.name
+
+            fo <- sprintf("%s ~ %s - 1", response.name, 
+                paste(colnames(gradient), collapse = "+"))
+            fo <- as.formula(fo, env = as.proto.list(L))
+
+            do.call("lm", list(fo, offset = substitute(fitted(object))))
+
+        }
+
+############## End as.lm function 
+
+
+
+############### proto function: ############
+#### proto function avaible in https://github.com/hadley/proto/blob/master/R/proto.R
+
+proto <- function(. = parent.env(envir), expr = {},
+                   envir = new.env(parent = parent.frame()), ...,
+                   funEnvir = envir) {
+  parent.env(envir) <- .
+  envir <- as.proto.environment(envir)  # must do this before eval(...)
+  # moved eval after for so that ... always done first
+  # eval(substitute(eval(quote({ expr }))), envir)
+  dots <- list(...); names <- names(dots)
+  for (i in seq_along(dots)) {
+    assign(names[i], dots[[i]], envir = envir)
+    if (!identical(funEnvir, FALSE) && is.function(dots[[i]]))
+      environment(envir[[names[i]]]) <- funEnvir
+  }
+  eval(substitute(eval(quote({
+    expr
+  }))), envir)
+  if (length(dots))
+    as.proto.environment(envir)
+  else
+    envir
+}
+
+#' @export
+#' @rdname proto
+as.proto <- function(x, ...) {
+  UseMethod("as.proto")
+}
+
+#' @export
+#' @rdname proto
+as.proto.environment <- function(x, ...) {
+  assign(".that", x, envir = x)
+  assign(".super", parent.env(x), envir = x)
+  structure(x, class = c("proto", "environment"))
+}
+
+#' @export
+#' @rdname proto
+as.proto.proto <- function(x, ...) {
+  x
+}
+as.proto.list <- function(x, envir, parent, all.names = FALSE, ...,
+                          funEnvir = envir, SELECT = function(x) TRUE) {
+  if (missing(envir)) {
+    if (missing(parent))
+      parent <- parent.frame()
+    envir <- if (is.proto(parent))
+      parent$proto(...)
+    else
+      proto(parent, ...)
+  }
+  for (s in names(x))
+    if (SELECT(x[[s]])) {
+      assign(s, x[[s]], envir = envir)
+      if (is.function(x[[s]]) && !identical(funEnvir, FALSE))
+        environment(envir[[s]]) <- funEnvir
+    }
+  if (!missing(parent))
+    parent.env(envir) <- parent
+  as.proto.environment(envir)  # force refresh of .that and .super
+}
+
+#' @export
+"$<-.proto" <- function(this,s,value) {
+  if (s == ".super")
+    parent.env(this) <- value
+  if (is.function(value))
+    environment(value) <- this
+  this[[as.character(substitute(s))]] <- value
+  this
+}
+is.proto <- function(x) inherits(x, "proto")
+
+#' @export
+"$.proto" <- function(x, name) {
+  inherits <- substr(name, 1, 2) != ".."
+
+  res <- get(name, envir = x, inherits = inherits)
+  if (!is.function(res))
+    return(res)
+
+  if (deparse(substitute(x)) %in% c(".that", ".super"))
+    return(res)
+
+  structure(
+    function(...) res(x, ...),
+    class = "protoMethod",
+    method = res
+  )
+}
+
+#' @export
+print.protoMethod <- function(x, ...) {
+  cat("<ProtoMethod>\n")
+  print(attr(x, "method"), ...)
+}
+
+# modified from Tom Short's original
+#' @export
+str.proto <- function(object, max.level = 1, nest.lev = 0,
+                      indent.str = paste(rep.int(" ", max(0, nest.lev + 1)), collapse = ".."),
+                      ...) {
+  cat("proto", name.proto(object), "\n")
+  Lines <- utils::capture.output(utils::str(
+    as.list(object), max.level = max.level,
+    nest.lev = nest.lev, ...
+  ))[-1]
+  for (s in Lines)
+    cat(s, "\n")
+  if (is.proto(parent.env(object))) {
+    cat(indent.str, "parent: ", sep = "")
+    utils::str(parent.env(object), nest.lev = nest.lev + 1, ...)
+  }
+}
+
+#' @export
+print.proto <- function(x, ...) {
+  if (!exists("proto_print", envir = x, inherits = TRUE))
+    return(NextMethod())
+
+  x$proto_print(...)
+}
+
+############# End proto function 
+
+############ PredictNLS - for confidence intervals  ##########
+# Source: https://rmazing.wordpress.com/2013/08/14/predictnls-part-1-monte-carlo-simulation-confidence-intervals-for-nls-models/
+
+predictNLS <- function(object,newdata,level = 0.95, nsim = 10000,
+                       ...){
+    require(MASS, quietly = TRUE)
+    ## get right-hand side of formula
+    RHS <- as.list(object$call$formula)[[3]]
+    EXPR <- as.expression(RHS)
+   
+    ## all variables in model
+    VARS <- all.vars(EXPR)
+   
+    ## coefficients
+    COEF <- coef(object)
+   
+    ## extract predictor variable    
+    predNAME <- setdiff(VARS, names(COEF))  
+   
+    ## take fitted values, if 'newdata' is missing
+    if (missing(newdata)) {
+        newdata <- eval(object$data)[predNAME]
+        colnames(newdata) <- predNAME
+        }
+       
+    ## check that 'newdata' has same name as predVAR
+    if (names(newdata)[1] != predNAME) stop("newdata should have name '",
+                                            predNAME, "'!")
+   
+    ## get parameter coefficients
+    COEF <- coef(object)
+     
+    ## get variance-covariance matrix
+    VCOV <- vcov(object)
+   
+    ## augment variance-covariance matrix for 'mvrnorm' 
+    ## by adding a column/row for 'error in x'
+    NCOL <- ncol(VCOV)
+    ADD1 <- c(rep(0, NCOL))
+    ADD1 <- matrix(ADD1, ncol = 1)
+    colnames(ADD1) <- predNAME
+    VCOV <- cbind(VCOV, ADD1)
+    ADD2 <- c(rep(0, NCOL + 1))
+    ADD2 <- matrix(ADD2, nrow = 1)
+    rownames(ADD2) <- predNAME
+    VCOV <- rbind(VCOV, ADD2) 
+         
+    ## iterate over all entries in 'newdata' as in usual 'predict.' functions
+    NR <- nrow(newdata)
+    respVEC <- numeric(NR)
+    seVEC <- numeric(NR)
+    varPLACE <- ncol(VCOV)   
+   
+    ## define counter function
+    counter <- function (i) {
+        if (i%%10 == 0) 
+            cat(i)
+        else cat(".")
+        if (i%%50 == 0) 
+            cat("\n")
+        flush.console()
+        }
+   
+    outMAT <- NULL 
+   
+    for (i in 1:NR) {
+        counter(i)
+        ## get predictor values and optional errors
+    predVAL <- newdata[i, 1]
+    if (ncol(newdata) == 2) predERROR <- newdata[i, 2] else predERROR <- 0
+    names(predVAL) <- predNAME  
+    names(predERROR) <- predNAME  
+     
+    ## create mean vector for 'mvrnorm'
+    MU <- c(COEF, predVAL)
+     
+    ## create variance-covariance matrix for 'mvrnorm'
+    ## by putting error^2 in lower-right position of VCOV
+    newVCOV <- VCOV
+    newVCOV[varPLACE, varPLACE] <- predERROR^2
+     
+    ## create MC simulation matrix
+    simMAT <- mvrnorm(n = nsim, mu = MU, Sigma = newVCOV, empirical = TRUE)
+     
+    ## evaluate expression on rows of simMAT
+    EVAL <- try(eval(EXPR, envir = as.data.frame(simMAT)), silent = TRUE)
+    if (inherits(EVAL, "try-error")) stop("There was an error evaluating the simulations!")
+     
+    ## collect statistics
+    PRED <- data.frame(predVAL)
+    colnames(PRED) <- predNAME   
+    FITTED <- predict(object, newdata = data.frame(PRED))
+    MEAN.sim <- mean(EVAL, na.rm = TRUE)
+    SD.sim <- sd(EVAL, na.rm = TRUE)
+    MEDIAN.sim <- median(EVAL, na.rm = TRUE)
+    MAD.sim <- mad(EVAL, na.rm = TRUE)  #median absolute deviation
+    QUANT <- quantile(EVAL, c((1 - level)/2, level + (1 - level)/2))
+    RES <- c(FITTED, MEAN.sim, SD.sim, MEDIAN.sim, MAD.sim, QUANT[1], QUANT[2])
+    outMAT <- rbind(outMAT, RES)
+  }
+   
+  colnames(outMAT) <- c("fit", "mean", "sd", "median", "mad", names(QUANT[1]), names(QUANT[2]))
+  rownames(outMAT) <- NULL
+   
+  cat("\n")
+   
+  return(outMAT)  
+}
+
+##########end PredictNLS ##########
+
+        
+```   
+
+
+
+```{r setpaths}       
+# Set path for output figures: 
+Figurespath <- paste0(getwd(), "/gross_energetic_reqs/figures", collapse = NULL)
+Figurespath
+
+# Set path for input & output data  
+datapath <- paste0(getwd(), "/data", collapse = NULL) 
+datapath
+
+```
+
+
+```{r read in data}
+
+predict_GER_table_phase2 <- read_csv("data/predict_GER_table_sensAnalysis_phase2.csv")
+predict_GER_table_phase2$Lifestage <- "Juvenile/Adult" 
+predict_GER_table_phase2 <- predict_GER_table_phase2 %>% 
+  filter(MC_variable == "all", age_yrs <=30) %>% 
+  select("Lifestage", "age_yrs", "mean_GER", "GER_sd", 
+         "GER_foraging", "sd_foraging", "FR_foraging", "FR_sd_foraging",
+         "pctbodywt", "pctbodywt_sd")
+
+
+
+#GER for pregnant mother only (no front-loading)
+predict_GER_table_preg_only <- read_csv("data/predict_GER_table_sensAnalysis_preg_ONLY.csv")
+predict_GER_table_preg_only$Lifestage <- "Pregnant only"
+predict_GER_table_preg_only <- predict_GER_table_preg_only %>% 
+    filter(MC_variable == "all", age_yrs <=30) %>% 
+  select("Lifestage", "age_yrs", "mean_GER", "GER_sd", 
+         "GER_foraging", "sd_foraging", "FR_foraging", "FR_sd_foraging",
+         "pctbodywt", "pctbodywt_sd")
+
+
+#Full lactation period (no front-loading)
+predict_GER_table_lact_all  <-  read_csv("data/predict_GER_table_sensAnalysis_lact_all.csv")
+predict_GER_table_lact_all$Lifestage <- "Lactating (birth to 9.6 mths)"
+predict_GER_table_lact_all <- predict_GER_table_lact_all %>% 
+  filter(MC_variable == "all", age_yrs <=30) %>% 
+  select("Lifestage", "age_yrs", "mean_GER", "GER_sd", 
+         "GER_foraging", "sd_foraging", "FR_foraging", "FR_sd_foraging",
+         "pctbodywt", "pctbodywt_sd")
+
+
+#GER for pregnant mother while foraging, assuming GER for first 6 months of lactation while fasting needs to be consumed the year before  
+predict_GER_table_preg_frontload_lact_6 <- read_csv("data/predict_GER_table_sensAnalysis_preg.csv")
+#GER for foraging while nursing (last 3.6 months of lactation) 
+predict_GER_table_preg_frontload_lact_6$Lifestage <- "Pregnant (with 6 mths lactation)"
+predict_GER_table_preg_frontload_lact_6 <- predict_GER_table_preg_frontload_lact_6 %>% 
+  filter(MC_variable == "all", age_yrs <=30) %>% 
+  select("Lifestage", "age_yrs", "mean_GER", "GER_sd", 
+         "GER_foraging", "sd_foraging", "FR_foraging", "FR_sd_foraging",
+         "pctbodywt", "pctbodywt_sd")
+
+
+predict_GER_table_sensAnalysis_lact_3.6 <- read_csv("data/predict_GER_table_sensAnalysis_lact.csv")
+predict_GER_table_sensAnalysis_lact_3.6$Lifestage <- "Lactating (last 3.6 mths)"
+predict_GER_table_sensAnalysis_lact_3.6 <- predict_GER_table_sensAnalysis_lact_3.6 %>% 
+  filter(MC_variable == "all", age_yrs <=30) %>% 
+  select("Lifestage", "age_yrs", "mean_GER", "GER_sd", 
+         "GER_foraging", "sd_foraging", "FR_foraging", "FR_sd_foraging",
+         "pctbodywt", "pctbodywt_sd")
+
+
+predict_GER_table_alladults <- rbind(predict_GER_table_phase2,
+                                     predict_GER_table_preg_only,
+                                     predict_GER_table_lact_all, 
+                                     predict_GER_table_preg_frontload_lact_6,
+                                     predict_GER_table_sensAnalysis_lact_3.6)
+
+kable(predict_GER_table_alladults)
+
+predict_GER_table_alladults %>% write_csv("data/predict_GER_sensAnalysis_alladults.csv",   na = "", append = FALSE)
+
+```
+
+
+
+
+
+
+__Plotting Gross energetic requirements (multi-panel)__
+```{r plots_GER_preg_lact_panel}
+predict_GER_table_alladults <- read_csv("data/predict_GER_sensAnalysis_alladults.csv")
+
+predict_GER_table_panel <- within(predict_GER_table_alladults, Lifestage <- 
+  factor(Lifestage, levels=c('Juvenile/Adult',
+                             'Pregnant only', 
+                             'Lactating (birth to 9.6 mths)',
+                             'Pregnant (with 6 mths lactation)',
+                             'Lactating (last 3.6 mths)')
+         )
+  )
+
+
+
+plot_GER_panel <- predict_GER_table_panel %>% 
+  ggplot() +
+  geom_errorbar(aes(x = age_yrs-0.5, 
+                  ymin = mean_GER-GER_sd,
+                  ymax = mean_GER+GER_sd),
+                width=0, linetype = 1, color="gray40")+
+  geom_point(aes(x = age_yrs-0.5, y= mean_GER),
+              shape = 21, fill = "black") +
+   geom_errorbar(aes(x = age_yrs-0.5, 
+                    ymin = GER_foraging - sd_foraging,
+                    ymax = GER_foraging + sd_foraging),
+                width=0, linetype = 1, color="gray40") +
+  geom_point(aes(x = age_yrs-0.5, y= GER_foraging),
+              shape = 21, fill = "white") +
+  facet_grid(.~Lifestage, 
+             labeller = label_wrap_gen(width = 17, 
+               multi_line = TRUE))+
+  xlab("Age (years)") +
+  ylab(bquote('Gross Energetic Requirements (MJ day'^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
+                     limits = c(1,30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
+                     label = comma)+
+                     #limits = c(0, 20))+
+  
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
+        axis.title = element_text(size = rel(1.2), colour = "black"),
+        strip.background = element_rect(
+          color="transparent", fill="transparent"),
+        strip.text = element_text(size = rel(1), colour = "black"))
+  # annotate("text", x = 20, y = 5200,
+  #          label = paste0("Foraging season"),
+  #          size = 6,
+  #          hjust = 1) +
+  # annotate("text", x = 20, y = 200,
+  #          label = paste0("Annual"),
+  #          size = 6,
+  #          hjust = 1) +
+  
+plot_GER_panel 
+
+ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
+                              Lifestage = factor("Juvenile/Adult",
+                                           levels = c('Juvenile/Adult',
+                                                      'Pregnant only', 
+                                                      'Lactating (birth to 9.6 mths)',
+                                                      'Pregnant (with 6 mths lactation)',
+                                                      'Lactating (last 3.6 mths)')))
+
+ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 3700,
+                                Lifestage = factor("Juvenile/Adult",
+                                             levels = c('Juvenile/Adult',
+                                             'Pregnant only', 
+                                             'Lactating (birth to 9.6 mths)',
+                                             'Pregnant (with 6 mths lactation)',
+                                             'Lactating (last 3.6 mths)')))
+
+
+
+plot_GER_panel <- plot_GER_panel + 
+  geom_text(data = ann_text_annual, 
+            aes(x=age_yrs, y=mean_GER),
+            label = "Annual",
+            size = 3.5,
+            hjust = 1) +
+  geom_text(data = ann_text_foraging, 
+            aes(x=age_yrs, y=mean_GER),
+            label = "Foraging Season",
+            size = 3.5,
+            hjust = 1)
+
+plot_GER_panel
+
+
+```
+
+
+__Plotting Food Requirements (multi panel)__
+```{r plot_FoodReqs_preg_lact_panel}
+
+plot_FoodReqs_panel <- predict_GER_table_panel %>% 
+  ggplot() +
+  geom_errorbar(aes(x = age_yrs, 
+                  ymin = FR_foraging-FR_sd_foraging,
+                  ymax = FR_foraging+FR_sd_foraging),
+                width=0, linetype = 1, color="gray40")+
+  geom_point(aes(x = age_yrs, 
+                y= FR_foraging),  
+            size = 1)+
+  facet_grid(~Lifestage,
+             labeller = label_wrap_gen(width = 17, 
+             multi_line = TRUE))+
+  xlab("Age (years)") +
+  ylab(bquote('Food Requirements (kg day'^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
+                     limits = c(1,30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+                     #limits = c(0, 20))+
+  
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
+        axis.title = element_text(size = rel(1.2), colour = "black"),
+        strip.background = element_rect(
+          color="transparent", fill="transparent"),
+        strip.text = element_text(size = rel(1), colour = "black")
+  )
+
+
+
+plot_FoodReqs_panel
+
+
+
+plot_FoodReqs_panel_ribbon <- predict_GER_table_panel %>% 
+  ggplot() +
+  # geom_errorbar(aes(x = age_yrs, 
+  #                 ymin = FR_foraging-FR_sd_foraging,
+  #                 ymax = FR_foraging+FR_sd_foraging),
+  #               width=0, linetype = 1, color="gray40")+
+  # geom_point(aes(x = age_yrs, 
+  #               y= FR_foraging),  
+  #           size = 1)+
+  geom_ribbon(aes(x = age_yrs, 
+                  ymin = FR_foraging-FR_sd_foraging,
+                  ymax = FR_foraging+FR_sd_foraging),
+              alpha = 0.25,
+              fill="gray50")+
+  geom_line(aes(x = age_yrs, 
+                y=FR_foraging),linewidth = 0.5)+ 
+  facet_grid(~Lifestage,
+             labeller = label_wrap_gen(width = 17, 
+             multi_line = TRUE))+
+  xlab("Age (years)") +
+  ylab(bquote('Food Requirements (kg day'^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
+                     limits = c(1,30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+                     #limits = c(0, 20))+
+  
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
+        axis.title = element_text(size = rel(1.2), colour = "black"),
+        strip.background = element_rect(
+          color="transparent", fill="transparent"),
+        strip.text = element_text(size = rel(1), colour = "black")
+  )
+
+
+
+plot_FoodReqs_panel_ribbon
+
+
+
+```
+
+
+```{r plot_pct_bodywt_consumed_panel}
+
+
+plot_pct_bodyweight_all <- predict_GER_table_panel %>% 
+  filter(age_yrs > 1) %>% 
+  ggplot() +
+   geom_errorbar(aes(x = age_yrs-0.5, 
+                    ymin = pctbodywt - pctbodywt_sd, 
+                    ymax = pctbodywt + pctbodywt_sd),
+                width=0, size=0.5, linetype = 1, color="gray40")+
+  geom_point(aes(x = age_yrs-0.5, y= pctbodywt), 
+             shape = 21, fill = "black")+
+  facet_grid(~Lifestage,
+             labeller = label_wrap_gen(width = 17, 
+             multi_line = TRUE))+
+  xlab("Age (years)") +
+  ylab(bquote('Consumption day'^'-1'*' (% body wt)')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
+                     limits = c(1,30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6)
+                     #limits = c(3.5, 10)
+                     )+
+  
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
+        axis.title = element_text(size = rel(1.2), colour = "black"),
+        strip.background = element_rect(
+          color="transparent", fill="transparent"),
+        strip.text = element_text(size = rel(1), colour = "black")
+  )
+
+
+
+plot_pct_bodyweight_all
+
+
+
+
+```
+

@@ -980,6 +980,7 @@ predict_GER_table_sensAnalysis_preg_only %>%
 
 
 ```{r plots_GER_preg}
+predict_GER_table_sensAnalysis_preg_only <- read_csv("data/predict_GER_table_sensAnalysis_preg_ONLY.csv")
 
 plot_predict_GER_sensAnalysis_preg_only <- predict_GER_table_sensAnalysis_preg_only%>%
   #dplyr::filter(sex=="Female") %>% 

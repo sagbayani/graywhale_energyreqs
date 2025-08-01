@@ -848,17 +848,17 @@ plot_GER_3panel <- predict_GER_table_3panel %>%
   #          size = 6,
   #          hjust = 1) 
   #   
-# ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
-#                               Lifestage = factor("Juvenile/Adult",
-#                                            levels = c("Juvenile/Adult",
-#                                                       "Lactating",
-#                                                       "Pregnant")))
-# 
-# ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 4200,
-#                                 Lifestage = factor("Juvenile/Adult",
-#                                              levels = c("Juvenile/Adult",
-#                                                         "Lactating",
-#                                                         "Pregnant")))
+ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
+                              Lifestage = factor("Juvenile/Adult",
+                                           levels = c("Juvenile/Adult",
+                                                      "Lactating",
+                                                      "Pregnant")))
+
+ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 4200,
+                                Lifestage = factor("Juvenile/Adult",
+                                             levels = c("Juvenile/Adult",
+                                                        "Lactating",
+                                                        "Pregnant")))
 
 plot_GER_3panel <- plot_GER_3panel +
   geom_text(data = ann_text_annual,
@@ -877,7 +877,7 @@ plot_GER_3panel
 
 ```
 
-Figure 8. Estimates for gross energy requirements for pregnant, lactating females, and others (juvenile and other adult grey whales). Daily gross energy requirements for a full year (annual) are represented with black circles. White circles represent daily gross energy requirements for when feeding is limited during the foraging season. Foraging season is assumed to be ~154 days for single juveniles (1-7 y) and adults (> 8 y), \~153 days for pregnant females, and ~119 days for lactating females. Error bars represent SD.
+Figure 8. Estimates for gross energy requirements (GER) for pregnant, lactating females, and others (juvenile and other adult grey whales). Daily gross energy requirements for a full year (annual) are represented with black circles (365 for adults/juveniles, 396 for pregnant whales, and 293 days for lactating whales). White circles represent daily gross energy requirements for when feeding is limited during the foraging season. Foraging season is assumed to be ~154 days for single juveniles (1-7 y) and adults (> 8 y), \~153 days for pregnant females, and ~119 days for lactating females. GER for pregnant whales shown here assumes that the GER for first the 6 months of lactation while the mother is fasting need to be consumed the previous year, when foraging while pregnant. GER for lactating whales shown here is the GER for the remaining 3.6 months of lactation when the mother resumes foraging while lactating. Error bars represent SD.
 
 
 ### Milk / Food Requirements
@@ -1178,7 +1178,7 @@ plot_predict_GER_table_sensAnalysis_phase2
 
 Figure 15. Results for the sensitivity analysis on gross energy requirements (*GER*) for juveniles and non-reproductive adults.
 
-#### Pregnant grey whales
+#### Pregnant grey whales (assuming GER for foraging while pregnant includes first 6 months of lactation)
 
 ```{r predict_GER_table_sensAnalysis_preg, echo= FALSE, results = "hide", message = FALSE, warning=FALSE, fig.width=10,fig.height=5}
 #Read in data
@@ -1238,7 +1238,7 @@ plot_predict_GER_sensAnalysis_preg
 
 Figure 16. Results for the sensitivity analysis on gross energy requirements (*GER*) for pregnant females. GER calf represents the energy required for the first 6 months.
 
-#### Lactating grey whales
+#### Lactating grey whales (assuming GER for foraging while nursing includes only last 3.6 months of lactation)
 
 ```{r predict_GER_table_sensAnalysis_lact, echo= FALSE, results = "hide", message = FALSE, warning=FALSE, fig.width=10,fig.height=5}
 
