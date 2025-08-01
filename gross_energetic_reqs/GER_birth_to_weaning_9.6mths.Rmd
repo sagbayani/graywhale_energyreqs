@@ -1,5 +1,5 @@
 ---
-title: "GER_birth_to_weaning_9.6mths"
+title: "Total Gross Energy Requirements for calves from birth to weaning"
 author: "Selina Agbayani"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -18,7 +18,8 @@ classoption: landscape
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
-
+#quiet col types messages
+options(readr.show_col_types = FALSE)
 ## Setup
 
 # Initialize all libraries, set paths for output figures, then import the gw_observations.csv
@@ -56,6 +57,7 @@ library(gtable)
 library(ggpubr)
 
 #source("functions.R")
+
  
 ```
 
@@ -546,25 +548,34 @@ kable(TotalGER_birth_to_weaning_tibble)
 
 TotalGER_birth_to_weaning_tibble %>% write_csv("data/TotalGER_birth_to_weaning_tibble.csv", na = "", append = FALSE)
 
+```
 
+
+**Total GER from birth to weaning, taking into account foraging time for nursing mother.**
+
+```{r plot, echo=FALSE}
+
+TotalGER_birth_to_weaning_tibble <-  read_csv("data/TotalGER_birth_to_weaning_tibble.csv")
 TotalGER_birth_to_weaning_plot <- TotalGER_birth_to_weaning_tibble %>% 
   ggplot()+
   geom_errorbar(aes(x = age_range, 
                     ymin = Total_GER - Total_GER_sd, 
                     ymax = Total_GER + Total_GER_sd), 
                 width=0, linetype = 1,color="black") + 
-  geom_point(aes(x = age_range, y= Total_GER)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8))+
-  ggtitle("Total GER from birth to weaning, taking into account foraging time for nursing mother")+
-  theme_bw() +
-  theme(panel.grid = element_blank())
-
+  # geom_point(aes(x = age_range, y= Total_GER),
+  #            shape = 21, size = 5) +
+    geom_bar(aes(x = age_range, y= Total_GER),
+             stat = "identity", fill = "gray80") +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
+                     labels = comma)+
+  xlab("Age range (months)") +
+  ylab(bquote('Gross Energetic Requirement (MJ)')) +
+  theme_bw() 
+  #theme(panel.grid = element_blank())
+  
 
 TotalGER_birth_to_weaning_plot
-# 
-# GERcalf0to9.6mths_tibble  <-  TotalGER_0to9.6mth_tibble %>% filter(sex == "N/A")
-# GERcalf0to9.6mths <- GERcalf0to9.6mths_tibble$Total_GER
-# GERcalf0to9.6mths_sd <- GERcalf0to9.6mths_tibble$Total_GER_sd
+
 
 ```
 

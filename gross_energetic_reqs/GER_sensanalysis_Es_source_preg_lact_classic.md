@@ -872,6 +872,19 @@ predict_GER_table_sensAnalysis_preg_only %>%
 ```
 
 ``` r
+predict_GER_table_sensAnalysis_preg_only <- read_csv("data/predict_GER_table_sensAnalysis_preg_ONLY.csv")
+```
+
+    ## Rows: 408 Columns: 22
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr  (2): phase, MC_variable
+    ## dbl (20): age_yrs, mean_GER, GER_sd, quant025, quant975, GER_foraging, sd_fo...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 plot_predict_GER_sensAnalysis_preg_only <- predict_GER_table_sensAnalysis_preg_only%>%
   #dplyr::filter(sex=="Female") %>% 
   ggplot() +
@@ -893,11 +906,15 @@ plot_predict_GER_sensAnalysis_preg_only <- predict_GER_table_sensAnalysis_preg_o
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
                      limits = c(8, 40)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8)
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
+                     labels = comma
                      #limits = c(0,max(plot_predict_GER_sensAnalysis_preg$quant975_foraging))
   ) +
   theme_bw() +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank())+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1)))
 
 
 plot_predict_GER_sensAnalysis_preg_only              
@@ -1195,7 +1212,12 @@ xlab("Age (years)") +
                      #limits = c(0, max(predict_GER_table_lact$quant975_foraging))
   ) +
   theme_bw() +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank())+
+  theme(panel.grid = element_blank())+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1)))
+
 
 
 plot_predict_GER_table_sensAnalysis_lact_all

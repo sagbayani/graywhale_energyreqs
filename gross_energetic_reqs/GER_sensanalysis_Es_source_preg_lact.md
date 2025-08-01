@@ -41,18 +41,7 @@ A_cost_reference <- as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 60 Columns: 14
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (5): Lifestage, Description, Activity_stages, source_no_days, source_bpm
-    ## dbl (9): ID, no_days, bpm, se_bpm, age_yrs, age_yrs_min, age_yrs_max, pct_O2...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 kable(A_cost_reference)
 ```
 
@@ -170,18 +159,8 @@ P_cost_table <- as_tibble(
   )
   )
 ) 
-```
 
-    ## Rows: 39 Columns: 18
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr  (1): sex
-    ## dbl (17): age_mth, age_yrs, mean_masschange, sd_masschange, mean_P, sd_P, qu...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
 #P_cost_table <- P_cost_table %>% dplyr::filter(age_yrs >= 0)
 kable(head(P_cost_table))
 ```
@@ -209,18 +188,8 @@ P_cost_table_preg  <-  as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 68 Columns: 10
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (1): sex
-    ## dbl (9): age_yrs, mean_masschange, sd_masschange, mean_P, sd_P, p_lipid, p_p...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
 P_cost_table_preg$Ts <-  396
 
 P_cost_table_lact <- as_tibble(
@@ -236,18 +205,7 @@ P_cost_table_lact <- as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 68 Columns: 10
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (1): sex
-    ## dbl (9): age_yrs, mean_masschange, sd_masschange, mean_P, sd_P, p_lipid, p_p...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 P_cost_table_lact$Ts <-  365
 
 Es_preg_table <- as_tibble(
@@ -261,18 +219,6 @@ Es_preg_table <- as_tibble(
   )
   )
 )
-```
-
-    ## Rows: 272 Columns: 8
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (2): Lifestage, MC_variable
-    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_sd_perday
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 kable(head(Es_preg_table))
 ```
 
@@ -297,18 +243,8 @@ Es_lact_table <- as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 272 Columns: 8
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (2): Lifestage, MC_variable
-    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_sd_perday
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
 kable(head(Es_lact_table))
 ```
 
@@ -337,17 +273,8 @@ mass_table <- as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 173 Columns: 9
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## dbl (9): age_yrs, mean_mass, sd_mass, mean_lwr, mean_upr, quant025, quant975...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
 mean_masschange <- as_tibble(
   read_csv("data/mean_masschange.csv"),
   col_types = (list(cols(age_yrs = col_double(),
@@ -359,18 +286,8 @@ mean_masschange <- as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 39 Columns: 5
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (1): sex
-    ## dbl (4): age_yrs, mean_masschange, sd_masschange, age_mth
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
 mean_masschange <- mean_masschange %>% dplyr::filter(age_yrs >=0)
 kable(head(mean_masschange))
 ```
@@ -395,18 +312,7 @@ mean_masschange_peryear <- as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 228 Columns: 4
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (1): sex
-    ## dbl (3): age_yrs, mean_masschange, sd_masschange
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 mean_masschange_peryear <- mean_masschange_peryear %>% dplyr::filter(age_yrs >= 0)
 kable(head(mean_masschange_peryear))
 ```
@@ -432,18 +338,7 @@ age_yr_tibble <- as_tibble(
   )
   )
 )
-```
 
-    ## Rows: 25 Columns: 5
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (1): month
-    ## dbl (4): no_days_in_mth, age_mth, no_days_cumul, age_yrs
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 kable(age_yr_tibble)
 ```
 
@@ -513,18 +408,8 @@ TotalGER_birth_to_weaning_tibble <- as_tibble(
                     Total_GER_sd = col_double(), 
                     details = col_character()
   )))
-```
 
-    ## Rows: 3 Columns: 5
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (3): age_range, sex, details
-    ## dbl (2): Total_GER, Total_GER_sd
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
 kable(TotalGER_birth_to_weaning_tibble)
 ```
 
@@ -859,8 +744,10 @@ predict_GER_table_sensAnalysis_preg %>%
 ```
 
 ``` r
+predict_GER_table_sensAnalysis_preg <- read_csv("data/predict_GER_table_sensAnalysis_preg.csv")
+
 plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
-  filter(age_yrs<=40) %>% 
+  filter(age_yrs<=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -879,12 +766,16 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(8, 40)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8)
+                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
+                     labels = comma
                      #limits = c(0,max(plot_predict_GER_sensAnalysis_preg$quant975_foraging))
   ) +
   theme_bw() +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank())+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1)))
 
 
 plot_predict_GER_sensAnalysis_preg              
@@ -1152,8 +1043,10 @@ predict_GER_table_sensAnalysis_lact %>% write_csv("data/predict_GER_table_sensAn
 ```
 
 ``` r
+predict_GER_table_sensAnalysis_lact <- read_csv("data/predict_GER_table_sensAnalysis_lact.csv")
+
 plot_predict_GER_table_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
-  filter(age_yrs<=40) %>% 
+  filter(age_yrs<=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -1170,8 +1063,8 @@ plot_predict_GER_table_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact 
   facet_grid(~MC_variable)+
 xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(8, 40)) +  # max x-axis 30 yrs. 
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
+                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(breaks = scales::pretty_breaks(n = 8)
                      #limits = c(0, max(predict_GER_table_lact$quant975_foraging))
   ) +

@@ -18,6 +18,8 @@ classoption: landscape
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
+#quiet col types messages
+options(readr.show_col_types = FALSE)
 
 ## Setup
 
@@ -976,9 +978,10 @@ predict_GER_table_sensAnalysis_preg %>%
 ```
 
 ```{r plots_GER_preg}
+predict_GER_table_sensAnalysis_preg <- read_csv("data/predict_GER_table_sensAnalysis_preg.csv")
 
 plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
-  filter(age_yrs<=40) %>% 
+  filter(age_yrs<=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -997,12 +1000,16 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(8, 40)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8)
+                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
+                     labels = comma
                      #limits = c(0,max(plot_predict_GER_sensAnalysis_preg$quant975_foraging))
   ) +
   theme_bw() +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank())+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1)))
 
 
 plot_predict_GER_sensAnalysis_preg              
@@ -1275,8 +1282,11 @@ predict_GER_table_sensAnalysis_lact %>% write_csv("data/predict_GER_table_sensAn
 ```
 
 ```{r plots_GER_lact}
+
+predict_GER_table_sensAnalysis_lact <- read_csv("data/predict_GER_table_sensAnalysis_lact.csv")
+
 plot_predict_GER_table_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
-  filter(age_yrs<=40) %>% 
+  filter(age_yrs<=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -1293,8 +1303,8 @@ plot_predict_GER_table_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact 
   facet_grid(~MC_variable)+
 xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(8, 40)) +  # max x-axis 30 yrs. 
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
+                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(breaks = scales::pretty_breaks(n = 8)
                      #limits = c(0, max(predict_GER_table_lact$quant975_foraging))
   ) +

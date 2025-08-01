@@ -1,4 +1,4 @@
-GER_birth_to_weaning_9.6mths
+Total Gross Energy Requirements for calves from birth to weaning
 ================
 Selina Agbayani
 01 August, 2025
@@ -22,18 +22,6 @@ datapath
 ``` r
 #read in GER phase 1 table to calculate total GER from birth to weaning 
 predict_GER_table_phase1_permth<- read_csv("data/predict_GER_table_sensAnalysis_phase1_permth_source_bpm.csv")
-```
-
-    ## Rows: 48 Columns: 23
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr  (3): sex, MC_variable, pct_unit
-    ## dbl (20): phase, age_yrs, mean_GER, GER_sd, quant025, quant975, GER_foraging...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 predict_GER_table_phase1_permth <-  predict_GER_table_phase1_permth %>% filter(age_mth <= 10 & MC_variable == "all" & sex == "N/A") %>% 
    select(phase, age_yrs,age_mth, sex, mean_GER, GER_sd, Ts)
 ```
@@ -219,29 +207,9 @@ kable(TotalGER_birth_to_weaning_tibble)
 
 ``` r
 TotalGER_birth_to_weaning_tibble %>% write_csv("data/TotalGER_birth_to_weaning_tibble.csv", na = "", append = FALSE)
-
-
-TotalGER_birth_to_weaning_plot <- TotalGER_birth_to_weaning_tibble %>% 
-  ggplot()+
-  geom_errorbar(aes(x = age_range, 
-                    ymin = Total_GER - Total_GER_sd, 
-                    ymax = Total_GER + Total_GER_sd), 
-                width=0, linetype = 1,color="black") + 
-  geom_point(aes(x = age_range, y= Total_GER)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8))+
-  ggtitle("Total GER from birth to weaning, taking into account foraging time for nursing mother")+
-  theme_bw() +
-  theme(panel.grid = element_blank())
-
-
-TotalGER_birth_to_weaning_plot
 ```
 
-![](GER_birth_to_weaning_9.6mths_files/figure-gfm/GER_birth_to_weaning-1.png)<!-- -->
+**Total GER from birth to weaning, taking into account foraging time for
+nursing mother.**
 
-``` r
-# 
-# GERcalf0to9.6mths_tibble  <-  TotalGER_0to9.6mth_tibble %>% filter(sex == "N/A")
-# GERcalf0to9.6mths <- GERcalf0to9.6mths_tibble$Total_GER
-# GERcalf0to9.6mths_sd <- GERcalf0to9.6mths_tibble$Total_GER_sd
-```
+![](GER_birth_to_weaning_9.6mths_files/figure-gfm/plot-1.png)<!-- -->
