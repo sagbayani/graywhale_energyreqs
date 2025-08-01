@@ -398,7 +398,6 @@ predictNLS <- function(object,newdata,level = 0.95, nsim = 10000,
 ```   
 
 
-
 ```{r setpaths}
 # Set path for output figures: 
 Figurespath <- paste0(getwd(), "/FMR/figures", collapse = NULL)
@@ -408,9 +407,8 @@ datapath <- paste0(getwd(), "/data", collapse = NULL)
 datapath
 
 
-
-
 ```
+
 
 ```{r read_in_data}
 # Run Es preg and lact first, then read in data here
@@ -422,11 +420,7 @@ Es_table_phase2_peryear <- read_csv("data/Es_sensAnalysis_phase2_peryear_source_
 ```
 
 
-
 ```{r plots_Es_preg_lact_annual_perday}
-
-
-
 
 #Limit tibbles to 30 yrs
 Es_lact_table_max30 <-   Es_lact_table %>% dplyr::filter(age_yrs <= 30)
