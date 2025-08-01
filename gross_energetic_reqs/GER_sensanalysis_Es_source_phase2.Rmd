@@ -891,7 +891,7 @@ names(MC_var_factor.labs) <- c("all", "P_cost", "Es","E_FnU")
 
 plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_phase2 %>%
   dplyr::filter(sex=="N/A" & phase == "2" & 
-                  age_yrs >= 1 & age_yrs <= 30) %>% 
+                  age_yrs > 1 & age_yrs <= 30) %>% 
   ggplot() +
   # geom_line(aes(x=age_yrs, y=mean_GER),
   #           color='black',
@@ -901,7 +901,7 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
   geom_errorbar(aes(x = age_yrs-0.5, 
                     ymin = mean_GER-GER_sd, 
                     ymax = mean_GER+GER_sd), 
-                width=0, size=1, linetype = 3, color="gray40") + 
+                width=0, linewidth=0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_yrs-0.5, y= mean_GER), shape = 21, fill = "black")+
   facet_grid(~MC_var_factor, 
              labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
@@ -919,62 +919,17 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
   theme(strip.background = element_rect(
     color="black", fill=NA))+
   theme(axis.title = element_text(size = rel(1.4), colour = "black"))+
-  theme(axis.text = element_text(size = rel(1.2), colour = "black"))
+  theme(axis.text = element_text(size = rel(1.2), colour = "black"))+
+    theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1)))
+
   # annotate("text", x = 28, y = 3500,
   #          label = paste0("Annual"),
   #          size = 6,
   #          hjust = 1) 
 
 plot_predict_GER_table_sensAnalysis_phase2
-
-
-
-
-plot_predict_GER_table_sensAnalysis_phase2_black <- 
-  predict_GER_table_sensAnalysis_phase2 %>%
-  dplyr::filter(sex=="N/A" & phase == "2" & 
-                  age_yrs >= 1 & age_yrs <= 30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs-0.5, 
-                    ymin = mean_GER-GER_sd, 
-                    ymax = mean_GER+GER_sd), 
-                width=0, size=1, linetype = 3, color="gray60") + 
-  geom_point(aes(x = age_yrs-0.5, y= mean_GER), 
-             shape = 19, colour = "white", fill = "white", size = 1)+
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
-  xlab("Age (years)") +
-  ylab(bquote('Gross Energetic Reqs (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(0, 30.5), expand = c(0,0)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     #limits = c(-50, 4000), expand = c(0,0),
-                     labels = comma)+
-  theme_bw() +
-  theme(panel.spacing = unit(0.6, "lines"))+
-  theme(strip.background = element_rect(color="white", fill="black"))+
-   theme(strip.text = element_text(colour = 'white'))+
-  theme(panel.grid = element_blank()) +
-  theme(legend.position = "none") +
-  theme(legend.background = element_rect(fill = "black")) +
-  theme(legend.text = element_text(colour = "white", size = rel(1))) +
-  theme(legend.key = element_rect(fill = "transparent")) + 
-  theme(plot.background = element_rect(fill = "black", colour = NA)) + 
-  theme(panel.background = element_rect(fill = "black")) + 
-  theme(panel.border = element_rect(colour = "white")) +
-  theme(axis.line = element_line(#size = 1, 
-                                 colour = "white")) +
-  theme(axis.text = element_text(colour = "white", 
-                                 size = rel(1))) + 
-  theme(axis.title.y = element_text(colour = "white", 
-                                    size = rel(1.2), 
-                                    angle = 90)) +
-  theme(axis.title.x = element_text(colour = "white", 
-                                    size = rel(1.2))) +
-  theme(axis.ticks = element_line(colour="white"))
-
-
-plot_predict_GER_table_sensAnalysis_phase2_black
 
 
 
