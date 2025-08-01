@@ -795,8 +795,8 @@ for (s in c("N/A")){
         mass <- MC_vars_i$mass
         
         #GER calculation  -- Es includes digestion, maintenance and activity
-        MC_vars_i$GER <- (((P_cost + Es)/(E_FnU))/Ts) # per day for the timestep
-        MC_vars_i$GER_foraging <- (((P_cost + Es)/(E_FnU))/Ts) # per day for # days actively foraging
+        MC_vars_i$GER <- (((P_cost + Es)/(E_FnU))/365) # per day for the timestep
+        MC_vars_i$GER_foraging <- (((P_cost + Es)/(E_FnU))/154) # per day for # days actively foraging
         
         MC_vars_i$FR_foraging <- (MC_vars_i$GER_foraging / MC_vars_i$ED_prey) 
         MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 

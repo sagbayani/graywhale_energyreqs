@@ -422,6 +422,8 @@ Es_table_phase2_peryear <- read_csv("data/Es_sensAnalysis_phase2_peryear_source_
 
 ```{r plots_Es_preg_lact_annual_perday}
 
+
+
 #Limit tibbles to 30 yrs
 Es_lact_table_max30 <-   Es_lact_table %>% dplyr::filter(age_yrs <= 30)
 Es_preg_table_max30 <-   Es_preg_table %>% dplyr::filter(age_yrs <= 30)
@@ -433,7 +435,10 @@ Es_table_alladults_preg_lact_peryear <- rbind(Es_table_alladults_preg_lact_perye
                                               Es_preg_table_max30, 
                                               Es_lact_table_max30)
 
-Es_table_alladults_preg_lact_peryear %>% write_csv("data/Es_table_alladults_preg_lact_peryear_bpm.csv", na = "", append = FALSE)
+Es_table_alladults_preg_lact_peryear %>% write_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_bpm.csv", na = "", append = FALSE)
+
+
+Es_table_alladults_preg_lact_peryear <- read_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_bpm.csv")
 
 # apply factors to enable facet wrap 
 Es_table_alladults_preg_lact_peryear$Lifestage_f = factor(Es_table_alladults_preg_lact_peryear$Lifestage,
@@ -476,45 +481,6 @@ plot_Es_table_alladults_preg_lact_yearly_perday <- Es_table_alladults_preg_lact_
 #theme(legend.position = "none")
 
 plot_Es_table_alladults_preg_lact_yearly_perday
-
-
-
-plot_Es_table_alladults_preg_lact_yearly_perday_black <-  Es_table_alladults_preg_lact_peryear %>% 
-  ggplot(aes(x = age_yrs, y =Es_perday)) +
-  facet_grid(MC_variable~Lifestage_f)+  
-  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
-                colour = 'gray20', width = 0, linetype = 1, size = 0.5) +
-  geom_point(colour = "white", size = 1)+
-  xlab("Age (years)") +
-  
-  ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
-  
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(0, 32)) +  # max x-axis 30 yrs. 
-  #scale_y_continuous(label = function(x){(x/1000)}, breaks = scales::pretty_breaks(n = 8))+
-  scale_y_continuous(label = comma, breaks = scales::pretty_breaks(n = 8),
-                     limits = c(0,max(Es_table_alladults_preg_lact_peryear$Es_perday +
-                                        Es_table_alladults_preg_lact_peryear$Es_sd_perday))) +
-  
-  theme_bw()+
-  theme(panel.grid = element_blank())+
-  theme(legend.position = "none")+
-  theme(legend.background = element_rect(fill = "black"))+
-  theme(legend.text = element_text(colour = "white", size = rel(1)))+
-  theme(legend.key = element_rect(fill = "transparent"))+ #colour = "transparent"))+
-  ggtitle(element_blank()) +
-  theme(plot.background = element_rect(fill = "black"))+
-  theme(panel.background = element_rect(fill = "black"))+
-  theme(panel.border = element_rect(colour = "white"))+
-  theme(axis.line = element_line(size = 1, colour = "white"))+
-  theme(axis.text = element_text(colour = "white", size = rel(1.2)))+
-  theme(axis.title.y = element_text(colour = "white", size = rel(1.2), angle = 90))+
-  theme(axis.title.x = element_text(colour = "white", size = rel(1.4)))+
-  theme(axis.ticks = element_line(colour="white"))+
-  theme(strip.background = element_rect(colour = "transparent", fill = "transparent"))+
-  theme(strip.text = element_text(colour = "white", size = rel(1.6)))
-
-plot_Es_table_alladults_preg_lact_yearly_perday_black
 
 
 

@@ -51,6 +51,8 @@ Figure 7. Daily gross energy requirements over the year compared to
 gross daily requirements when foraging is limited to the summer season.
 Foraging season spans ~154 days for juveniles and adults.
 
+    ## Error in eval(expr, envir, enclos): object 'ann_text_annual' not found
+
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_preg_lact-1.png)<!-- -->
 
 Figure 8. Estimates for gross energy requirements for pregnant,
@@ -159,12 +161,6 @@ including pregnant and lactating females.
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plots_Es_phase2_stacked-1.png)<!-- -->
 
 Es for all life stages including pregnant and lactating
-
-    ## Error in `vroom::vroom()`:
-    ## ! `file` is not one of the supported inputs:
-    ## • A filepath or character vector of filepaths
-    ## • A connection or list of connections
-    ## • Literal or raw input
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20preg%20lact-1.png)<!-- -->
 
