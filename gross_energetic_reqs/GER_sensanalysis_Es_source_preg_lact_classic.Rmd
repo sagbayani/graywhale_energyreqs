@@ -1,5 +1,5 @@
 ---
-title: "GER Sensitivity Analysis - source - Preg/Lact"
+title: "GER Sensitivity Analysis - source - Preg/Lact - no front loading"
 author: "S. Agbayani"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -255,7 +255,7 @@ age_yr_tibble <- as_tibble(
 kable(age_yr_tibble)
 
 predict_GER_table_sensAnalysis_phase2  <- as_tibble(
-  read_csv("data/predict_GER_table_sensAnalysis_phase2 .csv"),
+  read_csv("data/predict_GER_table_sensAnalysis_phase2.csv"),
   col_types = (list(ID = col_integer(),
                     phase = col_double(),
                     age_yrs = col_double(),
@@ -540,11 +540,11 @@ for (i in seq(from = 8, to = 75, by = 1)){
     P_nb <- MC_vars_i$P_nb
     GERcalf_0to6m <- MC_vars_i$GERcalf_0to6m
     
-    #GER  preg  = GER preg whale + GER calf 6mths (lactation) 
+    #GER  preg  = GER preg whale ONLY
     #Es includes digestion, maintenance and activity          
 
-    MC_vars_i$GER <- ((P_cost + Es + Hg + P_nb + GERcalf_0to6m)/396)/E_FnU  #preg total days = 396
-    MC_vars_i$GER_foraging <- ((P_cost + Es + Hg + P_nb + GERcalf_0to6m )/153)/E_FnU  #foraging pregnant = 153
+    MC_vars_i$GER <- ((P_cost + Es + Hg + P_nb)/396)/E_FnU  #preg total days = 396
+    MC_vars_i$GER_foraging <- ((P_cost + Es + Hg + P_nb)/153)/E_FnU  #foraging pregnant = 153
     
     MC_vars_i$FR_foraging <- (MC_vars_i$GER_foraging / MC_vars_i$ED_prey) 
     MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 
@@ -552,7 +552,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     #192 days foraging while preg, 134 days foraging while lact)
     MC_vars_i <- MC_vars_i %>% dplyr::mutate(ID = row_number())
     # move ID to the first column
-    MC_vars_i<- MC_vars_i %>% dplyr::select(ID,everything()) 
+    MC_vars_i<- MC_vars_i %>% relocate(ID) 
     
     mean_GER_i <- mean(MC_vars_i$GER)
     sd_GER_i <- sd(MC_vars_i$GER)
@@ -622,7 +622,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
 
 
 predict_GER_table_sensAnalysis_preg %>% 
-  write_csv("data/predict_GER_table_sensAnalysis_preg.csv", 
+  write_csv("data/predict_GER_table_sensAnalysis_preg_ONLY.csv", 
             na = "", append = FALSE)
 
 
@@ -646,7 +646,7 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
   facet_grid(~MC_variable)+
-  
+  ggtitle("GER for pregnant whale only")+
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
