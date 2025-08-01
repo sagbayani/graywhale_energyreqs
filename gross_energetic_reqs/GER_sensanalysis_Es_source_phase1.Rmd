@@ -809,7 +809,7 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
                     ymin = mean_GER-GER_sd, 
                     ymax = mean_GER+GER_sd), 
                 width=0, 
-                linetype = 3,
+                linetype = 1,
                 color="gray40") + 
   geom_point(aes(x = age_mth-0.5, y= mean_GER), 
              shape = 21, fill = "black")+
@@ -824,65 +824,19 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
   theme_bw()+
   theme(panel.grid = element_blank())+
   theme(panel.spacing = unit(0.6, "lines"))+
-  theme(strip.background = element_rect(
-    color="black", fill=NA))+
+  #  color="black", fill=NA))+
   theme(axis.text = element_text(size = rel(1),
                                  colour = "black")) +
   theme(axis.title.x = element_text(size = rel(1.2),
                                     colour = "black")) +
   theme(axis.title.y = element_text(size = rel(1.2),
-                                    colour = "black"))
+                                    colour = "black"))+
+    theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1)))
 
 
 plot_predict_GER_sensAnalysis_phase1_permth
-
-
-plot_predict_GER_sensAnalysis_phase1_permth_black <- predict_GER_table_sensAnalysis_phase1_permth %>%
-  dplyr::filter(sex == "N/A") %>% 
-  ggplot(aes(x = age_mth, y = mean_GER)) +
-  geom_errorbar(aes(x = age_mth-0.5, 
-                    ymin = mean_GER-GER_sd, 
-                    ymax = mean_GER+GER_sd), 
-                width=0, 
-                linetype = 3,
-                linewidth = 1,
-                color="gray60") + 
-  geom_point(aes(x = age_mth-0.5, y= mean_GER), 
-             size = 1.5, shape = 21, fill = "white")+
-  facet_grid(~MC_var_factor, labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
-  xlab("Age (months)") +
-  ylab(bquote('Gross Energetic Reqs (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) + 
-  #limits = c(0, 30)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 7),
-                     limits = c(0,1100)) + 
-  theme_bw()+
-  theme(panel.spacing = unit(0.6, "lines"))+
-  theme(strip.background = element_rect(
-    color="white", fill="black"))+
-   theme(strip.text = element_text(colour = 'white'))+
-  theme(panel.grid = element_blank()) +
-  theme(legend.position = "none") +
-  theme(legend.background = element_rect(fill = "black")) +
-  theme(legend.text = element_text(colour = "white", 
-                                   size = rel(1))) +
-  theme(legend.key = element_rect(fill = "transparent")) + 
-  theme(plot.background = element_rect(fill = "black", colour = NA)) + 
-  theme(panel.background = element_rect(fill = "black")) + 
-  theme(panel.border = element_rect(colour = "white")) +
-  theme(axis.line = element_line(#linewidth = 1, 
-                                 colour = "white")) +
-  theme(axis.text = element_text(colour = "white", 
-                                 size = rel(1))) + 
-  theme(axis.title.y = element_text(colour = "white", 
-                                    size = rel(1.2), 
-                                    angle = 90)) +
-  theme(axis.title.x = element_text(colour = "white", 
-                                    size = rel(1.2))) +
-  theme(axis.ticks = element_line(colour="white"))
-
-
-plot_predict_GER_sensAnalysis_phase1_permth_black
 
 
 ```
