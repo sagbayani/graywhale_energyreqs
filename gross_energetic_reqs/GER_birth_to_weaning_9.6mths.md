@@ -1,7 +1,7 @@
 Total Gross Energy Requirements for calves from birth to weaning
 ================
 Selina Agbayani
-01 August, 2025
+04 August, 2025
 
 ``` r
 # Set path for output figures: 

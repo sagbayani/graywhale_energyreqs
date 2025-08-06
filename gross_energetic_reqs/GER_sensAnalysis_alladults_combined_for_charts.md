@@ -3,7 +3,7 @@ alladults - including classic pregnant/lactating only and frontloading
 while pregnant
 ================
 Selina Agbayani
-01 August, 2025
+05 August, 2025
 
 ``` r
 # Set path for output figures: 
@@ -320,9 +320,9 @@ plot_GER_panel <- predict_GER_table_panel %>%
                      limits = c(1,30)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
                      label = comma)+
-                     #limits = c(0, 20))+
-  
   theme_bw() +
+  labs(tag = "A")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
         axis.title = element_text(size = rel(1.2), colour = "black"),
@@ -351,15 +351,14 @@ plot_GER_panel
 ``` r
 ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
                               Lifestage = factor("Juvenile/Adult",
-                                           levels = c('Juvenile/Adult',
-                                                      'Pregnant only', 
-                                                      'Lactating (birth to 9.6 mths)',
-                                                      'Pregnant (with 6 mths lactation)',
-                                                      'Lactating (last 3.6 mths)')))
+                                levels = c('Juvenile/Adult','Pregnant only',
+                                           'Lactating (birth to 9.6 mths)',
+                                           'Pregnant (with 6 mths lactation)',
+                                           'Lactating (last 3.6 mths)')))
 
 ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 3700,
                                 Lifestage = factor("Juvenile/Adult",
-                                             levels = c('Juvenile/Adult',
+                                  levels = c('Juvenile/Adult',
                                              'Pregnant only', 
                                              'Lactating (birth to 9.6 mths)',
                                              'Pregnant (with 6 mths lactation)',
@@ -412,6 +411,8 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
                      #limits = c(0, 20))+
   
   theme_bw() +
+  labs(tag = "B")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
         axis.title = element_text(size = rel(1.2), colour = "black"),
@@ -455,6 +456,8 @@ plot_FoodReqs_panel_ribbon <- predict_GER_table_panel %>%
                      #limits = c(0, 20))+
   
   theme_bw() +
+    labs(tag = "B")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
         axis.title = element_text(size = rel(1.2), colour = "black"),
@@ -492,6 +495,8 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
                      )+
   
   theme_bw() +
+    labs(tag = "C")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
         axis.title = element_text(size = rel(1.2), colour = "black"),
@@ -512,3 +517,41 @@ plot_pct_bodyweight_all
 ```
 
 ![](GER_sensAnalysis_alladults_combined_for_charts_files/figure-gfm/plot_pct_bodywt_consumed_panel-1.png)<!-- -->
+
+``` r
+#save multi-panel plot as hi-res jpg
+multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
+```
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+    ## Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](GER_sensAnalysis_alladults_combined_for_charts_files/figure-gfm/multiplot-1.png)<!-- -->
+
+``` r
+jpeg(filename = paste0(Figurespath,"/Figure6_multiplot.jpg"), 
+     width = 2100,
+     height = 3000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+p <- multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
+```
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+    ## Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+``` r
+dev.off()
+```
+
+    ## png 
+    ##   2
