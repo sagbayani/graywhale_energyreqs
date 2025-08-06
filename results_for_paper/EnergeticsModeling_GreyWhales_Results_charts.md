@@ -7,13 +7,10 @@ Selina Agbayani
 
 ### Production cost (P)
 
-#### Grey whale calves
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/P_cost_phase1-1.png)<!-- -->
-
-#### Juveniles and Adults
-
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/P_cost_peryear-1.png)<!-- -->
+
+Figure 1. Production cost for calves (panel A) and juveniles and adults
+(panel B).
 
 ### Total Energetic Expenditure (*E<sub>s</sub>*)
 
@@ -33,6 +30,14 @@ energetic expenditures across two activity stages.
 Figure 5. Estimates of annual total energetic expenditure from activity
 (MJ) for juveniles and single adults, pregnant and lactating females.
 Error bars represent SD.
+
+``` r
+ggarrange(plot_Es_table_phase1_mthly_perday, 
+            plot_Es_table_alladults_preg_lact_yearly_perday, 
+            widths = c(2, 5)) 
+```
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20all%20ages%20multipanel-1.png)<!-- -->
 
 ### Gross Energy Requirements
 

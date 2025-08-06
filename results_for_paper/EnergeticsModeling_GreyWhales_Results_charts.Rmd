@@ -420,10 +420,11 @@ datapath
 
 ### Production cost (P)
 
-#### Grey whale calves
+
 
 ```{r P_cost_phase1, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
+#### Gray whale calves
 P_cost_table  <-  read_csv("data/P_cost_table_phase1.csv")
 
 plot_P_cost_mass_perday <- P_cost_table %>%
@@ -444,11 +445,13 @@ plot_P_cost_mass_perday <- P_cost_table %>%
                     ymax = mean_P_perday + sd_P_perday), 
                 width=0, size=0.5, linetype = 1, color="gray40") +
   geom_point(aes(x = age_mth-0.5, y= mean_P_perday), size = 2)+
+  labs(tag = "A")+
+  theme(plot.tag = element_text(size = rel(6), colour = "black"))+
   xlab("Age (months)") +
-  ylab(bquote('Mean production cost (P) in MJ day'^'-1')) +
+  ylab(bquote('Production cost (MJ day'^'-1'*')'))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
                      limits = c(0, 12)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
                      limits = c(0, 550),
                      labels = scales::comma,
                      sec.axis=sec_axis(~.*12, name = "Mass (kg)",
@@ -469,15 +472,15 @@ plot_P_cost_mass_perday <- P_cost_table %>%
     theme(panel.background = element_rect(fill = "white"))+
     theme(panel.border = element_blank())+
     theme(axis.line = element_line(colour = "black"))+
-    theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
+    theme(axis.text = element_text(colour = "black", size = rel(1)))+
     theme(axis.title.y = element_text(colour = "black", 
-                                      size = rel(1.4), 
+                                      size = rel(1), 
                                       angle = 90, 
                                       margin = margin(t = 0, r = 10, b = 0, l = 0)))+
-    theme(axis.title.x = element_text(colour = "black", size = rel(1.4)))+
+    theme(axis.title.x = element_text(colour = "black", size = rel(1)))+
     theme(axis.ticks = element_line(colour="black"))+
     theme(axis.title.y.right  = element_text(colour = "black", 
-                                      size = rel(1.2), 
+                                      size = rel(1), 
                                       angle = 270, 
                                       margin = margin(t = 0, r = 0, b = 0, l = 10)))+
     annotate("text", x= 12, y = 25,
@@ -493,12 +496,14 @@ plot_P_cost_mass_perday <- P_cost_table %>%
   
 
 
-plot_P_cost_mass_perday
+#plot_P_cost_mass_perday
 ```
 
-#### Juveniles and Adults
+
 
 ```{r P_cost_peryear, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
+#### Juveniles and Adults
+
 P_cost_table_peryear  <- read_csv("data/P_cost_table_peryear.csv")
 
 plot_P_cost_mass_peryear <- P_cost_table_peryear %>% filter(sex == "N/A" & age_yrs >=1 & age_yrs<=30) %>%  
@@ -516,6 +521,8 @@ plot_P_cost_mass_peryear <- P_cost_table_peryear %>% filter(sex == "N/A" & age_y
               fill = "gray", alpha = 0.8)+
   geom_line(aes(x = age_yrs, y= mean_P_perday), 
               size = 0.5, linetype = 3, colour = "black")+
+  labs(tag = "B")+
+  theme(plot.tag = element_text(size = rel(6), colour = "black"))+
   xlab("Age (years)") +
   ylab(bquote('Production cost (MJ day'^'-1'*')'))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 9))+
@@ -538,26 +545,26 @@ plot_P_cost_mass_peryear <- P_cost_table_peryear %>% filter(sex == "N/A" & age_y
     theme(panel.background = element_rect(fill = "white"))+
     theme(panel.border = element_blank())+
     theme(axis.line = element_line(colour = "black"))+
-    theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
+    theme(axis.text = element_text(colour = "black", size = rel(1)))+
     theme(axis.title.y = element_text(colour = "black", 
-                                      size = rel(1.4), 
+                                      size = rel(1), 
                                       angle = 90, 
                                       margin = margin(t = 0, r = 10, b = 0, l = 0)))+
-    theme(axis.title.x = element_text(colour = "black", size = rel(1.4)))+
+    theme(axis.title.x = element_text(colour = "black", size = rel(1)))+
     theme(axis.ticks = element_line(colour="black"))+
   theme(axis.title.y.right  = element_text(colour = "black", 
-                                      size = rel(1.2), 
+                                      size = rel(1), 
                                       angle = 270, 
                                       margin = margin(t = 0, r = 0, b = 0, l = 10)))+
     annotate("text", x= 30, y = 25,
              label = "Production cost", 
              hjust = 1,
-             size = rel(5),
+             size = rel(4),
              color = "black") +
     annotate("text", x= 30, y = 220,
              label = "Mass", 
              hjust = 1,
-             size = rel(5),
+             size = rel(4),
              color = "black") 
 
   
@@ -565,9 +572,33 @@ plot_P_cost_mass_peryear <- P_cost_table_peryear %>% filter(sex == "N/A" & age_y
   
 
 
-plot_P_cost_mass_peryear
+#plot_P_cost_mass_peryear
+
+
+multiplot(plot_P_cost_mass_perday,plot_P_cost_mass_peryear,
+          cols=1)
+
+
+jpeg(filename = paste0(Figurespath,"/Pcost_multiplot.jpg"), 
+     width = 1800,
+     height = 2000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+p <- multiplot(plot_P_cost_mass_perday,plot_P_cost_mass_peryear,
+          cols=1)
+
+
+dev.off()
+
 
 ```
+
+Figure 1. Production cost for calves (panel A) and juveniles and adults (panel B).
 
 
 
@@ -579,9 +610,14 @@ plot_P_cost_mass_peryear
 
 Es_table_phase1_permth  <-  read_csv("data/Es_sensAnalysis_phase1_permth_source_bpm.csv")
 
+# apply factors to enable facet wrap 
+Es_table_phase1_permth$Lifestage = factor(Es_table_phase1_permth$Lifestage,                                                          levels=c('Calf'))
+
+
 plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>% 
   #dplyr::filter(age_yrs == i) %>% 
   ggplot(aes(x = age_mth-0.5, y =Es_perday)) +
+  facet_grid(. ~Lifestage)+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 size = 0.5, linetype = 1, colour = 'gray80', width = 0) +
   geom_point(aes(x = age_mth-0.5, y =Es_perday)) +
@@ -589,19 +625,22 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
   ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
   #ylab(bquote('GER (MJ day '^'-1'*')'))
   
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 11))+ 
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+ 
   #limits = c(0, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(label = comma, 
                      breaks = scales::pretty_breaks(n = 10),
                      limits = c(0,550))+
   theme_bw()+
   theme(panel.grid = element_blank())+
-  theme(axis.title.x = element_text(size = rel(1.4),
+  theme(axis.title.x = element_text(size = rel(1),
                                     colour = "black"))+
-  theme(axis.title.y = element_text(size = rel(1.4),
+  theme(axis.title.y = element_text(size = rel(1.1),
                                     colour = "black"))+
-  theme(axis.text = element_text(size = rel(1.2),
-                                 colour = "black"))  
+  theme(axis.text = element_text(size = rel(1),
+                                 colour = "black"))+
+  theme(strip.background =element_rect(fill="transparent", 
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1)))
 #ggtitle("Es table Phase 1 - per mth")
 
 plot_Es_table_phase1_mthly_perday
@@ -638,10 +677,8 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
   geom_point()+
   #geom_line()   +
   xlab("Age (years)") +
-  
   ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
-  
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
                      limits = c(0, 32)) +  # max x-axis 30 yrs. 
   scale_y_continuous(label = comma, 
                      breaks = scales::pretty_breaks(n = 8),
@@ -652,13 +689,13 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
   
   theme_bw()+
   theme(panel.grid = element_blank())+
-  theme(axis.text = element_text(size = rel(1.2),
+  theme(axis.text = element_text(size = rel(1),
                                  colour = "black"))+
-  theme(axis.title.x = element_text(size = rel(1.4)),
-        axis.title.y = element_text(size = rel(1.2)))+
+  theme(axis.title.x = element_text(size = rel(1)),
+        axis.title.y = element_text(size = rel(0.5), colour = "white"))+
   theme(strip.background =element_rect(fill="transparent", 
                                        colour = "transparent"))+
-  theme(strip.text = element_text(size = rel(1.2)))
+  theme(strip.text = element_text(size = rel(1)))
 #theme(legend.position = "none")
 
 plot_Es_table_alladults_preg_lact_yearly_perday
@@ -666,6 +703,17 @@ plot_Es_table_alladults_preg_lact_yearly_perday
 ```
 
 Figure 5. Estimates of annual total energetic expenditure from activity (MJ) for juveniles and single adults, pregnant and lactating females. Error bars represent SD.
+
+
+```{r Es all ages multipanel}
+
+ggarrange(plot_Es_table_phase1_mthly_perday, 
+            plot_Es_table_alladults_preg_lact_yearly_perday, 
+            widths = c(2, 5)) 
+
+```
+
+
 
 ### Gross Energy Requirements
 

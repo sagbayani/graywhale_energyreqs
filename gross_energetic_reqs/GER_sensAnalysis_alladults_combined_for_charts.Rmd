@@ -693,7 +693,7 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
                      )+
   
   theme_bw() +
-    labs(tag = "C")+
+  labs(tag = "C")+
   theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
