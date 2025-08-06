@@ -9,35 +9,21 @@ Selina Agbayani
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/P_cost_peryear-1.png)<!-- -->
 
-Figure 1. Production cost for calves (panel A) and juveniles and adults
+Figure 2. Production cost for calves (panel A) and juveniles and adults
 (panel B).
 
 ### Total Energetic Expenditure (*E<sub>s</sub>*)
 
-#### Grey whale calves
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_table_phase1_permth-1.png)<!-- -->
-
-Figure 4. Estimates of daily energetic expenditure from activity (MJ
-day<sup>-1</sup>) for each month in the first year (Phase 1). Error bars
-indicate SD. Note: Es values for the 6th and 12th months represent
-energetic expenditures across two activity stages.
-
-#### Grey whale juveniles and adults, including pregnant and lactating females
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_table_alladults_preg_lact_peryear-1.png)<!-- -->
-
-Figure 5. Estimates of annual total energetic expenditure from activity
-(MJ) for juveniles and single adults, pregnant and lactating females.
-Error bars represent SD.
-
-``` r
-ggarrange(plot_Es_table_phase1_mthly_perday, 
-            plot_Es_table_alladults_preg_lact_yearly_perday, 
-            widths = c(2, 5)) 
-```
-
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20all%20ages%20multipanel-1.png)<!-- -->
+
+Figure 3. Estimates of average daily energetic expenditure (Es) from
+activity (MJ day-1) for each month in the first year (Phase 1). calves
+per month (Phase 1), and for juveniles and single adults (Phase 2),
+pregnant, and lactating females per year. Values are plotted at the
+midpoint of each month. Error bars show the standard deviation around
+the mean of 10,000 Monte Carlo simulations. Note: Energetic expenditure
+Es values for the 6th and 10th months represent energetic expenditures
+across two activity stages.
 
 ### Gross Energy Requirements
 
@@ -182,14 +168,25 @@ are in the foraging grounds.
 
 #### Grey whale calves
 
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_phase1_permth-1.png)<!-- -->
+    ## Error in `combine_vars()`:
+    ## ! Faceting variables must have at least one value.
 
 Figure 18. Results for the sensitivity analysis on total energetic
 expenditure (*E<sub>s</sub>*) for grey whale calves.
 
 #### Grey whale juveniles and adults, including pregnant and lactating females
 
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-1.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-2.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-3.png)<!-- -->
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-1.png)<!-- -->
+
+    ## Error in `combine_vars()`:
+    ## ! Faceting variables must have at least one value.
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-2.png)<!-- -->
+
+    ## Error in `purrr::map()`:
+    ## ℹ In index: 1.
+    ## Caused by error in `combine_vars()`:
+    ## ! Faceting variables must have at least one value.
 
 Figure 19. Results for the sensitivity analysis on *E<sub>s</sub>*
 (total energetic expenditure) for Juvenile and adult grey whales,

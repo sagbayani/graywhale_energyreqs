@@ -500,7 +500,6 @@ plot_P_cost_mass_perday <- P_cost_table %>%
 ```
 
 
-
 ```{r P_cost_peryear, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 #### Juveniles and Adults
 
@@ -598,16 +597,14 @@ dev.off()
 
 ```
 
-Figure 1. Production cost for calves (panel A) and juveniles and adults (panel B).
-
+Figure 2. Production cost for calves (panel A) and juveniles and adults (panel B).
 
 
 ### Total Energetic Expenditure (*E~s~*)
 
-#### Grey whale calves
 
 ```{r Es_table_phase1_permth, echo= FALSE, results = "hide", message = FALSE, warning=FALSE }
-
+#### Grey whale calves
 Es_table_phase1_permth  <-  read_csv("data/Es_sensAnalysis_phase1_permth_source_bpm.csv")
 
 # apply factors to enable facet wrap 
@@ -643,17 +640,13 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
   theme(strip.text = element_text(size = rel(1)))
 #ggtitle("Es table Phase 1 - per mth")
 
-plot_Es_table_phase1_mthly_perday
+#plot_Es_table_phase1_mthly_perday
 
 ```
 
-Figure 4. Estimates of daily energetic expenditure from activity (MJ day^-1^) for each month in the first year (Phase 1). Error bars indicate SD. Note: Es values for the 6th and 12th months represent energetic expenditures across two activity stages.
-
-
-#### Grey whale juveniles and adults, including pregnant and lactating females
 
 ```{r Es_table_alladults_preg_lact_peryear, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
-
+#### Grey whale juveniles and adults, including pregnant and lactating females
 Es_table_alladults_preg_lact_peryear  <- 
   read_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_source_bpm.csv")
 
@@ -698,14 +691,14 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
   theme(strip.text = element_text(size = rel(1)))
 #theme(legend.position = "none")
 
-plot_Es_table_alladults_preg_lact_yearly_perday
+#plot_Es_table_alladults_preg_lact_yearly_perday
 
 ```
 
-Figure 5. Estimates of annual total energetic expenditure from activity (MJ) for juveniles and single adults, pregnant and lactating females. Error bars represent SD.
 
 
-```{r Es all ages multipanel}
+
+```{r Es all ages multipanel, echo=FALSE}
 
 ggarrange(plot_Es_table_phase1_mthly_perday, 
             plot_Es_table_alladults_preg_lact_yearly_perday, 
@@ -713,6 +706,7 @@ ggarrange(plot_Es_table_phase1_mthly_perday,
 
 ```
 
+Figure 3. Estimates  of average daily energetic expenditure (Es)  from activity (MJ day-1) for each month in the first year (Phase 1). calves per month (Phase 1), and for juveniles and single adults (Phase 2), pregnant, and lactating females per year. Values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations. Note: Energetic expenditure Es values for the 6th and 10th months represent energetic expenditures across two activity stages. 
 
 
 ### Gross Energy Requirements
@@ -725,7 +719,7 @@ predict_GER_table_phase1_permth <- read_csv("data/predict_GER_table_sensAnalysis
 
 
 plot_predict_GER_phase1_permth <- predict_GER_table_phase1_permth %>%
-  dplyr::filter(sex == "N/A") %>% 
+  filter(sex == "N/A") %>% 
   ggplot(aes(x = age_mth, y = mean_GER)) +
   geom_errorbar(aes(x = age_mth-0.5, 
                     ymin = mean_GER-GER_sd, 
@@ -772,7 +766,7 @@ predict_GER_table_phase2 %>%
 kable(head(predict_GER_table_phase2))
 
 plot_predict_GER_all_yr_phase2 <- predict_GER_table_phase2 %>%
-  dplyr::filter(sex=="N/A" & phase == "2" & 
+  filter(sex=="N/A" & phase == "2" & 
                   age_yrs > 1 & age_yrs <= 30) %>% 
   ggplot() +
   # geom_line(aes(x=age_yrs, y=mean_GER),
@@ -806,7 +800,7 @@ plot_predict_GER_all_yr_phase2 <- predict_GER_table_phase2 %>%
 
 
 plot_predict_GER_foraging_phase2 <- predict_GER_table_phase2 %>% 
-  dplyr::filter(sex=="N/A" & phase == "2" & 
+  filter(sex=="N/A" & phase == "2" & 
                   age_yrs > 1 & age_yrs <= 30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs-0.5, 
@@ -858,6 +852,7 @@ predict_GER_table_3panel <- within(predict_GER_table_3panel, Lifestage <-
 
 
 plot_GER_3panel <- predict_GER_table_3panel %>% 
+  filter(age_yrs <=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs-0.5, 
                   ymin = mean_GER-GER_sd,
@@ -962,7 +957,8 @@ plot_MilkReqs_phase1 <- predict_GER_table_phase1_permth %>%
 #plot_MilkReqs_phase1
 
 
-plot_FoodReqs_phase1 <- predict_GER_table_phase1_permth %>% dplyr::filter(sex == "N/A" & phase == "1") %>% 
+plot_FoodReqs_phase1 <- predict_GER_table_phase1_permth %>% 
+  filter(sex == "N/A" & phase == "1") %>% 
   ggplot() +
   #geom_line(aes(x = age_yrs, y= FR_foraging))+
   geom_errorbar(aes(x = age_mth-0.5, ymin = FR_foraging - FR_sd_foraging, ymax = FR_foraging + FR_sd_foraging),
@@ -1020,7 +1016,7 @@ predict_GER_table_3panel <- within(predict_GER_table_3panel, Lifestage <-
 
 
 plot_FoodReqs_3panel <- predict_GER_table_3panel %>% 
-  filter(age_yrs>1) %>% 
+  filter(age_yrs>1 & age_yrs<=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                   ymin = FR_foraging-FR_sd_foraging,
@@ -1068,7 +1064,7 @@ pct_bodyweight_all <- within(pct_bodyweight_all, Lifestage <-
 
 
 plot_pct_bodyweight_all <- pct_bodyweight_all %>% 
-  filter(age_yrs > 1) %>% 
+  filter(age_yrs > 1 &age_yrs <=30) %>% 
   ggplot() +
    geom_errorbar(aes(x = age_yrs-0.5, 
                     ymin = pctbodywt - pctbodywt_sd, 
@@ -1276,7 +1272,7 @@ MC_var_factor.labs <- c("All variables","P", "Es", "E F+U", "Hg", "P newborn", "
 names(MC_var_factor.labs) <- c("all","P_cost", "Es", "E_FnU", "Hg", "P_nb", "GER_calf")
 
 plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
-  #dplyr::filter(sex=="Female") %>% 
+  filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -1337,7 +1333,7 @@ MC_var_factor.labs <- c("All variables","P", "Es", "E F+U", "GER calf 3.6mo.")
 names(MC_var_factor.labs) <- c("all","P_cost", "Es", "E_FnU", "GERcalf")
 
 plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
-  #dplyr::filter(sex=="Female") %>% 
+    filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -1403,6 +1399,7 @@ names(MC_var_factor.labs) <- c("all","pctO2", "Rs", "Vt")
 
 
 plot_Es_sensAnalysis_phase1_permth <- Es_sensAnalysis_phase1_permth %>% 
+    filter(age_yrs>1 & age_yrs <=30) %>% 
   #dplyr::filter(age_yrs == i) %>% 
   ggplot(aes(x = age_mth-0.5, y =Es_perday)) +
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
@@ -1465,6 +1462,7 @@ names(MC_var_factor.labs) <- c("all","pctO2","Rs", "Vt")
 # Designing the plot 
 plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday <-
   Es_sensAnalysis_alladults_preg_lact_peryear %>% 
+    filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
   #facet_grid(Lifestage_f ~ MC_variable)+
     facet_grid(Lifestage~MC_var_factor, 
@@ -1571,6 +1569,7 @@ plot_Es_sensAnalysis_phase2_peryear
 Es_sensAnalysis_phase2 <- read_csv("data/Es_sensAnalysis_phase2_source_bpm.csv")
 
 plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>% 
+    filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y = Es_perday))+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                  colour = "gray45", width = 0.02)+
@@ -1632,6 +1631,7 @@ Es_sensAnalysis_alladults_preg_lact_peryear$Lifestage_f =
 # plots
 
 plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday <- Es_sensAnalysis_alladults_preg_lact_peryear %>%
+    filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
   facet_grid(MC_variable ~ Lifestage_f, 
              labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
@@ -1676,7 +1676,10 @@ plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday
 #read in preg  table. 
 Es_sensAnalysis_preg  <-  read_csv("data/Es_sensAnalysis_preg_source_bpm.csv")
 
+
+
 plot_Es_sensAnalysis_preg <- Es_sensAnalysis_preg %>%
+    filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
   facet_grid(MC_variable~Activity_stages,
              labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
@@ -1721,7 +1724,10 @@ plot_Es_sensAnalysis_preg
 #read in lact  table. 
 Es_sensAnalysis_lact  <-  read_csv("data/Es_sensAnalysis_lact_females_source_bpm.csv")
 
+
+
 plot_Es_sensAnalysis_lact <- Es_sensAnalysis_lact %>%
+    filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
   facet_grid(MC_variable~Activity_stages,
              labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
