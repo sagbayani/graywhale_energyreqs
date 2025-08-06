@@ -700,10 +700,19 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
 
 ```{r Es all ages multipanel, echo=FALSE}
 
-ggarrange(plot_Es_table_phase1_mthly_perday, 
+ES_multipanel <- ggarrange(plot_Es_table_phase1_mthly_perday, 
             plot_Es_table_alladults_preg_lact_yearly_perday, 
             widths = c(2, 5)) 
 
+
+ggsave(paste0(Figurespath,"/Es_sensanalysis_allstages_multiplot.jpg"),
+       ES_multipanel,
+       width = 8,
+       height = 3, dpi = 300
+     )
+
+
+#dev.off()
 ```
 
 Figure 3. Estimates  of average daily energetic expenditure (Es)  from activity (MJ day-1) for each month in the first year (Phase 1). calves per month (Phase 1), and for juveniles and single adults (Phase 2), pregnant, and lactating females per year. Values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations. Note: Energetic expenditure Es values for the 6th and 10th months represent energetic expenditures across two activity stages. 
