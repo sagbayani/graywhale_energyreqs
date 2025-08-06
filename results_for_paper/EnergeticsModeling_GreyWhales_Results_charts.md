@@ -1,7 +1,7 @@
 ENERGY REQUIREMENTS OF GREY WHALES
 ================
 Selina Agbayani
-05 August, 2025
+06 August, 2025
 
 ## RESULTS
 
@@ -117,36 +117,6 @@ requirements (*GER*) for grey whale calves.
 Figure 15. Results for the sensitivity analysis on gross energy
 requirements (*GER*) for juveniles and non-reproductive adults.
 
-``` r
-multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
-          plot_predict_GER_table_sensAnalysis_phase2,
-          cols=1)
-```
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/panel%20plot%20Es%20sensitivity%20analysis%20all%20stages-1.png)<!-- -->
-
-``` r
-jpeg(filename = paste0(Figurespath,"/GER_sensanalysis_calves_juvadults_multiplot.jpg"), 
-     width = 2800,
-     height = 1500,
-     pointsize = 35, 
-     quality = 100, 
-     bg = "white", 
-     res = 300, 
-     restoreConsole = TRUE)
-
-
-p <- multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
-          plot_predict_GER_table_sensAnalysis_phase2,
-          cols=1)
-
-
-dev.off()
-```
-
-    ## png 
-    ##   2
-
 #### Pregnant grey whales (assuming GER for foraging while pregnant includes first 6 months of lactation)
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_sensAnalysis_preg-1.png)<!-- -->
@@ -164,29 +134,52 @@ requirements (*GER*) for lactating females. GER calf represents the
 energy required for the last 3.6 months of nursing while mother and calf
 are in the foraging grounds.
 
+``` r
+multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
+          plot_predict_GER_table_sensAnalysis_phase2,
+          plot_predict_GER_sensAnalysis_preg,  
+          plot_predict_GER_sensAnalysis_lact, 
+          cols=1)
+```
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/panel%20plot%20Es%20sensitivity%20analysis%20all%20stages-1.png)<!-- -->
+
+``` r
+jpeg(filename = paste0(Figurespath,"/GER_sensanalysis_allstages_multiplot.jpg"), 
+     width = 5000,
+     height = 5000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+p <- multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
+          plot_predict_GER_table_sensAnalysis_phase2,
+          plot_predict_GER_sensAnalysis_preg,  
+          plot_predict_GER_sensAnalysis_lact, 
+          cols=1)
+
+
+dev.off()
+```
+
+    ## png 
+    ##   2
+
 ### Total energetic expenditure (*E<sub>s</sub>*)
 
 #### Grey whale calves
 
-    ## Error in `combine_vars()`:
-    ## ! Faceting variables must have at least one value.
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_phase1_permth-1.png)<!-- -->
 
 Figure 18. Results for the sensitivity analysis on total energetic
 expenditure (*E<sub>s</sub>*) for grey whale calves.
 
 #### Grey whale juveniles and adults, including pregnant and lactating females
 
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-1.png)<!-- -->
-
-    ## Error in `combine_vars()`:
-    ## ! Faceting variables must have at least one value.
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-2.png)<!-- -->
-
-    ## Error in `purrr::map()`:
-    ## ℹ In index: 1.
-    ## Caused by error in `combine_vars()`:
-    ## ! Faceting variables must have at least one value.
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-1.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-2.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-3.png)<!-- -->
 
 Figure 19. Results for the sensitivity analysis on *E<sub>s</sub>*
 (total energetic expenditure) for Juvenile and adult grey whales,
