@@ -1,7 +1,7 @@
 ENERGY REQUIREMENTS OF GREY WHALES
 ================
 Selina Agbayani
-01 August, 2025
+05 August, 2025
 
 ## RESULTS
 
@@ -126,6 +126,36 @@ requirements (*GER*) for grey whale calves.
 Figure 15. Results for the sensitivity analysis on gross energy
 requirements (*GER*) for juveniles and non-reproductive adults.
 
+``` r
+multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
+          plot_predict_GER_table_sensAnalysis_phase2,
+          cols=1)
+```
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/panel%20plot%20Es%20sensitivity%20analysis%20all%20stages-1.png)<!-- -->
+
+``` r
+jpeg(filename = paste0(Figurespath,"/GER_sensanalysis_calves_juvadults_multiplot.jpg"), 
+     width = 2800,
+     height = 1500,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+p <- multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
+          plot_predict_GER_table_sensAnalysis_phase2,
+          cols=1)
+
+
+dev.off()
+```
+
+    ## png 
+    ##   2
+
 #### Pregnant grey whales (assuming GER for foraging while pregnant includes first 6 months of lactation)
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/predict_GER_table_sensAnalysis_preg-1.png)<!-- -->
@@ -154,7 +184,7 @@ expenditure (*E<sub>s</sub>*) for grey whale calves.
 
 #### Grey whale juveniles and adults, including pregnant and lactating females
 
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-1.png)<!-- -->
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-1.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-2.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-3.png)<!-- -->
 
 Figure 19. Results for the sensitivity analysis on *E<sub>s</sub>*
 (total energetic expenditure) for Juvenile and adult grey whales,
