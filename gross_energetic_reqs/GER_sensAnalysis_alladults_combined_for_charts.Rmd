@@ -457,7 +457,7 @@ predict_GER_table_lact_all <- predict_GER_table_lact_all %>%
 #GER for pregnant mother while foraging, assuming GER for first 6 months of lactation while fasting needs to be consumed the year before  
 predict_GER_table_preg_frontload_lact_6 <- read_csv("data/predict_GER_table_sensAnalysis_preg.csv")
 #GER for foraging while nursing (last 3.6 months of lactation) 
-predict_GER_table_preg_frontload_lact_6$Lifestage <- "Pregnant (with 6 mths lactation)"
+predict_GER_table_preg_frontload_lact_6$Lifestage <- "Pregnant (with first 6 mths lactation)"
 predict_GER_table_preg_frontload_lact_6 <- predict_GER_table_preg_frontload_lact_6 %>% 
   filter(MC_variable == "all", age_yrs <=30) %>% 
   select("Lifestage", "age_yrs", "mean_GER", "GER_sd", 
@@ -499,7 +499,7 @@ predict_GER_table_panel <- within(predict_GER_table_alladults, Lifestage <-
   factor(Lifestage, levels=c('Juvenile/Adult',
                              'Pregnant only', 
                              'Lactating (birth to 9.6 mths)',
-                             'Pregnant (with 6 mths lactation)',
+                             'Pregnant (with first 6 mths lactation)',
                              'Lactating (last 3.6 mths)')
          )
   )
@@ -553,7 +553,7 @@ ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
                               Lifestage = factor("Juvenile/Adult",
                                 levels = c('Juvenile/Adult','Pregnant only',
                                            'Lactating (birth to 9.6 mths)',
-                                           'Pregnant (with 6 mths lactation)',
+                                           'Pregnant (with first 6 mths lactation)',
                                            'Lactating (last 3.6 mths)')))
 
 ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 3700,
@@ -561,7 +561,7 @@ ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 3700,
                                   levels = c('Juvenile/Adult',
                                              'Pregnant only', 
                                              'Lactating (birth to 9.6 mths)',
-                                             'Pregnant (with 6 mths lactation)',
+                                             'Pregnant (with first 6 mths lactation)',
                                              'Lactating (last 3.6 mths)')))
 
 

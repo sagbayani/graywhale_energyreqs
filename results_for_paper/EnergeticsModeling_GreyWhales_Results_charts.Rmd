@@ -32,6 +32,7 @@ knitr::opts_chunk$set(warning = FALSE)
 # install.packages("ggpmisc")
 # install.packages("extrafont")
 #install.packages("truncnorm")
+#install.packages("pandoc")
 
 
 
@@ -51,6 +52,7 @@ library(extrafont)
 library(truncnorm)
 library(gtable)
 library(ggpubr)
+library(pandoc)
 
 #source("functions.R")
 
@@ -710,6 +712,7 @@ ES_multipanel <- ggarrange(plot_Es_table_phase1_mthly_perday,
             plot_Es_table_alladults_preg_lact_yearly_perday, 
             widths = c(2, 5)) 
 
+ES_multipanel
 
 ggsave(paste0(Figurespath,"/Es_sensanalysis_allstages_multiplot.jpg"),
        ES_multipanel,
@@ -909,14 +912,14 @@ plot_GER_3panel <- predict_GER_table_3panel %>%
 ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
                               Lifestage = factor("Juvenile/Adult",
                                            levels = c("Juvenile/Adult",
-                                                      "Lactating",
-                                                      "Pregnant")))
+                                                      "Pregnant",
+                                                      "Lactating")))
 
 ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 4200,
                                 Lifestage = factor("Juvenile/Adult",
                                              levels = c("Juvenile/Adult",
-                                                        "Lactating",
-                                                        "Pregnant")))
+                                                        "Pregnant",
+                                                      "Lactating")))
 
 plot_GER_3panel <- plot_GER_3panel +
   geom_text(data = ann_text_annual,
@@ -1116,13 +1119,224 @@ plot_pct_bodyweight_all
 Figure 11. Percentage of body weight consumed day-1 during the foraging season for juveniles and other adults, pregnant females, and lactating females. Foraging season is assumed to be ~154 days for single juveniles (1-7 y) and adults (> 8 y), ~153 days for pregnant females, and ~119 days for lactating females. Note that the y-axis does not start at 0. Error bars represent SD.
 
 
+
+
+
+__Plotting Gross energetic requirements (multi-panel)__
+```{r plots_GER_preg_lact_panel, echo =  FALSE}
+predict_GER_table_alladults <- read_csv("data/predict_GER_sensAnalysis_alladults.csv")
+
+predict_GER_table_panel <- within(predict_GER_table_alladults, Lifestage <- 
+  factor(Lifestage, levels=c('Juvenile/Adult',
+                             'Pregnant only', 
+                             'Lactating (birth to 9.6 mths)',
+                             'Pregnant (with first 6 mths lactation)',
+                             'Lactating (last 3.6 mths)')
+         )
+  )
+
+
+
+plot_GER_panel <- predict_GER_table_panel %>% 
+  ggplot() +
+  geom_errorbar(aes(x = age_yrs-0.5, 
+                  ymin = mean_GER-GER_sd,
+                  ymax = mean_GER+GER_sd),
+                width=0, linetype = 1, color="gray40")+
+  geom_point(aes(x = age_yrs-0.5, y= mean_GER),
+              shape = 21, fill = "black") +
+   geom_errorbar(aes(x = age_yrs-0.5, 
+                    ymin = GER_foraging - sd_foraging,
+                    ymax = GER_foraging + sd_foraging),
+                width=0, linetype = 1, color="gray40") +
+  geom_point(aes(x = age_yrs-0.5, y= GER_foraging),
+              shape = 21, fill = "white") +
+  facet_grid(.~Lifestage, 
+             labeller = label_wrap_gen(width = 17, 
+               multi_line = TRUE))+
+  xlab("Age (years)") +
+  ylab(bquote('Gross Energetic Requirements (MJ day'^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
+                     limits = c(1,30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
+                     label = comma)+
+  theme_bw() +
+  labs(tag = "A")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
+  theme(panel.grid = element_blank())+
+  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
+        axis.title = element_text(size = rel(1.2), colour = "black"),
+        strip.background = element_rect(
+          color="transparent", fill="transparent"),
+        strip.text = element_text(size = rel(1), colour = "black"))
+  # annotate("text", x = 20, y = 5200,
+  #          label = paste0("Foraging season"),
+  #          size = 6,
+  #          hjust = 1) +
+  # annotate("text", x = 20, y = 200,
+  #          label = paste0("Annual"),
+  #          size = 6,
+  #          hjust = 1) +
+  
+#plot_GER_panel 
+
+ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
+                              Lifestage = factor("Juvenile/Adult",
+                                levels = c('Juvenile/Adult','Pregnant only',
+                                           'Lactating (birth to 9.6 mths)',
+                                           'Pregnant (with first 6 mths lactation)',
+                                           'Lactating (last 3.6 mths)')))
+
+ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 3700,
+                                Lifestage = factor("Juvenile/Adult",
+                                  levels = c('Juvenile/Adult',
+                                             'Pregnant only', 
+                                             'Lactating (birth to 9.6 mths)',
+                                             'Pregnant (with first 6 mths lactation)',
+                                             'Lactating (last 3.6 mths)')))
+
+
+
+plot_GER_panel <- plot_GER_panel + 
+  geom_text(data = ann_text_annual, 
+            aes(x=age_yrs, y=mean_GER),
+            label = "Annual",
+            size = 3.5,
+            hjust = 1) +
+  geom_text(data = ann_text_foraging, 
+            aes(x=age_yrs, y=mean_GER),
+            label = "Foraging Season",
+            size = 3.5,
+            hjust = 1)
+
+#plot_GER_panel
+
+
+```
+
+
+```{r plot_FoodReqs_preg_lact_panel, echo = FALSE}
+
+plot_FoodReqs_panel <- predict_GER_table_panel %>% 
+  ggplot() +
+  geom_errorbar(aes(x = age_yrs, 
+                  ymin = FR_foraging-FR_sd_foraging,
+                  ymax = FR_foraging+FR_sd_foraging),
+                width=0, linetype = 1, color="gray40")+
+  geom_point(aes(x = age_yrs, 
+                y= FR_foraging),  
+            size = 1)+
+  facet_grid(~Lifestage,
+             labeller = label_wrap_gen(width = 17, 
+             multi_line = TRUE))+
+  xlab("Age (years)") +
+  ylab(bquote('Food Requirements (kg day'^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
+                     limits = c(1,30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
+                     #limits = c(0, 20))+
+  
+  theme_bw() +
+  labs(tag = "B")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
+  theme(panel.grid = element_blank())+
+  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
+        axis.title = element_text(size = rel(1.2), colour = "black"),
+        strip.background = element_rect(
+          color="transparent", fill="transparent"),
+        strip.text = element_text(size = rel(1), colour = "black")
+  )
+
+
+
+#plot_FoodReqs_panel
+
+
+
+
+
+```
+
+
+```{r plot_pct_bodywt_consumed_panel, echo=FALSE}
+
+
+plot_pct_bodyweight_all <- predict_GER_table_panel %>% 
+  filter(age_yrs > 1) %>% 
+  ggplot() +
+   geom_errorbar(aes(x = age_yrs-0.5, 
+                    ymin = pctbodywt - pctbodywt_sd, 
+                    ymax = pctbodywt + pctbodywt_sd),
+                width=0, size=0.5, linetype = 1, color="gray40")+
+  geom_point(aes(x = age_yrs-0.5, y= pctbodywt), 
+             shape = 21, fill = "black")+
+  facet_grid(~Lifestage,
+             labeller = label_wrap_gen(width = 17, 
+             multi_line = TRUE))+
+  xlab("Age (years)") +
+  ylab(bquote('Consumption day'^'-1'*' (% body wt)')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
+                     limits = c(1,30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6)
+                     #limits = c(3.5, 10)
+                     )+
+  
+  theme_bw() +
+  labs(tag = "C")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
+  theme(panel.grid = element_blank())+
+  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
+        axis.title = element_text(size = rel(1.2), colour = "black"),
+        strip.background = element_rect(
+          color="transparent", fill="transparent"),
+        strip.text = element_text(size = rel(1), colour = "black")
+  )
+
+
+
+#plot_pct_bodyweight_all
+
+
+
+
+```
+
+```{r multiplot, echo=FALSE}
+
+
+#save multi-panel plot as hi-res jpg
+# multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
+
+
+jpeg(filename = paste0(Figurespath,"/Figure6_multiplot.jpg"), 
+     width = 2200,
+     height = 3500,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+p <- multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
+
+
+dev.off()
+
+
+knitr::include_graphics(path = paste0(Figurespath,"/Figure6_multiplot.jpg"), rel_path = FALSE)
+
+
+```
+
+
+
 ## Sensitivity Analyses
 
 The sensitivity analyses show that the variable contributing the highest range of uncertainty (±SD) to the gross energy requirements is *E~s~* or total energetic expenditure (Figure 12), and that the variable contributing the highest range of uncertainty within the Es calculations is *%O~2~* or the percentage of oxygen absorbed (Figure 13). The pattern holds for Phase 2, pregnant, and lactating life stages, even when additional parameters are examined for the pregnant and lactating stages (see Appendix D). 
 
 ### Gross Energy Requirements (*GER*)
 
-#### Grey whale calves
 
 ```{r predict_GER_table_sensAnalysis_phase1,  echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 predict_GER_table_sensAnalysis_phase1_permth  <-  read_csv("data/predict_GER_table_sensAnalysis_phase1_permth_source_bpm.csv")
@@ -1177,13 +1391,10 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
                                     colour = "black"))
 
 
-plot_predict_GER_sensAnalysis_phase1_permth
+#plot_predict_GER_sensAnalysis_phase1_permth
 
 ```
 
-Figure 14. Results for the sensitivity analysis on gross energy requirements (*GER*) for grey whale calves.
-
-#### Grey whale juveniles / adults
 
 ```{r predict_GER_table_sensAnalysis_phase2,  echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 predict_GER_table_sensAnalysis_phase2 <- read_csv("data/predict_GER_table_sensAnalysis_phase2.csv")
@@ -1241,14 +1452,11 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
   theme(axis.title = element_text(size = rel(2), colour = "black"))+
   theme(axis.text = element_text(size = rel(1.5), colour = "black"))
 
-plot_predict_GER_table_sensAnalysis_phase2
+#plot_predict_GER_table_sensAnalysis_phase2
 
 ```
 
-Figure 15. Results for the sensitivity analysis on gross energy requirements (*GER*) for juveniles and non-reproductive adults.
 
-
-#### Pregnant grey whales (assuming GER for foraging while pregnant includes first 6 months of lactation)
 
 ```{r predict_GER_table_sensAnalysis_preg, echo= FALSE, results = "hide", message = FALSE, warning=FALSE, fig.width=10,fig.height=5}
 #Read in data
@@ -1307,14 +1515,12 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
     color="transparent", fill="transparent"))
   #theme(strip.text = element_text(size = rel(1.5)))
 
-plot_predict_GER_sensAnalysis_preg              
+#plot_predict_GER_sensAnalysis_preg              
 
 
 ```
 
-Figure 16. Results for the sensitivity analysis on gross energy requirements (*GER*) for pregnant females. GER calf represents the energy required for the first 6 months.
 
-#### Lactating grey whales (assuming GER for foraging while nursing includes only last 3.6 months of lactation)
 
 ```{r predict_GER_table_sensAnalysis_lact, echo= FALSE, results = "hide", message = FALSE, warning=FALSE, fig.width=10,fig.height=5}
 
@@ -1372,15 +1578,14 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
     color="transparent", fill="transparent"))
   #theme(strip.text = element_text(size = rel(1.5)))
 
-plot_predict_GER_sensAnalysis_lact          
+#plot_predict_GER_sensAnalysis_lact          
 
 ```
 
-Figure 17. Results for the sensitivity analysis on gross energy requirements (*GER*) for lactating females. GER calf represents the energy required for the last 3.6 months of nursing while mother and calf are in the foraging grounds.
 
 
 
-```{r panel plot Es sensitivity analysis all stages}
+```{r panel plot Es sensitivity analysis all stages, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 
 multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
@@ -1411,7 +1616,7 @@ dev.off()
 
 ```
 
-
+Figure XX. Results for the sensitivity analysis on gross energy requirements (*GER*). 
 
 
 ### Total energetic expenditure (*E~s~*)
@@ -1473,7 +1678,7 @@ plot_Es_sensAnalysis_phase1_permth
 
 
 
-```{r}
+```{r Es sens analysis phase 1 stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 Es_sensAnalysis_phase1 <- read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv")
 
@@ -1620,7 +1825,7 @@ Figure 19. Results for the sensitivity analysis on *E~s~* (total energetic expen
 
 
 
-```{r plots_Es_phase2_peryear, echo=FALSE}
+```{r plots_Es_phase2_peryear, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 Es_sensAnalysis_phase2_peryear <-  read_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv")
 
@@ -1631,7 +1836,8 @@ filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30)
 Es_sensAnalysis_phase2_peryear$MC_var_factor <- 
   factor(Es_sensAnalysis_phase2_peryear$MC_variable, 
          levels=c("all","pctO2","Rs", "Vt"))
-
+########################################
+########################################
 MC_var_factor.labs <- c("All variables","%O2 absorbed", "Resp. rates", "Tidal Vol.")
 names(MC_var_factor.labs) <- c("all","pctO2","Rs", "Vt")
 
@@ -1673,7 +1879,7 @@ plot_Es_sensAnalysis_phase2_peryear
 ```
 
 
-```{r plots_Es_phase2_stacked, echo=FALSE}
+```{r plots_Es_phase2_stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 Es_sensAnalysis_phase2 <- read_csv("data/Es_sensAnalysis_phase2_source_bpm.csv")
 
@@ -1746,6 +1952,7 @@ ggsave(paste0(Figurespath,"/Es_sensanalysis_phase2_activitystages_facetgrid.jpg"
 ES_stacked_phase1_2_multipanel <- ggarrange(plot_Es_sensAnalysis_phase1, plot_Es_sensAnalysis_phase2, 
             ncol = 1) 
 
+ES_stacked_phase1_2_multipanel
 
 ggsave(paste0(Figurespath,"/S_stacked_phase1_2_multipanel.jpg"),
        ES_stacked_phase1_2_multipanel,
@@ -1763,7 +1970,7 @@ ggsave(paste0(Figurespath,"/S_stacked_phase1_2_multipanel.jpg"),
 
 __Es for all adult life stages including pregnant and lactating__
 
-```{r Es preg lact, echo=FALSE}
+```{r Es preg lact, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 #read in preg and lact table. 
 Es_sensAnalysis_alladults_preg_lact_peryear <-  read_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_source_bpm.csv")
@@ -1784,9 +1991,8 @@ levels(Es_sensAnalysis_alladults_preg_lact_peryear$MC_var_factor) <-   c("All va
 plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday <- Es_sensAnalysis_alladults_preg_lact_peryear %>%
     filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
-  facet_grid(Lifestage_f~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs,
-             label_wrap_gen(width = 2, multi_line = TRUE)))+
+  facet_grid(MC_var_factor~Lifestage_f, 
+             labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
                 colour = 'gray40', width = 0, linetype = 1) +
   # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
@@ -1825,7 +2031,7 @@ plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday
 
 __Sensitivity analysis for Es  (all life stages)__ 
 
-```{r Es sensanalysis allstages multiplot}
+```{r Es sensanalysis allstages multiplot, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 Es_sensAnalysis_phase1_permth <-  read_csv("data/Es_sensAnalysis_phase1_permth_source_bpm.csv")
 Es_sensAnalysis_phase1_permth <-Es_sensAnalysis_phase1_permth %>% 
   select(age_yrs, Lifestage, MC_variable, Es, Es_sd, 
@@ -1850,12 +2056,15 @@ Es_sensAnalysis_allstages_permth_peryr$MC_var_factor <-
 
 levels(Es_sensAnalysis_allstages_permth_peryr$MC_var_factor) <-   c("All variables","%O2", "Rs", "Vt")
 
+Es_sensAnalysis_allstages_permth_peryr$Lifestage_factor <- factor(Es_sensAnalysis_allstages_permth_peryr$Lifestage, 
+         levels=c("Calf","Juvenile/Adult","Pregnant", "Lactating"))
 
 
 plot_Es_sensAnalysis_allstages_permth_peryr <- Es_sensAnalysis_allstages_permth_peryr %>%
     filter(age_yrs <=30) %>% 
+    mutate(across(Lifestage_factor, ~factor(., levels=c("Calf","Juvenile/Adult","Pregnant","Lactating")))) %>%
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
-  facet_grid(MC_var_factor~Lifestage, 
+  facet_grid(MC_var_factor~Lifestage_factor, 
              scales="free_x",
              labeller = label_wrap_gen(width = 15, multi_line = TRUE))+
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
@@ -1900,9 +2109,9 @@ ggsave(paste0(Figurespath,"/Es_sensAnalysis_allstages_permth_peryr.jpg"),
 ```
 
 
+__Es sensitivity analysis for pregnant whales by activity stages__
 
-
-```{r Es_preg_stacked, echo=FALSE}
+```{r Es_preg_stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 #read in preg  table. 
 Es_sensAnalysis_preg  <-  read_csv("data/Es_sensAnalysis_preg_source_bpm.csv")
@@ -1957,9 +2166,9 @@ plot_Es_sensAnalysis_preg
 
 ```
 
+__Es sensitivity analysis for lactating whales by activity stages__
 
-
-```{r Es_lact_stacked, echo=FALSE}
+```{r Es_lact_stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 #read in lact  table. 
 Es_sensAnalysis_lact  <-  read_csv("data/Es_sensAnalysis_lact_females_source_bpm.csv")
