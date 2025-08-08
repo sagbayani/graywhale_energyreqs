@@ -1,7 +1,7 @@
 ENERGY REQUIREMENTS OF GREY WHALES
 ================
 Selina Agbayani
-06 August, 2025
+08 August, 2025
 
 ## RESULTS
 
@@ -13,8 +13,6 @@ Figure 2. Production cost for calves (panel A) and juveniles and adults
 (panel B).
 
 ### Total Energetic Expenditure (*E<sub>s</sub>*)
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20all%20ages%20multipanel-1.png)<!-- -->
 
 Figure 3. Estimates of average daily energetic expenditure (Es) from
 activity (MJ day-1) for each month in the first year (Phase 1). calves
@@ -174,6 +172,70 @@ dev.off()
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_phase1_permth-1.png)<!-- -->
 
+``` r
+Es_sensAnalysis_phase1 <- read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv")
+
+Es_sensAnalysis_phase1$age_mth <- round((Es_sensAnalysis_phase1$age_yrs*12),0)
+
+Es_sensAnalysis_phase1$MC_var_factor <- 
+  factor(Es_sensAnalysis_phase1$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+
+levels(Es_sensAnalysis_phase1$MC_var_factor) <- c("All variables","%O2", "Rs", "Vt")
+
+plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>% 
+  ggplot(aes(x = age_mth, y = Es_perday))+
+  geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+                 colour = "gray45", width = 0)+
+  geom_point(size=0.5)+
+  # geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  #               fill = "gray70")+
+  # geom_line(linewidth = 0.5)+
+  facet_grid(MC_var_factor~Activity_stages, 
+             labeller = label_wrap_gen(width = 15, multi_line = TRUE)) +
+             
+  #ggtitle("Phase 2 - Juveniles/Adults")+
+  xlab("Age (months)") +
+  ylab(bquote('Es (MJ day '^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
+                     limits = c(0, 12))+
+  #limits = c(0, 30.5), expand=c(0,0) +  # max x-axis 30 yrs.
+  # scale_y_continuous(label=comma,
+  #                     breaks = scales::pretty_breaks(n = 4),
+  #                     limits =  c(0, 2000))+
+
+  theme_bw() +
+  labs(tag="A")+
+  theme(plot.tag = element_text(size = rel(2),
+                                    colour = "black"))+
+  theme(panel.grid = element_blank())+
+  theme(legend.position.inside = 0)+
+  #theme(panel.border = element_blank())+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  #theme(axis.line = element_line(linewidth = 1, colour = "black"))+
+  theme(axis.text = element_text(colour = "black", size = rel(1)))+
+  theme(axis.title.y = element_text(colour = "black", 
+                                    size = rel(1), angle = 90))+
+  theme(axis.title.x = element_text(colour = "black", 
+                                    size = rel(1)))+
+  theme(strip.text = element_text(size = rel(1)))
+
+
+plot_Es_sensAnalysis_phase1
+```
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
+ggsave(paste0(Figurespath,"/Es_sensanalysis_phase1_activitystages_facetgrid.jpg"),
+       plot_Es_sensAnalysis_phase1,
+       width = 8,
+       height = 5, dpi = 300
+     )
+```
+
 Figure 18. Results for the sensitivity analysis on total energetic
 expenditure (*E<sub>s</sub>*) for grey whale calves.
 
@@ -189,9 +251,86 @@ including pregnant and lactating females.
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plots_Es_phase2_stacked-1.png)<!-- -->
 
-Es for all life stages including pregnant and lactating
+**Es for all adult life stages including pregnant and lactating**
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20preg%20lact-1.png)<!-- -->
+
+**Sensitivity analysis for Es (all life stages)**
+
+``` r
+Es_sensAnalysis_phase1_permth <-  read_csv("data/Es_sensAnalysis_phase1_permth_source_bpm.csv")
+Es_sensAnalysis_phase1_permth <-Es_sensAnalysis_phase1_permth %>% 
+  select(age_yrs, Lifestage, MC_variable, Es, Es_sd, 
+         Es_perday, Es_perday_sd)
+
+
+Es_sensAnalysis_alladults_preg_lact_peryear <-
+  as_tibble(read_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_source_bpm.csv"))
+
+Es_sensAnalysis_alladults_preg_lact_peryear <- Es_sensAnalysis_alladults_preg_lact_peryear %>% 
+  rename("Es_perday_sd" = "Es_sd_perday")
+
+Es_sensAnalysis_alladults_preg_lact_peryear <-Es_sensAnalysis_alladults_preg_lact_peryear %>% 
+  select(age_yrs, Lifestage, MC_variable, Es, Es_sd, 
+         Es_perday, Es_perday_sd)
+
+Es_sensAnalysis_allstages_permth_peryr <- rbind(Es_sensAnalysis_phase1_permth, Es_sensAnalysis_alladults_preg_lact_peryear)
+
+Es_sensAnalysis_allstages_permth_peryr$MC_var_factor <- 
+  factor(Es_sensAnalysis_allstages_permth_peryr$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+levels(Es_sensAnalysis_allstages_permth_peryr$MC_var_factor) <-   c("All variables","%O2", "Rs", "Vt")
+
+
+
+plot_Es_sensAnalysis_allstages_permth_peryr <- Es_sensAnalysis_allstages_permth_peryr %>%
+    filter(age_yrs <=30) %>% 
+  ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
+  facet_grid(MC_var_factor~Lifestage, 
+             scales="free_x",
+             labeller = label_wrap_gen(width = 15, multi_line = TRUE))+
+  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+                 colour = 'gray40', width = 0, linetype = 1) +
+  # geom_ribbon(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  #                 fill = 'gray40', alpha = 0.3) +
+  geom_point(size=0.5)+
+  #geom_line()   +
+  xlab("Age (years)") +
+
+  ylab(bquote('Es (MJ day'^'-1'*')')) +
+ 
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
+                      ) +  # max x-axis 30 yrs.
+  scale_y_continuous(label = comma,
+  breaks = scales::pretty_breaks(n = 4),
+  limits = c(0,1500))+
+  #scale_y_continuous(label = function(x){(x/1000)}, breaks = scales::pretty_breaks(n = 8),
+  #                    limits = c(0, 1000000))+
+
+  theme_bw()+
+  theme(panel.grid = element_blank())+
+  theme(axis.text = element_text(size = rel(1.2),
+                                 colour = "black"))+
+  theme(axis.title.x = element_text(size = rel(1.2)),
+        axis.title.y = element_text(size = rel(1.2)))+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1.2)))
+#theme(legend.position.inside = "none")
+
+plot_Es_sensAnalysis_allstages_permth_peryr
+```
+
+![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20sensanalysis%20allstages%20multiplot-1.png)<!-- -->
+
+``` r
+ggsave(paste0(Figurespath,"/Es_sensAnalysis_allstages_permth_peryr.jpg"),
+       plot_Es_sensAnalysis_allstages_permth_peryr,
+       width = 9,
+       height = 7, dpi = 300
+     )
+```
 
 ![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_preg_stacked-1.png)<!-- -->
 

@@ -616,10 +616,10 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
   ggplot(aes(x = age_mth-0.5, y =Es_perday)) +
   facet_grid(. ~Lifestage)+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                size = 0.5, linetype = 1, colour = 'gray80', width = 0) +
-  geom_point(aes(x = age_mth-0.5, y =Es_perday)) +
+                linewidth = 0.5, linetype = 1, colour = 'gray40', width = 0) +
+  geom_point(aes(x = age_mth-0.5, y =Es_perday), size = 0.8) +
   xlab("Age (months)") +
-  ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
+  ylab(bquote('Es (MJ day'^'-1'*')')) +
   #ylab(bquote('GER (MJ day '^'-1'*')'))
   
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+ 
@@ -628,6 +628,9 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
                      breaks = scales::pretty_breaks(n = 10),
                      limits = c(0,550))+
   theme_bw()+
+    labs(tag = "A")+
+  theme(plot.tag = element_text(size = rel(1.5), 
+                                colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.title.x = element_text(size = rel(1),
                                     colour = "black"))+
@@ -664,10 +667,10 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
   geom_errorbar(aes(x = age_yrs, 
                     ymin = Es_perday - Es_sd_perday, 
                     ymax = Es_perday + Es_sd_perday),
-                size = 0.5, colour = 'gray80', width = 0, linetype = 1) +
+                linewidth = 0.5, colour = 'gray40', width = 0, linetype = 1) +
   # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
   #                 fill = 'gray40', alpha = 0.3) +
-  geom_point()+
+  geom_point(size =0.8)+
   #geom_line()   +
   xlab("Age (years)") +
   ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
@@ -681,6 +684,9 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
   #                    limits = c(0, 1000000))+
   
   theme_bw()+
+    labs(tag = "B")+
+  theme(plot.tag = element_text(size = rel(1.5), 
+                                colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text = element_text(size = rel(1),
                                  colour = "black"))+
@@ -1125,10 +1131,14 @@ predict_GER_table_sensAnalysis_phase1_permth  <-  read_csv("data/predict_GER_tab
 predict_GER_table_sensAnalysis_phase1_permth$MC_var_factor <- 
   factor(predict_GER_table_sensAnalysis_phase1_permth$MC_variable, 
          levels=c('all','P_cost','Es','E_FnU'))
+levels(predict_GER_table_sensAnalysis_phase1_permth$MC_var_factor) <- 
+   c("All variables", "P", "Es", "E F+U")
 
-# New facet label names for MC_var_factor variable
-MC_var_factor.labs <- c("All variables", "P", "Es", "E F+U")
-names(MC_var_factor.labs) <- c("all", "P_cost", "Es","E_FnU")
+predict_GER_table_sensAnalysis_phase1_permth$Lifestage <-   factor(predict_GER_table_sensAnalysis_phase1_permth$phase, 
+         levels=c('1'))
+
+levels(predict_GER_table_sensAnalysis_phase1_permth$Lifestage) <- c('Calf')
+
 
 plot_predict_GER_sensAnalysis_phase1_permth <- 
   predict_GER_table_sensAnalysis_phase1_permth %>%
@@ -1142,8 +1152,8 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
                 color="gray40") + 
   geom_point(aes(x = age_mth-0.5, y= mean_GER), 
              shape = 21, fill = "black")+
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
+  facet_grid(Lifestage~MC_var_factor, 
+             labeller = label_wrap_gen(width=25, multi_line = TRUE)) +
   xlab("Age (months)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
@@ -1155,7 +1165,7 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
   theme(plot.tag = element_text(size = rel(3), 
                                 colour = "black"))+
   theme(panel.grid = element_blank())+
-  theme(panel.spacing = unit(0.6, "lines"))+
+  theme(panel.spacing = unit(0.3, "lines"))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))+
     theme(strip.text = element_text(size = rel(2)))+
@@ -1187,9 +1197,12 @@ predict_GER_table_sensAnalysis_phase2$MC_var_factor <-
   factor(predict_GER_table_sensAnalysis_phase2$MC_variable, 
          levels=c('all','P_cost','Es','E_FnU'))
 
-# New facet label names for MC_var_factor variable
-MC_var_factor.labs <- c("All variables", "P", "Es", "E F+U")
-names(MC_var_factor.labs) <- c("all", "P_cost", "Es","E_FnU")
+levels(predict_GER_table_sensAnalysis_phase2$MC_var_factor) <-  c("All variables", "P", "Es", "E F+U")
+
+predict_GER_table_sensAnalysis_phase2$Lifestage <-   factor(predict_GER_table_sensAnalysis_phase2$phase, 
+         levels=c('2'))
+
+levels(predict_GER_table_sensAnalysis_phase2$Lifestage) <- c('Juvenile/Adult')
 
 
 plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_phase2 %>%
@@ -1206,8 +1219,8 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
                     ymax = mean_GER+GER_sd), 
                 width=0, size = 0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_yrs-0.5, y= mean_GER), shape = 21, fill = "black")+
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
+ facet_grid(Lifestage~MC_var_factor, 
+             labeller = label_wrap_gen(width=25, multi_line = TRUE)) +
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
@@ -1222,7 +1235,7 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
   theme(plot.tag = element_text(size = rel(3), 
                                 colour = "black"))+
   theme(panel.grid = element_blank()) +
-  theme(panel.spacing = unit(0.6, "lines"))+
+  theme(panel.spacing = unit(0.3, "lines"))+
    theme(strip.background = element_rect(color="transparent", fill="transparent"))+
     theme(strip.text = element_text(size = rel(2)))+
   theme(axis.title = element_text(size = rel(2), colour = "black"))+
@@ -1247,9 +1260,8 @@ predict_GER_table_sensAnalysis_preg$MC_var_factor <-
   factor(predict_GER_table_sensAnalysis_preg$MC_variable, 
          levels=c("all","P_cost","Es", "E_FnU", "Hg", "P_nb", "GER_calf"))
 
-# New facet label names for MC_var_factor variable
-MC_var_factor.labs <- c("All variables","P", "Es", "E F+U", "Hg", "P newborn", "GER calf 6mo.")
-names(MC_var_factor.labs) <- c("all","P_cost", "Es", "E_FnU", "Hg", "P_nb", "GER_calf")
+levels(predict_GER_table_sensAnalysis_preg$MC_var_factor) <- c("All variables","P", "Es", "E F+U", "Hg", "P newborn", "GER calf first 6mo.")
+
 
 plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   filter(age_yrs>1 & age_yrs <=30) %>% 
@@ -1267,8 +1279,8 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
   #facet_grid(~MC_variable)+
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
+  facet_grid(phase~MC_var_factor, 
+             labeller = label_wrap_gen(width=15, multi_line = TRUE)) +
   #facet_wrap(~MC_variable)+
   xlab("Age (years)") +
    ylab(bquote('GER (MJ day '^'-1'*')')) +
@@ -1283,7 +1295,7 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   theme(plot.tag = element_text(size = rel(3), 
                                 colour = "black"))+
   theme(panel.grid = element_blank())+
-  theme(panel.spacing = unit(0.6, "lines"))+
+  theme(panel.spacing = unit(0.3, "lines"))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))+
     theme(strip.text = element_text(size = rel(2)))+
@@ -1292,8 +1304,8 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   theme(axis.title.x = element_text(size = rel(2)),
         axis.title.y = element_text(size = rel(2)))+
   theme(strip.background = element_rect(
-    color="transparent", fill="transparent"))+
-  theme(strip.text = element_text(size = rel(1.5)))
+    color="transparent", fill="transparent"))
+  #theme(strip.text = element_text(size = rel(1.5)))
 
 plot_predict_GER_sensAnalysis_preg              
 
@@ -1315,9 +1327,7 @@ predict_GER_table_sensAnalysis_lact$MC_var_factor <-
   factor(predict_GER_table_sensAnalysis_lact$MC_variable, 
          levels=c("all","P_cost","Es", "E_FnU","GERcalf"))
 
-# New facet label names for MC_var_factor variable
-MC_var_factor.labs <- c("All variables","P", "Es", "E F+U", "GER calf 3.6mo.")
-names(MC_var_factor.labs) <- c("all","P_cost", "Es", "E_FnU", "GERcalf")
+levels(predict_GER_table_sensAnalysis_lact$MC_var_factor) <- c("All variables","P", "Es", "E F+U", "GER calf last 3.6mo.")
 
 plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
     filter(age_yrs>1 & age_yrs <=30) %>% 
@@ -1335,8 +1345,8 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
   #facet_grid(~MC_variable)+
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
+ facet_grid(phase~MC_var_factor, 
+             labeller = label_wrap_gen(width=15, multi_line = TRUE)) +
   #facet_wrap(~MC_variable)+
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
@@ -1350,7 +1360,7 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
     labs(tag = "D")+
   theme(plot.tag = element_text(size = rel(3), colour = "black"))+
   theme(panel.grid = element_blank())+
-  theme(panel.spacing = unit(0.6, "lines"))+
+  theme(panel.spacing = unit(0.3, "lines"))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))+
     theme(strip.text = element_text(size = rel(2)))+
@@ -1359,8 +1369,8 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
   theme(axis.title.x = element_text(size = rel(2)),
         axis.title.y = element_text(size = rel(2)))+
   theme(strip.background = element_rect(
-    color="transparent", fill="transparent"))+
-  theme(strip.text = element_text(size = rel(1.5)))
+    color="transparent", fill="transparent"))
+  #theme(strip.text = element_text(size = rel(1.5)))
 
 plot_predict_GER_sensAnalysis_lact          
 
@@ -1421,9 +1431,7 @@ Es_sensAnalysis_phase1_permth$MC_variable <-
   factor(Es_sensAnalysis_phase1_permth$MC_variable, 
          levels=c("all","pctO2", "Rs", "Vt" ))
 
-# New facet label names for MC_var_factor variable
-MC_variable.labs <- c("All variables","%O2 absorbed", "Resp. rates", "Tidal Vol.")
-names(MC_variable.labs) <- c("all","pctO2", "Rs", "Vt")
+levels(Es_sensAnalysis_phase1_permth$MC_variable) <- c("All variables","%O2", "Rs", "Vt")
 
 
 plot_Es_sensAnalysis_phase1_permth <- Es_sensAnalysis_phase1_permth %>% 
@@ -1432,8 +1440,7 @@ plot_Es_sensAnalysis_phase1_permth <- Es_sensAnalysis_phase1_permth %>%
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 linetype = 1, size = 0.5, colour = 'gray40', width = 0) +
   geom_point() +
-  facet_grid(Lifestage~MC_variable, 
-             labeller = labeller(MC_variable = MC_variable.labs)) +
+  facet_grid(Lifestage~MC_variable)+
   xlab("Age (months)") +
   ylab(bquote('Es (MJ day'^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
@@ -1462,6 +1469,75 @@ plot_Es_sensAnalysis_phase1_permth
 
 ```
 
+
+
+
+
+```{r}
+
+Es_sensAnalysis_phase1 <- read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv")
+
+Es_sensAnalysis_phase1$age_mth <- round((Es_sensAnalysis_phase1$age_yrs*12),0)
+
+Es_sensAnalysis_phase1$MC_var_factor <- 
+  factor(Es_sensAnalysis_phase1$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+
+levels(Es_sensAnalysis_phase1$MC_var_factor) <- c("All variables","%O2", "Rs", "Vt")
+
+plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>% 
+  ggplot(aes(x = age_mth, y = Es_perday))+
+  geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+                 colour = "gray45", width = 0)+
+  geom_point(size=0.5)+
+  # geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  #               fill = "gray70")+
+  # geom_line(linewidth = 0.5)+
+  facet_grid(MC_var_factor~Activity_stages, 
+             labeller = label_wrap_gen(width = 15, multi_line = TRUE)) +
+             
+  #ggtitle("Phase 2 - Juveniles/Adults")+
+  xlab("Age (months)") +
+  ylab(bquote('Es (MJ day '^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
+                     limits = c(0, 12))+
+  #limits = c(0, 30.5), expand=c(0,0) +  # max x-axis 30 yrs.
+  # scale_y_continuous(label=comma,
+  #                     breaks = scales::pretty_breaks(n = 4),
+  #                     limits =  c(0, 2000))+
+
+  theme_bw() +
+  labs(tag="A")+
+  theme(plot.tag = element_text(size = rel(2),
+                                    colour = "black"))+
+  theme(panel.grid = element_blank())+
+  theme(legend.position.inside = 0)+
+  #theme(panel.border = element_blank())+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  #theme(axis.line = element_line(linewidth = 1, colour = "black"))+
+  theme(axis.text = element_text(colour = "black", size = rel(1)))+
+  theme(axis.title.y = element_text(colour = "black", 
+                                    size = rel(1), angle = 90))+
+  theme(axis.title.x = element_text(colour = "black", 
+                                    size = rel(1)))+
+  theme(strip.text = element_text(size = rel(1)))
+
+
+plot_Es_sensAnalysis_phase1
+
+ggsave(paste0(Figurespath,"/Es_sensanalysis_phase1_activitystages_facetgrid.jpg"),
+       plot_Es_sensAnalysis_phase1,
+       width = 8,
+       height = 5, dpi = 300
+     )
+
+
+
+```
+
+
 Figure 18. Results for the sensitivity analysis on total energetic expenditure (*E~s~*) for grey whale calves.
 
 #### Grey whale juveniles and adults, including pregnant and lactating females
@@ -1482,9 +1558,10 @@ Es_sensAnalysis_alladults_preg_lact_peryear$MC_var_factor <-
   factor(Es_sensAnalysis_alladults_preg_lact_peryear$MC_variable, 
          levels=c("all","pctO2","Rs", "Vt"))
 
-# New facet label names for MC_var_factor variable
-MC_var_factor.labs <- c("All variables","%O2 absorbed", "Resp. rates", "Tidal Vol.")
-names(MC_var_factor.labs) <- c("all","pctO2","Rs", "Vt")
+levels(Es_sensAnalysis_alladults_preg_lact_peryear$MC_var_factor) <- 
+  c("All variables","%O2", "Rs", "Vt")
+
+
 
 # Designing the plot 
 plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday <-
@@ -1492,8 +1569,7 @@ plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday <-
     filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
   #facet_grid(Lifestage_f ~ MC_variable)+
-    facet_grid(Lifestage~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
+    facet_grid(Lifestage~MC_var_factor)+
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
                 size = 0.5, colour = 'gray40', width = 0, linetype = 1) +
   # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
@@ -1544,25 +1620,31 @@ Figure 19. Results for the sensitivity analysis on *E~s~* (total energetic expen
 
 
 
-```{r Es sensanalysis allstages multiplot}
-
-
-```
-
-
-
 ```{r plots_Es_phase2_peryear, echo=FALSE}
 
 Es_sensAnalysis_phase2_peryear <-  read_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv")
 
+Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>% 
+filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30)
+
+  
+Es_sensAnalysis_phase2_peryear$MC_var_factor <- 
+  factor(Es_sensAnalysis_phase2_peryear$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+MC_var_factor.labs <- c("All variables","%O2 absorbed", "Resp. rates", "Tidal Vol.")
+names(MC_var_factor.labs) <- c("all","pctO2","Rs", "Vt")
+
+
 plot_Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>% 
-  filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30) %>% 
+  
   ggplot() +
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, 
                     ymax = Es_perday + Es_sd_perday),
                 linetype = 1, colour = 'gray40', width = 0) +
   geom_point(aes(x = age_yrs, y =Es_perday)) +
-  facet_grid(~MC_variable)+
+  facet_grid(~MC_var_factor, 
+             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
   xlab("Age (years)") +
   ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
@@ -1595,20 +1677,38 @@ plot_Es_sensAnalysis_phase2_peryear
 
 Es_sensAnalysis_phase2 <- read_csv("data/Es_sensAnalysis_phase2_source_bpm.csv")
 
+Es_sensAnalysis_phase2 <-Es_sensAnalysis_phase2 %>% 
+filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30)
+
+  
+Es_sensAnalysis_phase2$MC_var_factor <- 
+  factor(Es_sensAnalysis_phase2$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+levels(Es_sensAnalysis_phase2$MC_var_factor) <- c("All variables","%O2", "Rs", "Vt")
+
+
+Es_sensAnalysis_phase2$Activity_stages_factor <- 
+  factor(Es_sensAnalysis_phase2$Activity_stages, 
+         levels=c("calving grounds","foraging", "northbound", "southbound"))
+
+
 plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>% 
     filter(age_yrs>1 & age_yrs <=30) %>% 
+  mutate(across(Activity_stages_factor, ~factor(., levels=c("calving grounds","northbound","foraging","southbound")))) %>% 
   ggplot(aes(x = age_yrs, y = Es_perday))+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                 colour = "gray45", width = 0.02)+
+                 colour = "gray40", width = 0.02)+
   geom_point(size=0.5)+
   # geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
   #               fill = "gray70")+
   # geom_line(linewidth = 0.5)+
-  facet_grid(MC_variable ~ Activity_stages,
-             labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
-  ggtitle("Phase 2 - Juveniles/Adults")+
+  facet_grid(MC_var_factor~Activity_stages_factor,
+             labeller = labeller(label_wrap_gen(width = 15, multi_line = TRUE))) +
+             
+  #ggtitle("Phase 2 - Juveniles/Adults")+
   xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
+  ylab(bquote('Es (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
                      limits = c(0, 30.5))+
   #limits = c(0, 30.5), expand=c(0,0) +  # max x-axis 30 yrs.
@@ -1617,12 +1717,15 @@ plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>%
                       limits =  c(0, 2000))+
 
   theme_bw() +
+   labs(tag="B")+
+  theme(plot.tag = element_text(size = rel(2),
+                                    colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(legend.position.inside = 0)+
   #theme(panel.border = element_blank())+
   theme(strip.background =element_rect(fill="transparent",
                                        colour = "transparent"))+
-  theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
+  #theme(axis.line = element_line(linewidth = 1, colour = "black"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 
                                     size = rel(1), angle = 90))+
@@ -1633,6 +1736,23 @@ plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>%
 
 plot_Es_sensAnalysis_phase2
 
+ggsave(paste0(Figurespath,"/Es_sensanalysis_phase2_activitystages_facetgrid.jpg"),
+       plot_Es_sensAnalysis_phase2,
+       width = 8,
+       height = 5, 
+       dpi = 300
+     )
+
+ES_stacked_phase1_2_multipanel <- ggarrange(plot_Es_sensAnalysis_phase1, plot_Es_sensAnalysis_phase2, 
+            ncol = 1) 
+
+
+ggsave(paste0(Figurespath,"/S_stacked_phase1_2_multipanel.jpg"),
+       ES_stacked_phase1_2_multipanel,
+       width = 8,
+       height = 10, dpi = 300
+     )
+
 
 
 ```
@@ -1641,7 +1761,7 @@ plot_Es_sensAnalysis_phase2
 
 
 
-Es for all life stages including pregnant and lactating
+__Es for all adult life stages including pregnant and lactating__
 
 ```{r Es preg lact, echo=FALSE}
 
@@ -1653,15 +1773,20 @@ Es_sensAnalysis_alladults_preg_lact_peryear$Lifestage_f =
   factor(Es_sensAnalysis_alladults_preg_lact_peryear$Lifestage,
          levels=c('Juvenile/Adult','Pregnant','Lactating'))
 
+Es_sensAnalysis_alladults_preg_lact_peryear$MC_var_factor <- 
+  factor(Es_sensAnalysis_alladults_preg_lact_peryear$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
 
+levels(Es_sensAnalysis_alladults_preg_lact_peryear$MC_var_factor) <-   c("All variables","%O2", "Rs", "Vt")
 
 # plots
 
 plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday <- Es_sensAnalysis_alladults_preg_lact_peryear %>%
     filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
-  facet_grid(MC_variable ~ Lifestage_f, 
-             labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
+  facet_grid(Lifestage_f~MC_var_factor, 
+             labeller = labeller(MC_var_factor = MC_var_factor.labs,
+             label_wrap_gen(width = 2, multi_line = TRUE)))+
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
                 colour = 'gray40', width = 0, linetype = 1) +
   # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
@@ -1698,18 +1823,106 @@ plot_Es_sensAnalysis_alladults_preg_lact_yearly_perday
 
 ```
 
+__Sensitivity analysis for Es  (all life stages)__ 
+
+```{r Es sensanalysis allstages multiplot}
+Es_sensAnalysis_phase1_permth <-  read_csv("data/Es_sensAnalysis_phase1_permth_source_bpm.csv")
+Es_sensAnalysis_phase1_permth <-Es_sensAnalysis_phase1_permth %>% 
+  select(age_yrs, Lifestage, MC_variable, Es, Es_sd, 
+         Es_perday, Es_perday_sd)
+
+
+Es_sensAnalysis_alladults_preg_lact_peryear <-
+  as_tibble(read_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_source_bpm.csv"))
+
+Es_sensAnalysis_alladults_preg_lact_peryear <- Es_sensAnalysis_alladults_preg_lact_peryear %>% 
+  rename("Es_perday_sd" = "Es_sd_perday")
+
+Es_sensAnalysis_alladults_preg_lact_peryear <-Es_sensAnalysis_alladults_preg_lact_peryear %>% 
+  select(age_yrs, Lifestage, MC_variable, Es, Es_sd, 
+         Es_perday, Es_perday_sd)
+
+Es_sensAnalysis_allstages_permth_peryr <- rbind(Es_sensAnalysis_phase1_permth, Es_sensAnalysis_alladults_preg_lact_peryear)
+
+Es_sensAnalysis_allstages_permth_peryr$MC_var_factor <- 
+  factor(Es_sensAnalysis_allstages_permth_peryr$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+levels(Es_sensAnalysis_allstages_permth_peryr$MC_var_factor) <-   c("All variables","%O2", "Rs", "Vt")
+
+
+
+plot_Es_sensAnalysis_allstages_permth_peryr <- Es_sensAnalysis_allstages_permth_peryr %>%
+    filter(age_yrs <=30) %>% 
+  ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
+  facet_grid(MC_var_factor~Lifestage, 
+             scales="free_x",
+             labeller = label_wrap_gen(width = 15, multi_line = TRUE))+
+  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+                 colour = 'gray40', width = 0, linetype = 1) +
+  # geom_ribbon(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  #                 fill = 'gray40', alpha = 0.3) +
+  geom_point(size=0.5)+
+  #geom_line()   +
+  xlab("Age (years)") +
+
+  ylab(bquote('Es (MJ day'^'-1'*')')) +
+ 
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
+                      ) +  # max x-axis 30 yrs.
+  scale_y_continuous(label = comma,
+  breaks = scales::pretty_breaks(n = 4),
+  limits = c(0,1500))+
+  #scale_y_continuous(label = function(x){(x/1000)}, breaks = scales::pretty_breaks(n = 8),
+  #                    limits = c(0, 1000000))+
+
+  theme_bw()+
+  theme(panel.grid = element_blank())+
+  theme(axis.text = element_text(size = rel(1.2),
+                                 colour = "black"))+
+  theme(axis.title.x = element_text(size = rel(1.2)),
+        axis.title.y = element_text(size = rel(1.2)))+
+  theme(strip.background =element_rect(fill="transparent",
+                                       colour = "transparent"))+
+  theme(strip.text = element_text(size = rel(1.2)))
+#theme(legend.position.inside = "none")
+
+plot_Es_sensAnalysis_allstages_permth_peryr
+
+
+ggsave(paste0(Figurespath,"/Es_sensAnalysis_allstages_permth_peryr.jpg"),
+       plot_Es_sensAnalysis_allstages_permth_peryr,
+       width = 9,
+       height = 7, dpi = 300
+     )
+
+
+```
+
+
+
+
 ```{r Es_preg_stacked, echo=FALSE}
 
 #read in preg  table. 
 Es_sensAnalysis_preg  <-  read_csv("data/Es_sensAnalysis_preg_source_bpm.csv")
 
 
+# apply factors to enable facet wrap
+
+Es_sensAnalysis_preg$MC_var_factor <- 
+  factor(Es_sensAnalysis_preg$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+levels(Es_sensAnalysis_preg$MC_var_factor) <- c("All variables","%O2 absorbed", "Resp. rates", "Tidal Vol.")
+
 
 plot_Es_sensAnalysis_preg <- Es_sensAnalysis_preg %>%
     filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
-  facet_grid(MC_variable~Activity_stages,
-             labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
+facet_grid(Activity_stages~MC_var_factor,
+             labeller = label_wrap_gen(width = 5, multi_line = TRUE))+
+            
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 colour = 'gray70', width = 0, linetype = 1) +
   # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
@@ -1751,12 +1964,17 @@ plot_Es_sensAnalysis_preg
 #read in lact  table. 
 Es_sensAnalysis_lact  <-  read_csv("data/Es_sensAnalysis_lact_females_source_bpm.csv")
 
+Es_sensAnalysis_lact$MC_var_factor <- 
+  factor(Es_sensAnalysis_lact$MC_variable, 
+         levels=c("all","pctO2","Rs", "Vt"))
+
+levels(Es_sensAnalysis_lact$MC_var_factor) <- c("All variables","%O2", "Rs", "Vt")
 
 
 plot_Es_sensAnalysis_lact <- Es_sensAnalysis_lact %>%
     filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
-  facet_grid(MC_variable~Activity_stages,
+  facet_grid(Activity_stages~MC_var_factor,
              labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
   geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 colour = 'gray70', width = 0, linetype = 1) +
@@ -1770,9 +1988,9 @@ plot_Es_sensAnalysis_lact <- Es_sensAnalysis_lact %>%
 
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
                      limits = c(0, 32)) +  # max x-axis 30 yrs.
-  # scale_y_continuous(label = comma,
-  #                    breaks = scales::pretty_breaks(n = 6),
-  #                    limits = c(0,1500))+
+  scale_y_continuous(label = comma,
+                     breaks = scales::pretty_breaks(n = 6),
+                     limits = c(0,2000))+
   # scale_y_continuous(label = function(x){(x/1000)}, breaks = scales::pretty_breaks(n = 8),
   #                    limits = c(0, 1000000))+
 
@@ -1788,6 +2006,7 @@ plot_Es_sensAnalysis_lact <- Es_sensAnalysis_lact %>%
 #theme(legend.position.inside = "none")
 
 plot_Es_sensAnalysis_lact
+
 
 
 ```
