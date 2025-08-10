@@ -1,11 +1,11 @@
-ENERGY REQUIREMENTS OF GREY WHALES
+ENERGY REQUIREMENTS OF GRAY WHALES
 ================
 Selina Agbayani
 10 August, 2025
 
 ## GRAY WHALE LIFE CYCLE
 
-![](figures/Lifecycle_v6.jpg)
+![](figures/Figure1_Lifecycle_v6.jpg)
 
 Figure 1. Gray whale life cycle, showing the approximate times of year
 for different stages in the migration pattern over two years. Panel A
@@ -33,7 +33,7 @@ the mean from 10,000 Monte Carlo estimates.
 
 ### Total Energetic Expenditure (*E<sub>s</sub>*)
 
-![](figures/Es_sensanalysis_allstages_multiplot.jpg)
+![](figures/Figure3_Es_sensanalysis_allstages_multiplot.jpg)
 
 Figure 3. Estimates of average daily energetic expenditure (Es) from
 activity (MJ day-1) for each month in the first year (Phase 1). calves
@@ -46,7 +46,7 @@ across two activity stages.
 
 ### Gross Energy Requirements and Food Requirements
 
-#### Grey whale calves
+#### Gray whale calves
 
 ![](figures/Figure4_Phase1_GER_Milk_FoodReqs.jpg)
 
@@ -59,7 +59,7 @@ prey day-1) for weaned calves over 9 months. All values are plotted at
 the midpoint of each month. Error bars show the standard deviation
 around the mean of 10,000 Monte Carlo simulations.
 
-## Juveniles/Adults, Pregnant, Lactating
+#### Juveniles/Adults, Pregnant, Lactating
 
 ![](figures/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg) Figure 5. A)
 Daily gross energy requirements for a full year (annual; black circles)
@@ -89,15 +89,6 @@ simulations.
 
 ## Sensitivity Analyses
 
-The sensitivity analyses show that the variable contributing the highest
-range of uncertainty (±SD) to the gross energy requirements is
-*E<sub>s</sub>* or total energetic expenditure (Figure 12), and that the
-variable contributing the highest range of uncertainty within the Es
-calculations is *%O<sub>2</sub>* or the percentage of oxygen absorbed
-(Figure 13). The pattern holds for Phase 2, pregnant, and lactating life
-stages, even when additional parameters are examined for the pregnant
-and lactating stages (see Appendix D).
-
 ### Gross Energy Requirements (*GER*)
 
 ![](figures/Figure6_GER_sensanalysis_allstages_multiplot.jpg)
@@ -115,33 +106,6 @@ range of uncertainty.
 
 ### Total energetic expenditure (*E<sub>s</sub>*)
 
-#### Grey whale calves
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_phase1_permth-1.png)<!-- -->
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20sens%20analysis%20phase%201%20stacked-1.png)<!-- -->
-
-Figure 18. Results for the sensitivity analysis on total energetic
-expenditure (*E<sub>s</sub>*) for grey whale calves.
-
-#### Grey whale juveniles and adults, including pregnant and lactating females
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-1.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-2.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_sensAnalysis_alladults_preg_lact-3.png)<!-- -->
-
-Figure 19. Results for the sensitivity analysis on *E<sub>s</sub>*
-(total energetic expenditure) for Juvenile and adult grey whales,
-including pregnant and lactating females.
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plots_Es_phase2_peryear-1.png)<!-- -->
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plots_Es_phase2_stacked-1.png)<!-- -->![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/plots_Es_phase2_stacked-2.png)<!-- -->
-
-**Es for all adult life stages including pregnant and lactating**
-
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es%20preg%20lact-1.png)<!-- -->
-
-**Sensitivity analysis for Es (all life stages)**
-
 ![](figures/Figure7_Es_sensAnalysis_allstages_permth_peryr.jpg)
 
 Figure 7. Sensitivity analysis for Es (mean daily energetic expenditure)
@@ -153,10 +117,17 @@ only and lactating (from birth to 9.6 months) are similar to pregnant
 are not shown. %O2 contributed the highest range of uncertainty across
 all life stages.
 
-**Es sensitivity analysis for pregnant whales by activity stages**
+### Es sensitivity analysis by activity stages
 
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_preg_stacked-1.png)<!-- -->
+![](figures/Figure8_Es_stacked_phase1_2_multipanel.jpg) Figure 8. A)
+Sensitivity analysis for Es of calves (Phase 1) by activity stage B)
+Sensitivity analysis for Es of juveniles/adults (Phase 2) by activity
+stage. The same pattern occurred for pregnant and lactating whales,
+where foraging contributing highest amount of energy expenditure and
+largest range of uncertainty (see Suppl. Figure S2 and S3).
+
+## Supplementary Figures: Es sensitivity analysis for pregnant only and lactating whales (from birth to 9.6 months) by activity stages
 
 **Es sensitivity analysis for lactating whales by activity stages**
 
-![](EnergeticsModeling_GreyWhales_Results_charts_files/figure-gfm/Es_lact_stacked-1.png)<!-- -->
+![](figures/FigureS2_Es_sensAnalysis_preglact_by_activitystage.jpg)
