@@ -54,7 +54,7 @@ options(readr.show_col_types = FALSE)
 
 
 ```{r functions, include=FALSE}
-
+#Call R script with custom functions
 source("../functions.R", local = knitr::knit_global())
 
 ```   
