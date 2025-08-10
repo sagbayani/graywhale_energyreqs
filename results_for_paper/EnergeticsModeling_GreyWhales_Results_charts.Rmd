@@ -54,8 +54,9 @@ options(readr.show_col_types = FALSE)
 
 
 ```{r functions, include=FALSE}
+
 #Call R script with custom functions
-source("../functions.R", local = knitr::knit_global())
+source(paste0(getwd(),"/functions.R"), local = knitr::knit_global())
 
 ```   
 
@@ -70,6 +71,21 @@ datapath <- paste0(getwd(), "/data", collapse = NULL)
 datapath
 
 ```
+
+
+
+
+## GRAY WHALE LIFE CYCLE
+
+```{r lifecycle, echo=FALSE}
+
+
+knitr::include_graphics("/figures/Lifecycle_v6.png")
+
+
+```
+Figure 1 .. Gray whale life cycle, showing the approximate times of year for different stages in the migration pattern over two years. Panel A shows the migration for males and non-reproductive females, including weaned juveniles. Panel B shows the approximate 2-year cycle for pregnant and lactating females, including nursing calves. These charts highlight the differences in migration timing between the mother/calf pairs and other whales. Estimates and associated sources for number of days in each activity life stage are listed in Table S1 in Suppl. Materials. Adapted from Villegas-Amtmann et al. (2015).
+
 
 
 ## RESULTS
