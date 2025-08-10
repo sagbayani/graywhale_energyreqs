@@ -43,12 +43,14 @@ library(extrafont)
 library(truncnorm)
 library(gtable)
 library(ggpubr)
+library(pandoc)
 
 
 
 
-#quiet col types messages
+#quiet messages
 options(readr.show_col_types = FALSE)
+# invisible(dev.off())
 
 ```
 
@@ -77,20 +79,15 @@ datapath
 
 ## GRAY WHALE LIFE CYCLE
 
-```{r lifecycle, echo=FALSE}
+![](figures/Lifecycle_v6.jpg)
 
-
-knitr::include_graphics("/figures/Lifecycle_v6.png")
-
-
-```
-Figure 1 .. Gray whale life cycle, showing the approximate times of year for different stages in the migration pattern over two years. Panel A shows the migration for males and non-reproductive females, including weaned juveniles. Panel B shows the approximate 2-year cycle for pregnant and lactating females, including nursing calves. These charts highlight the differences in migration timing between the mother/calf pairs and other whales. Estimates and associated sources for number of days in each activity life stage are listed in Table S1 in Suppl. Materials. Adapted from Villegas-Amtmann et al. (2015).
+Figure 1. Gray whale life cycle, showing the approximate times of year for different stages in the migration pattern over two years. Panel A shows the migration for males and non-reproductive females, including weaned juveniles. Panel B shows the approximate 2-year cycle for pregnant and lactating females, including nursing calves. These charts highlight the differences in migration timing between the mother/calf pairs and other whales. Estimates and associated sources for number of days in each activity life stage are listed in Table S1 in Suppl. Materials. Adapted from Villegas-Amtmann et al. (2015).
 
 
 
 ## RESULTS
 
-### Production cost (P)
+### Mass and Production cost (P)
 
 
 ```{r P_cost_phase1, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
@@ -238,18 +235,15 @@ plot_P_cost_mass_peryear <- P_cost_table_peryear %>% filter(sex == "N/A" & age_y
              color = "black") 
 
   
-  
-  
-
-
+ 
 #plot_P_cost_mass_peryear
 
 
-multiplot(plot_P_cost_mass_perday,plot_P_cost_mass_peryear,
-          cols=1)
+# multiplot(plot_P_cost_mass_perday,plot_P_cost_mass_peryear,
+#           cols=1)
 
 
-jpeg(filename = paste0(Figurespath,"/Pcost_multiplot.jpg"), 
+jpeg(filename = paste0(Figurespath,"/Figure2_Pcost_multiplot.jpg"), 
      width = 1800,
      height = 2000,
      pointsize = 35, 
@@ -268,11 +262,12 @@ dev.off()
 
 ```
 
-Figure 2. Production cost for calves (panel A) and juveniles and adults (panel B).
+![](figures/Figure2_Pcost_multiplot.jpg)
+
+Figure 2. A) Production cost per day and mass growth curves for calves. B) Production cost per day and mass growth curves for juveniles and adult gray whales. Average production cost (MJ) per day on the primary axis, represented as a dotted line, and total mass (kg) shown on the secondary axis, as modelled by Agbayani et al. (2020) represented as a dashed line. Gray shading represents the standard deviation (±SD) around the mean from 10,000 Monte Carlo estimates.
 
 
 ### Total Energetic Expenditure (*E~s~*)
-
 
 ```{r Es_table_phase1_permth, echo= FALSE, results = "hide", message = FALSE, warning=FALSE }
 #### Grey whale calves
@@ -373,15 +368,13 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
 ```
 
 
-
-
 ```{r Es all ages multipanel, echo=FALSE}
 
 ES_multipanel <- ggarrange(plot_Es_table_phase1_mthly_perday, 
             plot_Es_table_alladults_preg_lact_yearly_perday, 
             widths = c(2, 5)) 
 
-ES_multipanel
+#ES_multipanel
 
 ggsave(paste0(Figurespath,"/Es_sensanalysis_allstages_multiplot.jpg"),
        ES_multipanel,
@@ -390,13 +383,15 @@ ggsave(paste0(Figurespath,"/Es_sensanalysis_allstages_multiplot.jpg"),
      )
 
 
-#dev.off()
+
 ```
+![](figures/Es_sensanalysis_allstages_multiplot.jpg)
 
 Figure 3. Estimates  of average daily energetic expenditure (Es)  from activity (MJ day-1) for each month in the first year (Phase 1). calves per month (Phase 1), and for juveniles and single adults (Phase 2), pregnant, and lactating females per year. Values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations. Note: Energetic expenditure Es values for the 6th and 10th months represent energetic expenditures across two activity stages. 
 
 
-### Gross Energy Requirements
+
+### Gross Energy Requirements and Food Requirements
 
 #### Grey whale calves
 
@@ -423,6 +418,8 @@ plot_predict_GER_phase1_permth <- predict_GER_table_phase1_permth %>%
   scale_y_continuous(breaks = scales::pretty_breaks(n = 7),
                      limits = c(0,1100)) + 
   theme_bw()+
+  labs(tag = "A")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text = element_text(size = rel(1.2),
                                  colour = "black")) +
@@ -433,186 +430,11 @@ plot_predict_GER_phase1_permth <- predict_GER_table_phase1_permth %>%
 
 
 
-plot_predict_GER_phase1_permth
+#plot_predict_GER_phase1_permth
 
 
 ```
 
-Figure 6. Daily Gross Energy Requirements (GER) for calves in the first year in MJ day^-1^. Error bars represent SD.
-
-#### Grey whale juveniles / adults
-
-```{r predict_GER_table_phase2, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
-
-predict_GER_table_phase2 <- 
-  read_csv("data/predict_GER_table_sensAnalysis_phase2.csv")
-
-predict_GER_table_phase2 %>% 
-  filter(sex=="N/A" & phase == "2" & age_yrs >= 1)%>% 
-  head() %>% kable()
-kable(head(predict_GER_table_phase2))
-
-plot_predict_GER_all_yr_phase2 <- predict_GER_table_phase2 %>%
-  filter(sex=="N/A" & phase == "2" & 
-                  age_yrs > 1 & age_yrs <= 30) %>% 
-  ggplot() +
-  # geom_line(aes(x=age_yrs, y=mean_GER),
-  #           color='black',
-  #           size = 1.2,
-  #           linetype = "longdash") +
-  
-  geom_errorbar(aes(x = age_yrs-0.5, 
-                    ymin = mean_GER-GER_sd, 
-                    ymax = mean_GER+GER_sd), 
-                width=0, size=0.5, linetype = 1, color="gray80") + 
-  geom_point(aes(x = age_yrs-0.5, y= mean_GER), shape = 21, fill = "black")+
-  xlab("Age (years)") +
-  ylab(bquote('Gross Energy Requirements (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(0, 30.5), expand = c(0,0)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(-50, 4000), expand = c(0,0),
-                     labels = comma)+
-  
-  theme_bw() +
-  theme(panel.grid = element_blank()) +
-  theme(axis.title = element_text(size = rel(1.4), colour = "black"))+
-  theme(axis.text = element_text(size = rel(1.2), colour = "black"))+
-  annotate("text", x = 28, y = 3500,
-           label = paste0("Annual"),
-           size = 6,
-           hjust = 1) 
-
-#plot_predict_GER_all_yr_phase2
-
-
-plot_predict_GER_foraging_phase2 <- predict_GER_table_phase2 %>% 
-  filter(sex=="N/A" & phase == "2" & 
-                  age_yrs > 1 & age_yrs <= 30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs-0.5, 
-                    ymin = GER_foraging - GER_sd, 
-                    ymax = GER_foraging + GER_sd), 
-                width=0, size=0.5, linetype = 1, color="gray80") + 
-  geom_point(aes(x = age_yrs-0.5, y= GER_foraging), 
-             shape = 21, fill = "black")+
-  xlab("Age (years)") +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(0, 30.5), expand = c(0,0)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(-50, 4000), expand = c(0,0))+
-  
-  theme_bw() +
-  theme(panel.grid = element_blank()) +
-  theme(axis.title.y = element_blank(),
-        axis.text.y = element_text(size = rel(0.2), colour = NA))+
-  theme(axis.title = element_text(size = rel(1.4), colour = "black"))+
-  theme(axis.text = element_text(size = rel(1.2), colour = "black"))+
-  annotate("text", x = 28, y = 3500,
-           label = paste0("Foraging season"),
-           size = 6,
-           hjust = 1) 
-
-
-#plot_predict_GER_foraging_phase2
-
-
-plot_predict_GER_phase2_both_annual_foraging <- 
-  ggarrange(plot_predict_GER_all_yr_phase2, 
-            plot_predict_GER_foraging_phase2, 
-            widths = c(2, 1.8)) 
-plot_predict_GER_phase2_both_annual_foraging 
-
-```
-
-Figure 7. Daily gross energy requirements over the year compared to gross daily requirements when foraging is limited to the summer season.  Foraging season spans \~154 days for juveniles and adults. 
-
-
-
-```{r predict_GER_table_preg_lact, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
-
-predict_GER_table_3panel  <- read_csv("data/predict_GER_sensAnalysis_alladults_preg_lact.csv")
-
-predict_GER_table_3panel <- within(predict_GER_table_3panel, Lifestage <- 
-  factor(Lifestage, levels=c('Juvenile/Adult','Pregnant', 'Lactating')))
-
-
-
-plot_GER_3panel <- predict_GER_table_3panel %>% 
-  filter(age_yrs <=30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs-0.5, 
-                  ymin = mean_GER-GER_sd,
-                  ymax = mean_GER+GER_sd),
-                size = 0.5, width=0, linetype = 1, color="gray80")+
-  geom_point(aes(x = age_yrs-0.5, y= mean_GER),
-              shape = 21, fill = "black") +
-   geom_errorbar(aes(x = age_yrs-0.5, 
-                    ymin = GER_foraging - sd_foraging,
-                    ymax = GER_foraging + sd_foraging),
-                size = 0.5, width=0, linetype = 1, color="gray80") +
-  geom_point(aes(x = age_yrs-0.5, y= GER_foraging),
-              shape = 21, fill = "white") +
-  facet_grid(~Lifestage)+
-  xlab("Age (years)") +
-  ylab(bquote('Gross Energy Requirements (MJ day'^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
-                     limits = c(1,30)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     label = comma)+
-  
-  
-  theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
-        axis.title = element_text(size = rel(1.2), colour = "black"),
-        strip.background = element_rect(
-          color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1.2), colour = "black"))
-  # annotate("text", x = 20, y = 5200,
-  #          label = paste0("Foraging season"),
-  #          size = 6,
-  #          hjust = 1) +
-  # annotate("text", x = 20, y = 200,
-  #          label = paste0("Annual"),
-  #          size = 6,
-  #          hjust = 1) 
-  #   
-ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
-                              Lifestage = factor("Juvenile/Adult",
-                                           levels = c("Juvenile/Adult",
-                                                      "Pregnant",
-                                                      "Lactating")))
-
-ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 4200,
-                                Lifestage = factor("Juvenile/Adult",
-                                             levels = c("Juvenile/Adult",
-                                                        "Pregnant",
-                                                      "Lactating")))
-
-plot_GER_3panel <- plot_GER_3panel +
-  geom_text(data = ann_text_annual,
-            aes(x=age_yrs, y=mean_GER),
-            label = "Annual",
-            size = 5,
-            hjust = 1) +
-  geom_text(data = ann_text_foraging,
-            aes(x=age_yrs, y=mean_GER),
-            label = "Foraging Season",
-            size = 5,
-            hjust = 1)
-
-plot_GER_3panel
-
-
-```
-
-Figure 8. Estimates for gross energy requirements (GER) for pregnant, lactating females, and others (juvenile and other adult grey whales). Daily gross energy requirements for a full year (annual) are represented with black circles (365 for adults/juveniles, 396 for pregnant whales, and 293 days for lactating whales). White circles represent daily gross energy requirements for when feeding is limited during the foraging season. Foraging season is assumed to be ~154 days for single juveniles (1-7 y) and adults (> 8 y), \~153 days for pregnant females, and ~119 days for lactating females. GER for pregnant whales shown here assumes that the GER for first the 6 months of lactation while the mother is fasting need to be consumed the previous year, when foraging while pregnant. GER for lactating whales shown here is the GER for the remaining 3.6 months of lactation when the mother resumes foraging while lactating. Error bars represent SD.
-
-
-### Milk / Food Requirements
-
-#### Grey whale calves
 
 ```{r plot_milk_food_reqs_phase1,  echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 predict_GER_table_phase1_permth <- read_csv("data/predict_GER_table_sensAnalysis_phase1_permth_source_bpm.csv")
@@ -631,6 +453,8 @@ plot_MilkReqs_phase1 <- predict_GER_table_phase1_permth %>%
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
                      limits = c(0, 45)) +
   theme_bw() + 
+  labs(tag = "B")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(axis.text =element_text(size = rel(1.4),
                                 colour = "black"),
@@ -640,9 +464,7 @@ plot_MilkReqs_phase1 <- predict_GER_table_phase1_permth %>%
                                     colour = "black")
   )
 
-
 #plot_MilkReqs_phase1
-
 
 plot_FoodReqs_phase1 <- predict_GER_table_phase1_permth %>% 
   filter(sex == "N/A" & phase == "1") %>% 
@@ -665,6 +487,8 @@ plot_FoodReqs_phase1 <- predict_GER_table_phase1_permth %>%
                      limits = c(0, 300)
   ) +
   theme_bw()+ 
+  labs(tag = "B")+
+  theme(plot.tag = element_text(size = rel(2), colour = "white"))+
   theme(panel.grid = element_blank(),
         axis.title.x = element_text(size = rel(1.6),
                                     colour = "white"))+
@@ -674,124 +498,34 @@ plot_FoodReqs_phase1 <- predict_GER_table_phase1_permth %>%
                                     colour = "black")
   )
 
-#theme(legend.position = 0)
 
 #plot_FoodReqs_phase1
 
-
-
 ## plot milk and food requirments for phase 1 on same chart but different axes
 
-#multiplot(plot_MilkReqs_phase1, plot_FoodReqs_phase1, cols = 2)
-
 milkreqs_figure <- ggarrange(plot_MilkReqs_phase1, plot_FoodReqs_phase1, widths = c(2, 0.9))
-milkreqs_figure
+#milkreqs_figure
+
+
+Figure4 <- ggarrange(plot_predict_GER_phase1_permth,milkreqs_figure) 
+
+ggsave(paste0(Figurespath,"/Figure4_Phase1_GER_Milk_FoodReqs.jpg"),
+       Figure4,
+       width = 15,
+       height = 5, dpi = 300
+     )
 
 
 ```
 
-Figure 9. Daily milk requirements for calves. The left panel represents milk requirements (L day^-1^) for calves up to 9 months (left panel), and the right panel represents food requirements (kg of benthic invertebrate prey day^-1^) for weaned calves over 9 months.
+![](figures/Figure4_Phase1_GER_Milk_FoodReqs.jpg)
 
-#### Grey whale juveniles and adults, including pregnant and lactating
-
-```{r plot_FoodReqs_3panel, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
-
-predict_GER_table_3panel  <- read_csv("data/predict_GER_sensAnalysis_alladults_preg_lact.csv")
-
-predict_GER_table_3panel <- within(predict_GER_table_3panel, Lifestage <- 
-  factor(Lifestage, levels=c('Juvenile/Adult','Pregnant', 'Lactating')))
-
-
-plot_FoodReqs_3panel <- predict_GER_table_3panel %>% 
-  filter(age_yrs>1 & age_yrs<=30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs, 
-                  ymin = FR_foraging-FR_sd_foraging,
-                  ymax = FR_foraging+FR_sd_foraging),
-                size = 0.5, width=0, linetype = 1, color="gray80")+
-  geom_point(aes(x = age_yrs, 
-                y= FR_foraging),  
-            size = 1)+
-  facet_wrap(~Lifestage)+
-  xlab("Age (years)") +
-  ylab(bquote('Food Requirements (kg day'^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
-                     limits = c(1,30)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0, 20))+
-  
-  theme_bw() +
-   theme(panel.spacing = unit(0.6, "lines"))+
-  theme(panel.grid = element_blank())+
-  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
-        axis.title = element_text(size = rel(1.2), colour = "black"),
-        strip.background = element_rect(
-          color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1.2), colour = "black")
-  )
+Figure 4. A) Daily average gross energy requirements for calves in the first year in MJ day-1. B) Average daily milk and food requirements for calves for each month in their first year. The left panel represents milk requirements (L day-1) for calves up to 9 months (left panel), and the right panel represents food requirements (kg of benthic invertebrate prey day-1) for weaned calves over 9 months. All values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations.
 
 
 
-plot_FoodReqs_3panel
+## Juveniles/Adults, Pregnant, Lactating
 
-
-
-```
-
-Figure 10. Food requirements (kg day-1) of benthic invertebrate prey for pregnant females, lactating females, and others (juveniles and other adult grey whales) during foraging season. Foraging season is assumed to be ~154 days for single juveniles (1-7 y) and adults (> 8 y), ~153 days for pregnant females, and ~119 days for lactating females. Error bars represent SD.
-
-
-
-```{r plot_pct_bodywt_consumed_3panel, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
-
-pct_bodyweight_all <-  read_csv("data/predict_GER_sensAnalysis_alladults_preg_lact.csv")
-
-pct_bodyweight_all <- within(pct_bodyweight_all, Lifestage <- 
-  factor(Lifestage, levels=c('Juvenile/Adult','Pregnant', 'Lactating')))
-
-
-plot_pct_bodyweight_all <- pct_bodyweight_all %>% 
-  filter(age_yrs > 1 &age_yrs <=30) %>% 
-  ggplot() +
-   geom_errorbar(aes(x = age_yrs-0.5, 
-                    ymin = pctbodywt - pctbodywt_sd, 
-                    ymax = pctbodywt + pctbodywt_sd),
-                width=0, size=0.5, linetype = 1, color="gray80")+
-  geom_point(aes(x = age_yrs-0.5, y= pctbodywt), 
-             shape = 21, fill = "black")+
-  facet_wrap(~Lifestage)+
-  xlab("Age (years)") +
-  ylab(bquote('Consumption day'^'-1'*' (% body wt)')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
-                     limits = c(1,30)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 6)
-                     #limits = c(3.5, 10)
-                     )+
-  
-  theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
-        axis.title = element_text(size = rel(1.2), colour = "black"),
-        strip.background = element_rect(
-          color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1.2), colour = "black")
-  )
-
-
-
-plot_pct_bodyweight_all
-
-
-
-```
-
-Figure 11. Percentage of body weight consumed day-1 during the foraging season for juveniles and other adults, pregnant females, and lactating females. Foraging season is assumed to be ~154 days for single juveniles (1-7 y) and adults (> 8 y), ~153 days for pregnant females, and ~119 days for lactating females. Note that the y-axis does not start at 0. Error bars represent SD.
-
-
-
-
-
-__Plotting Gross energetic requirements (multi-panel)__
 ```{r plots_GER_preg_lact_panel, echo =  FALSE}
 predict_GER_table_alladults <- read_csv("data/predict_GER_sensAnalysis_alladults.csv")
 
@@ -837,7 +571,7 @@ plot_GER_panel <- predict_GER_table_panel %>%
         axis.title = element_text(size = rel(1.2), colour = "black"),
         strip.background = element_rect(
           color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1), colour = "black"))
+        strip.text = element_text(size = rel(1.2), colour = "black"))
   # annotate("text", x = 20, y = 5200,
   #          label = paste0("Foraging season"),
   #          size = 6,
@@ -887,6 +621,7 @@ plot_GER_panel <- plot_GER_panel +
 ```{r plot_FoodReqs_preg_lact_panel, echo = FALSE}
 
 plot_FoodReqs_panel <- predict_GER_table_panel %>% 
+  
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                   ymin = FR_foraging-FR_sd_foraging,
@@ -913,7 +648,7 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
         axis.title = element_text(size = rel(1.2), colour = "black"),
         strip.background = element_rect(
           color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1), colour = "black")
+        strip.text = element_text(size = rel(1.2), colour = "black")
   )
 
 
@@ -928,7 +663,6 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
 
 
 ```{r plot_pct_bodywt_consumed_panel, echo=FALSE}
-
 
 plot_pct_bodyweight_all <- predict_GER_table_panel %>% 
   filter(age_yrs > 1) %>% 
@@ -958,7 +692,7 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
         axis.title = element_text(size = rel(1.2), colour = "black"),
         strip.background = element_rect(
           color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1), colour = "black")
+        strip.text = element_text(size = rel(1.2), colour = "black")
   )
 
 
@@ -971,32 +705,26 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
 ```
 
 ```{r multiplot, echo=FALSE}
-
-
 #save multi-panel plot as hi-res jpg
-# multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
 
+Figure5 <- ggarrange(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, ncol=1)
 
-jpeg(filename = paste0(Figurespath,"/Figure6_multiplot.jpg"), 
-     width = 2200,
-     height = 3500,
-     pointsize = 35, 
-     quality = 100, 
-     bg = "white", 
-     res = 300, 
-     restoreConsole = TRUE)
+ggsave(paste0(Figurespath,"/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg"),
+       Figure5,
+       width = 8,
+       height = 12, dpi = 300
+     )
 
-
-p <- multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
-
-
-dev.off()
-
-
-knitr::include_graphics(path = paste0(Figurespath,"/Figure6_multiplot.jpg"), rel_path = FALSE)
+# knitr::include_graphics(path = paste0(Figurespath,"/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg"), rel_path = FALSE)
 
 
 ```
+
+![](figures/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg)
+Figure 5.  A) Daily gross energy requirements for a full year (annual; black circles) and for when feeding is limited to the foraging season (white circles). B) Average daily food requirements (kg day-1) of benthic invertebrate prey for pregnant females, lactating females, and others (juveniles and other adult gray whales) during foraging season. C) Average percentage of body weight consumed per day during the foraging season for juveniles and other adults, pregnant females, and lactating females. Note that the y-axis does not always start at 0. Panels from left to right represent single juveniles (1–7 y) and adults (>8 y), pregnant whales for the duration of the pregnancy, lactating whales for the duration of nursing from birth to weaning at 9.6 months (per Agbayani et al., 2020), pregnant whales for the duration of the pregnancy (with the first 6 months of lactation while fasting), and lactating whales in the last 3.6 months of lactation while foraging in the Arctic feeding grounds. To calculate daily gross energy requirements on an annual basis for single juveniles (1–7 y) and adults (>8 y) the gross energy requirement was assumed to be borne over 365 days and for the foraging season it was assumed to be ~154 days. For pregnant females the annual gross energy requirement was calculated over ~396 days and foraging season was assumed to be ~153 days. For lactating females the annual gross energy requirement was calculated over 293 days and foraging season was assumed to be ~119 days. Values are plotted at the midpoint of each year. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations.
+
+
+
 
 
 
@@ -1257,14 +985,14 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
 ```{r panel plot Es sensitivity analysis all stages, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 
-multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
-          plot_predict_GER_table_sensAnalysis_phase2,
-          plot_predict_GER_sensAnalysis_preg,  
-          plot_predict_GER_sensAnalysis_lact, 
-          cols=1)
+# Figure6 <- multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
+#           plot_predict_GER_table_sensAnalysis_phase2,
+#           plot_predict_GER_sensAnalysis_preg,  
+#           plot_predict_GER_sensAnalysis_lact, 
+#           cols=1)
 
 
-jpeg(filename = paste0(Figurespath,"/GER_sensanalysis_allstages_multiplot.jpg"), 
+jpeg(filename = paste0(Figurespath,"/Figure6_GER_sensanalysis_allstages_multiplot.jpg"), 
      width = 5000,
      height = 5000,
      pointsize = 35, 
@@ -1285,7 +1013,13 @@ dev.off()
 
 ```
 
-Figure XX. Results for the sensitivity analysis on gross energy requirements (*GER*). 
+![](figures/Figure6_GER_sensanalysis_allstages_multiplot.jpg)
+
+Figure 6. Results from the sensitivity analysis of the gross energy requirements (GER). A) Calves (Phase 1), B) juveniles/adults (phase 2), C) pregnant whales (including first 6 months of lactation), and D) lactating whales (last 3.6 months). Not shown are the pregnant only and lactating (from birth to 9.6 months) because the pattern for the range of uncertainty for these are similar to those shown in C) and D), except where pregnant only would not have a variable for GER of a calf, lactating (from birth to 9.6 months) would have a variable for GER of a calf from birth to 9.6 months that has a negligible contribution to range of uncertainty.   
+
+
+
+
 
 
 ### Total energetic expenditure (*E~s~*)
@@ -1728,10 +1462,11 @@ levels(Es_sensAnalysis_allstages_permth_peryr$MC_var_factor) <-   c("All variabl
 Es_sensAnalysis_allstages_permth_peryr$Lifestage_factor <- factor(Es_sensAnalysis_allstages_permth_peryr$Lifestage, 
          levels=c("Calf","Juvenile/Adult","Pregnant", "Lactating"))
 
+levels(Es_sensAnalysis_allstages_permth_peryr$Lifestage_factor) <- c("Calf","Juvenile/Adult","Pregnant (with first 6 mths lactation", "Lactating (last 3.6 mths)")
 
 plot_Es_sensAnalysis_allstages_permth_peryr <- Es_sensAnalysis_allstages_permth_peryr %>%
     filter(age_yrs <=30) %>% 
-    mutate(across(Lifestage_factor, ~factor(., levels=c("Calf","Juvenile/Adult","Pregnant","Lactating")))) %>%
+    mutate(across(Lifestage_factor, ~factor(., levels=c("Calf","Juvenile/Adult","Pregnant (with first 6 mths lactation","Lactating (last 3.6 mths)")))) %>%
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
   facet_grid(MC_var_factor~Lifestage_factor, 
              scales="free_x",
@@ -1765,10 +1500,10 @@ plot_Es_sensAnalysis_allstages_permth_peryr <- Es_sensAnalysis_allstages_permth_
   theme(strip.text = element_text(size = rel(1.2)))
 #theme(legend.position.inside = "none")
 
-plot_Es_sensAnalysis_allstages_permth_peryr
+#plot_Es_sensAnalysis_allstages_permth_peryr
 
 
-ggsave(paste0(Figurespath,"/Es_sensAnalysis_allstages_permth_peryr.jpg"),
+ggsave(paste0(Figurespath,"/Figure7_Es_sensAnalysis_allstages_permth_peryr.jpg"),
        plot_Es_sensAnalysis_allstages_permth_peryr,
        width = 9,
        height = 7, dpi = 300
@@ -1776,6 +1511,13 @@ ggsave(paste0(Figurespath,"/Es_sensAnalysis_allstages_permth_peryr.jpg"),
 
 
 ```
+![](figures/Figure7_Es_sensAnalysis_allstages_permth_peryr.jpg)
+
+Figure 7. Sensitivity analysis for Es (mean daily energetic expenditure) in MJ day-1 for calves (Phase 1), juveniles/adults (Phase 2), pregnant (with first 6 months of lactation), and lactating whales (last 3.6 months of lactation). The patterns for range of uncertainty for pregnant only and lactating (from birth to 9.6 months) are similar to pregnant (with first 6 months of lactation) and lactating (last 3.6. months) and are not shown. %O2 contributed the highest range of uncertainty across all life stages. 
+
+
+
+
 
 
 __Es sensitivity analysis for pregnant whales by activity stages__
