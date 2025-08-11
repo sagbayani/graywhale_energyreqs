@@ -10,7 +10,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-NOTE: This code will run for a long time.
+##### NOTE: If MC_reps =10,000 this code will run for a long time.
 
 ```{r setup, include=FALSE}
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
@@ -57,14 +57,13 @@ library(extrafont)
 
 ```
 
-
 ```{r functions, include=FALSE}
 #Call R script with custom functions
-source("../functions.R", local = knitr::knit_global())
+source(paste0(getwd(),"/functions.R"), local = knitr::knit_global())
 ```   
 
 
-```{r set output paths}       
+```{r set output paths}
 ############ Set path for output figures: ###############
 Figurespath <- paste0(getwd(), "/figures", collapse = NULL)
 
@@ -137,8 +136,7 @@ age_yr_tibble <- as_tibble(
 
 ```
 
-
-Calculate change in mass per month (up to 1 yr). 
+Calculate change in mass per month (up to 1 yr).
 
 ```{r mean mass change}
 
@@ -643,4 +641,3 @@ plot_mean_masschange_NA
 
 
 ```
-

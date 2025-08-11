@@ -55,10 +55,10 @@ library(truncnorm)
 
 ```
 
-
 ```{r functions, include=FALSE}
+
 #Call R script with custom functions
-source("../functions.R", local = knitr::knit_global())
+source(paste0(getwd(),"/functions.R"), local = knitr::knit_global())
 ```   
 
 

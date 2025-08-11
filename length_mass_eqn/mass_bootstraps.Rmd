@@ -9,7 +9,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
@@ -67,15 +66,13 @@ loadfonts(device = "win")
 
 ```
 
-
 ```{r functions, include=FALSE}
 
-source("../functions.R", local = knitr::knit_global())
+#Call R script with custom functions
+source(paste0(getwd(),"/functions.R"), local = knitr::knit_global())
+```
 
-```   
-
-
-```{r setting paths}       
+```{r setting paths}
 ############ Set path for output figures: ###############
 Figurespath <- paste0(getwd(), "/length_mass_eqn/figures", collapse = NULL)
 Figurespath
@@ -85,7 +82,7 @@ datapath <- paste0(getwd(), "/data", collapse = NULL)
 
 ```
 
-**GREY WHALE LENGTHS AT AGE DATASET**
+## GRAY WHALE LENGTHS AT AGE DATASET
 
 ```{r import data}
 
@@ -140,8 +137,7 @@ age_yr_tibble <- as_tibble(
 
 ```
 
-
-*Fitting the mass/length data to a linear model*
+### Fitting the mass/length data to a linear model
 
 ```{r length mass linear model}
 #Calculate log base 10 for lengths and masss
@@ -187,8 +183,6 @@ summary(lm_log10)
 
 ```
 
-Create blank mass table
-
 ```{r mass table}
 
 kable(head(gw_pred_lengths))
@@ -233,7 +227,7 @@ kable(head(mass_table))
 
 ```
 
-Predicting mass per year from linear model for first 12 months
+### Predicting mass per year from linear model for first 12 months
 
 ```{r predicting mass phase 1}
 # Predict mass 10,000 times per age step, and calculate the mean, 
@@ -298,7 +292,7 @@ mass_table <- mass_table %>% filter(!is.na(mean_mass))
 kable(head(mass_table))
 ```
 
-Predicting mass per year from linear model for ages >1 yr 
+### Predicting mass per year from linear model for ages \>1 yr
 
 ```{r predicting mass phase 2}
 
@@ -362,79 +356,7 @@ kable(head(mass_table))
 
 ```
 
-*Plotting mass data onto graphs*
-
 ```{r mass plots, echo=FALSE}
-
-plot_age_mass_black <- mass_table %>% 
-    filter(age_yrs <=30) %>% 
-    ggplot(mapping = aes(x = age_yrs, y = mean_mass)) +
-    xlab("Age (yrs)") +
-    ylab(bquote('Mass (kg)')) +
-    scale_x_continuous(limits  =c(0,30),
-                           breaks = scales::pretty_breaks(n = 10)) +
-    scale_y_continuous(limits = c(0,(max(quant975)+2000)), 
-                       breaks = scales::pretty_breaks(n = 10),
-                       labels = scales::comma) +
-    geom_line(aes(y = mean_mass), 
-              colour = "white", 
-              linetype = "solid", 
-              linewidth = 1.0) +
-    # geom_line(aes(y = upr), 
-    #           colour = "gray", 
-    #           linetype = "dashed", 
-    #           linewidth = 1.0) + 
-    # geom_line(aes(y = lwr), 
-    #           colour = "gray", 
-    #           linetype = "dashed",
-    #           linewidth = 1.0) +
-    geom_line(aes(y = mean_mass + sd_mass),
-              colour = "white",
-              linetype = "dashed",
-              linewidth = 0.5) +
-    geom_line(aes(y = mean_mass - sd_mass),
-              colour = "white",
-              linetype = "dashed",
-              linewidth = 0.5) +
-    # geom_line(aes(y = quant025),
-    #           colour = "white",
-    #           linetype = "dashed",
-    #           linewidth = 0.5) +
-    # geom_line(aes(y = quant975),
-    #           colour = "white",
-    #           linetype = "dashed",
-    #           linewidth = 0.5) +
-
-    theme_bw() +
-    theme(panel.grid = element_blank()) +       
-          # axis.title.x = element_text(size = rel(0.5), colour = "white"),
-          # axis.text.x = element_text(size = rel(0.5), colour = "white"),
-          # axis.title.y = element_text(size = rel(1.4), colour = "black"),
-          # axis.text.y = element_text(size = rel(1.2), colour = "black")
-          
-    ggtitle(element_blank()) +
-    theme(legend.title = element_blank()) +
-    theme(legend.position.inside = c(0.8, 0.2)) +
-    theme(legend.justification = c(0.98,0.01))+
-    theme(legend.background = element_rect(fill = "black"))+
-    theme(legend.text = element_text(colour = "white", size = rel(1)))+
-    theme(legend.key = element_rect(fill = "transparent"))+ #colour = "transparent"))+
-    
-    theme(plot.background = element_rect(fill = "black"))+
-    
-    theme(panel.background = element_rect(fill = "black"))+
-    theme(panel.border = element_blank())+
-    
-    theme(axis.line = element_line(linewidth = 1, colour = "white"))+
-    theme(axis.text = element_text(colour = "white", size = rel(1.6)))+
-    theme(axis.title.y = element_text(colour = "white", size = rel(1.8), angle = 90))+
-    theme(axis.title.x = element_text(colour = "white", size = rel(1.8)))+
-    theme(axis.ticks = element_line(colour="white"))
-    
-
-plot_age_mass_black
-
-
 
 plot_age_mass <- mass_table %>% 
     filter(age_yrs <=30) %>% 
@@ -450,22 +372,6 @@ plot_age_mass <- mass_table %>%
               colour = "black", 
               linetype = "solid", 
               linewidth = 1.0) +
-    # geom_line(aes(y = upr), 
-    #           colour = "gray", 
-    #           linetype = "dashed", 
-    #           linewidth = 1.0) + 
-    # geom_line(aes(y = lwr), 
-    #           colour = "gray", 
-    #           linetype = "dashed",
-    #           linewidth = 1.0) +
-    # geom_line(aes(y = mean_mass + sd_mass),
-    #           colour = "blue",
-    #           linetype = "dashed",
-    #           linewidth = 0.5) +
-    # geom_line(aes(y = mean_mass - sd_mass),
-    #           colour = "blue",
-    #           linetype = "dashed",
-    #           linewidth = 0.5) +
     geom_line(aes(y = quant025),
               colour = "black",
               linetype = "dashed",
@@ -474,22 +380,20 @@ plot_age_mass <- mass_table %>%
               colour = "black",
               linetype = "dashed",
               linewidth = 0.5) +
-
     theme_bw() +
     theme(panel.grid = element_blank(),        
           axis.title.x = element_text(size = rel(1.4), colour = "black"),
           axis.text.x = element_text(size = rel(1.2), colour = "black"),
           axis.title.y = element_text(size = rel(1.4), colour = "black"),
-          axis.text.y = element_text(size = rel(1.2), colour = "black")
-          ) 
+          axis.text.y = element_text(size = rel(1.2), colour = "black")) 
     
 
-plot_age_mass
+#plot_age_mass
 
 
 ```
 
-*Plotting sex-specific mass curves*
+### Predicting mass by sex
 
 ```{r sex specific mass curves}
 
@@ -527,78 +431,13 @@ female_mass <- mass_table$female_mass
 male_mass <- mass_table$male_mass
 
 kable(head(mass_table))
-#kable(mass_table)
 
 #save mass_table csv
 mass_table %>% write_csv("data/mass_table.csv", na = "", append = FALSE)
 
 ```
 
-
-Predicted Mass by sex
-
 ```{r plot age mass by sex, echo=FALSE}
-
-#Create white plot in  black background  
-plot_age_mass_bysex_black <- mass_table %>% 
-    filter(age_yrs <=30) %>% 
-    ggplot() +
-    xlab("Age (yrs)") +
-    ylab(bquote('Mass (kg)')) +
-    scale_x_continuous(limits  =c(0,32),
-                       breaks = scales::pretty_breaks(n = 10)) +
-    scale_y_continuous(limits = c(0, max(female_mass)+2000), 
-                       breaks = scales::pretty_breaks(n = 10),
-                       labels = scales::comma) +
-    geom_line(aes(x = age_yrs,
-                  y = male_mass), 
-              colour = "dodgerblue2", 
-              linetype = "solid", 
-              linewidth = 1) +
-    geom_line(aes(x = age_yrs,
-                  y = female_mass), 
-              colour = "red1", 
-              linetype = "dashed", 
-              linewidth = 1) + 
-    theme_bw() +
-    theme(panel.grid = element_blank(),        
-          axis.title.x = element_text(size = rel(1.8), colour = "white"),
-          axis.text.x = element_text(size = rel(1.8), colour = "white"),
-          axis.title.y = element_text(size = rel(1.8), colour = "white"),
-          axis.text.y = element_text(size = rel(1.8), colour = "white")
-          ) +
-    annotate("text", x = 31, y = 21000, label = "♀",
-             size = rel(6), hjust = 0, colour = "red1", 
-             family = "Arial", fontface = "bold") +
-    annotate("text", x = 31, y = 19900, label = "♂",
-             size = rel(6), hjust = 0, colour = "dodgerblue2", 
-             family = "Arial", fontface = "bold")+
-    theme(panel.grid = element_blank()) +       
-          # axis.title.x = element_text(size = rel(0.5), colour = "white"),
-          # axis.text.x = element_text(size = rel(0.5), colour = "white"),
-          # axis.title.y = element_text(size = rel(1.4), colour = "black"),
-          # axis.text.y = element_text(size = rel(1.2), colour = "black")
-          
-    theme(legend.title = element_blank()) +
-    theme(legend.position.inside = c(0.8, 0.2)) +
-    theme(legend.justification = c(0.98,0.01))+
-    theme(legend.background = element_rect(fill = "black"))+
-    theme(legend.text = element_text(colour = "white", size = rel(1)))+
-    theme(legend.key = element_rect(fill = "transparent"))+ #colour = "transparent"))+
-    ggtitle(element_blank()) +
-    theme(plot.background = element_rect(fill = "black"))+
-    theme(panel.background = element_rect(fill = "black"))+
-    theme(panel.border = element_blank())+
-    theme(axis.line = element_line(linewidth = 1, colour = "white"))+
-    # theme(axis.text = element_text(colour = "white", size = rel(1.8)))+
-    # theme(axis.title.y = element_text(colour = "white", size = rel(1.8), angle = 90))+
-    # theme(axis.title.x = element_text(colour = "white", size = rel(2)))+
-    theme(axis.ticks = element_line(colour="white"))
-    
-
-plot_age_mass_bysex_black
-
-
 
 plot_age_mass_bysex <- mass_table %>% 
     filter(age_yrs <=30) %>% 
@@ -635,15 +474,15 @@ plot_age_mass_bysex <- mass_table %>%
              family = "Arial", fontface = "bold")
     
 
-plot_age_mass_bysex
+#plot_age_mass_bysex
 
 #save multi-panel plot as hi-res jpg
-multiplot(plot_age_mass, plot_age_mass_bysex, cols=2)
+#multiplot(plot_age_mass, plot_age_mass_bysex, cols=2)
 
 
 jpeg(filename = paste0(Figurespath,"/bootstrap_mass_estimates_2panel.jpg"), 
      width = 3000,
-     height = 3000,
+     height = 2000,
      pointsize = 35, 
      quality = 100, 
      bg = "white", 
@@ -658,9 +497,11 @@ p <- multiplot(plot_age_mass,
 
 
 dev.off()
-
-
-
-
 ```
 
+### Plotting Mass and Mass by sex
+
+```{r insert figure, echo=FALSE}
+knitr::include_graphics(path = paste0(Figurespath,"/bootstrap_mass_estimates_2panel.jpg"), rel_path = FALSE)
+
+```
