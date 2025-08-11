@@ -4,17 +4,17 @@ This package contains the complementary R code for the Gray whale energy require
 
 The recommended sequence for running the code is as follows:
 
-1.   Length/Mass Equation (Phase 1 and 2)
+1.  Length/Mass Equation (Phase 1 and 2)
 
-2.   Delta Mass (per month, per year, lactation)
+2.  Delta Mass (per month, per year, lactation)
 
-3.   Production Cost (per month and per year)
+3.  Production Cost (per month and per year)
 
-4.   Energetic Expenditure (Es)
+4.  Energetic Expenditure (Es)
 
     i.  Tidal Volume (Vt)
 
-    ii. Energetic Expenditure (Es) - Phase 1, Phase 2, Preg, Lact, All adults (incl. preg and lact)
+    ii. Energetic expenditure (Es) - Phase 1, Phase 2, Preg, Lact, All adults
 
 5.  Gross Energetic Requirements (GER)
 
