@@ -1,7 +1,7 @@
 Energy Expenditure (Es) Sensitivity Analysis - Phase 2
 ================
 Selina Agbayani
-02 March 2022 - code updated 31 July, 2025
+02 March 2022 - code updated 11 August, 2025
 
 ``` r
 # Set path for output figures: 
@@ -216,7 +216,7 @@ age_yr_tibble <- as_tibble(
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-## Total metabolic energy expenditure at a given stage (E<sub>s</sub>)
+#### Total metabolic energy expenditure at a given stage (E<sub>s</sub>)
 
 E<sub>s</sub> = 0.02 x %O<sub>2</sub> x T<sub>s</sub> x R<sub>s</sub> x
 V<sub>t</sub> - Sumich (1986)
@@ -283,8 +283,6 @@ A_cost_phase2 <-  A_cost_reference_phase2 %>%
   filter(age_yrs == 0) %>% 
   select(Lifestage, no_days, bpm, se_bpm) 
 
-#A_cost_tibble <- A_cost_reference_phase2 
-# Lifestage <- "Juvenile/Adult"
 no_days <- sum(A_cost_reference_phase2$no_days)
 Lifestage
 ```
@@ -310,7 +308,7 @@ row <- tibble(Lifestage = Lifestage,
 
 A_cost_phase2 <- rbind(A_cost_phase2, row)
 
-kable(A_cost_phase2)
+kable(head(A_cost_phase2))
 ```
 
 | Lifestage      | no_days |       bpm |    se_bpm |
@@ -356,8 +354,6 @@ Es_sensAnalysis_phase2 <-
             )
   )
 
-#Es_table_phase2 <- Es_table_phase1
-
 
 
 for (age in seq(from = 1, to = 31, by = 1)){
@@ -372,9 +368,7 @@ for (age in seq(from = 1, to = 31, by = 1)){
       Vt_age <- age -0.5
     }
     
-    
-    
-    # for (a in c("calving grounds", "northbound", "foraging", "southbound")){
+
     for (activity in activity_stages){
       
       Lifestage
@@ -382,11 +376,9 @@ for (age in seq(from = 1, to = 31, by = 1)){
       
       strcolname <- as.character(age)
       
-      A_cost_i <- A_cost_reference %>% dplyr::filter(
-        Activity_stages == activity & 
-          Lifestage == "Juvenile/Adult" 
-        & age_yrs_min <= age
-        & age_yrs_max >= age)
+      A_cost_i <- A_cost_reference %>% 
+        filter(Activity_stages == activity & Lifestage == "Juvenile/Adult" 
+               & age_yrs_min <= age & age_yrs_max >= age)
       
       A_cost_i
       
@@ -394,13 +386,11 @@ for (age in seq(from = 1, to = 31, by = 1)){
         
         if (age == 1){
           Vt_table_i <- 
-            dplyr::filter(Vt_table_phase1, 
-                          round(age_yrs, 3) == round(Vt_age,3))
+            filter(Vt_table_phase1, round(age_yrs, 3) == round(Vt_age,3))
           
         } else { 
           Vt_table_i <- 
-            dplyr::filter(Vt_table_phase2, 
-                          round(age_yrs, 3) == round(Vt_age,3))
+            filter(Vt_table_phase2, round(age_yrs, 3) == round(Vt_age,3))
         }
         
         
@@ -456,19 +446,6 @@ for (age in seq(from = 1, to = 31, by = 1)){
         
         mean_bpm_reps <- bpm_tibble$mean_bpm
         
-        # breath_hold_time <- 1/mean_bpm_reps
-        # #plot(breath_hold_time)
-        # mean(breath_hold_time)
-        # sd(breath_hold_time)
-        
-        # #breaths per day
-        # bpd <- 1440/breath_hold_time
-        # mean(bpd)
-        # sd(bpd)
-        # #plot(bpd)
-        
-        #other option - truncated normal distribution
-        #bpm <- rtruncnorm(MC_reps, a=0, b=Inf, mean=bpm_i, sd=bpm_sd_i)
         
         # breaths/day
         bpd <- mean_bpm_reps * 60 * 24
@@ -514,7 +491,6 @@ for (age in seq(from = 1, to = 31, by = 1)){
         Es_quant975 <- quantile(Es, 0.975, na.rm = TRUE)
         
         
-        # "age_yrs", "Es", "Es_sd", "quant025", "quant975" 
         row <- tibble(age_yrs = age,
                       Lifestage = Lifestage,
                       Activity_stages = activity,
@@ -550,12 +526,12 @@ kable(head(Es_sensAnalysis_phase2))
 
 | age_yrs | Lifestage | Activity_stages | no_days | MC_variable | mean_bpm | se_bpm | mean_bpd | Vt_mean | Vt_sd | Es_perday | Es_perday_sd | Es_perday_quant025 | Es_perday_quant975 | Es | Es_sd | Es_quant025 | Es_quant975 |
 |---:|:---|:---|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1 | Juvenile/Adult | calving grounds | 30 | all | 0.6199982 | 0.0020046 | 892.7974 | 81.88934 | 1.886741 | 161.7251 | 43.177351 | 78.47340 | 248.6643 | 4851.752 | 1295.32053 | 2354.202 | 7459.929 |
-| 1 | Juvenile/Adult | foraging | 154 | all | 1.0399957 | 0.0020043 | 1497.5938 | 81.88934 | 1.886741 | 271.2807 | 72.422650 | 131.69453 | 417.2440 | 41777.231 | 11153.08805 | 20280.958 | 64255.577 |
-| 1 | Juvenile/Adult | northbound | 90 | all | 0.4999990 | 0.0003006 | 719.9985 | 81.88934 | 1.886741 | 130.4238 | 34.817413 | 63.34172 | 200.8787 | 11738.143 | 3133.56714 | 5700.755 | 18079.086 |
-| 1 | Juvenile/Adult | southbound | 91 | all | 0.7199973 | 0.0020045 | 1036.7962 | 81.88934 | 1.886741 | 187.8097 | 50.140401 | 91.14463 | 288.7719 | 17090.681 | 4562.77653 | 8294.161 | 26278.241 |
-| 1 | Juvenile/Adult | calving grounds | 30 | Rs | 0.6199981 | 0.0020046 | 892.7972 | 81.89064 | 0.000000 | 160.8458 | 0.520041 | 159.81143 | 161.8818 | 4825.375 | 15.60123 | 4794.343 | 4856.454 |
-| 1 | Juvenile/Adult | foraging | 154 | Rs | 1.0399956 | 0.0020043 | 1497.5937 | 81.89064 | 0.000000 | 269.8056 | 0.519971 | 268.77421 | 270.8406 | 41550.060 | 80.07554 | 41391.228 | 41709.452 |
+| 1 | Juvenile/Adult | calving grounds | 30 | all | 0.6199982 | 0.0020046 | 892.7974 | 81.86210 | 1.867203 | 161.6622 | 43.1257390 | 78.48506 | 248.4762 | 4849.865 | 1293.77217 | 2354.552 | 7454.285 |
+| 1 | Juvenile/Adult | foraging | 154 | all | 1.0399957 | 0.0020043 | 1497.5938 | 81.86210 | 1.867203 | 271.1752 | 72.3360749 | 131.71411 | 416.9242 | 41760.981 | 11139.75553 | 20283.972 | 64206.332 |
+| 1 | Juvenile/Adult | northbound | 90 | all | 0.4999990 | 0.0003006 | 719.9985 | 81.86210 | 1.867203 | 130.3731 | 34.7757909 | 63.35113 | 200.7246 | 11733.578 | 3129.82118 | 5701.602 | 18065.210 |
+| 1 | Juvenile/Adult | southbound | 91 | all | 0.7199973 | 0.0020045 | 1036.7962 | 81.86210 | 1.867203 | 187.7366 | 50.0804648 | 91.15817 | 288.5512 | 17084.033 | 4557.32230 | 8295.393 | 26258.155 |
+| 1 | Juvenile/Adult | calving grounds | 30 | Rs | 0.6199981 | 0.0020046 | 892.7972 | 81.86339 | 0.000000 | 160.7923 | 0.5198679 | 159.75825 | 161.8279 | 4823.769 | 15.59604 | 4792.748 | 4854.838 |
+| 1 | Juvenile/Adult | foraging | 154 | Rs | 1.0399956 | 0.0020043 | 1497.5937 | 81.86339 | 0.000000 | 269.7158 | 0.5197980 | 268.68477 | 270.7505 | 41536.234 | 80.04890 | 41377.455 | 41695.573 |
 
 ``` r
 Es_sensAnalysis_phase2 %>% 
@@ -563,9 +539,7 @@ Es_sensAnalysis_phase2 %>%
             na = "", append = FALSE)
 ```
 
-``` r
-Es_sensAnalysis_phase2 <- read_csv("data/Es_sensAnalysis_phase2_source_bpm.csv")
-```
+#### Es - sensitivity analyses by activity stages
 
     ## Rows: 496 Columns: 18
     ## ── Column specification ────────────────────────────────────────────────────────
@@ -576,69 +550,36 @@ Es_sensAnalysis_phase2 <- read_csv("data/Es_sensAnalysis_phase2_source_bpm.csv")
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
-plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>% 
-  ggplot(aes(x = age_yrs, y = Es_perday))+
-  # geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-  #               colour = "gray45", width = 0.02)+
-  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                fill = "gray70")+
-  geom_line(linewidth = 0.5)+
-  facet_grid(MC_variable ~ Activity_stages,
-             labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
-  ggtitle("Phase 2 - Juveniles/Adults")+
-  xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
-                     limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0) +  # max x-axis 30 yrs.
-  scale_y_continuous(label=comma,
-                      breaks = scales::pretty_breaks(n = 4),
-                      limits =  c(0, 2000))+
-
-  theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(legend.position.inside = 0)+
-  theme(panel.border = element_blank())+
-  theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
-  theme(axis.text = element_text(colour = "black", size = rel(1)))+
-  theme(axis.title.y = element_text(colour = "black", 
-                                    size = rel(1), angle = 90))+
-  theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1)))
-
-
-plot_Es_sensAnalysis_phase2
-```
-
 ![](Es_sensanalysis_source_phase2_files/figure-gfm/plots_Es_phase2_stacked-1.png)<!-- -->
+
+#### Es - sensitivity analyses
 
 ``` r
 #pull out blank Es_subtable
-Es_subtable <- Es_sensAnalysis_phase2 %>% dplyr::filter(age_yrs >999, Lifestage == Lifestage)
-kable(Es_subtable)
+Es_subtable <- Es_sensAnalysis_phase2 %>% filter(age_yrs >999, Lifestage == Lifestage)
+kable(head(Es_subtable))
 ```
 
 | age_yrs | Lifestage | Activity_stages | no_days | MC_variable | mean_bpm | se_bpm | mean_bpd | Vt_mean | Vt_sd | Es_perday | Es_perday_sd | Es_perday_quant025 | Es_perday_quant975 | Es | Es_sd | Es_quant025 | Es_quant975 |
 |---:|:---|:---|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 
 ``` r
-Es_table_2  <- Es_subtable %>%  dplyr::select(age_yrs, Lifestage, no_days, 
-                                              MC_variable, Es, Es_sd)
+Es_table_2  <- Es_subtable %>%  select(age_yrs, Lifestage, 
+                                       no_days, MC_variable, Es, Es_sd)
 
 ## Calculate sum of Es for ages 1+
 for (i in seq(from = 1, to = 31, by = 1)){
   
   for (MC_var in c("all","Rs", "Vt", "pctO2")){
     
-    Es_subtable <- Es_sensAnalysis_phase2 %>% dplyr::filter(age_yrs == i & MC_variable == MC_var )
+    Es_subtable <- Es_sensAnalysis_phase2 %>% 
+      filter(age_yrs == i & MC_variable == MC_var )
     no_days <- sum(Es_subtable$no_days)
     Es <- sum(Es_subtable$Es)
     Lifestage <- "Juvenile/Adult"
     
     sum_of_variances <- 0
     for (row in 1:nrow(Es_subtable)){
-      #for (i in c( 0.33, 0.42, 0.5)){ 
       Es_subtable_i <- Es_subtable[row, "Es"]
       Es_sd_i <- Es_subtable[row, "Es_sd"]
       sum_of_variances <- sum_of_variances + (Es_sd_i)^2
@@ -662,42 +603,10 @@ Es_sensAnalysis_phase2_peryear <- Es_table_2
 
 Es_sensAnalysis_phase2_peryear$Es_perday <-
   Es_sensAnalysis_phase2_peryear$Es / Es_sensAnalysis_phase2_peryear$no_days
-Es_sensAnalysis_phase2_peryear$Es_sd_perday <- Es_sensAnalysis_phase2_peryear$Es_sd / Es_sensAnalysis_phase2_peryear$no_days
+Es_sensAnalysis_phase2_peryear$Es_sd_perday <- 
+  Es_sensAnalysis_phase2_peryear$Es_sd / Es_sensAnalysis_phase2_peryear$no_days
 
 Es_sensAnalysis_phase2_peryear %>% write_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv", na = "", append = FALSE)
-```
-
-``` r
-plot_Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>% 
-  dplyr::filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, 
-                    ymax = Es_perday + Es_sd_perday),
-                linetype = 3, colour = 'gray40', width = 0) +
-  geom_point(aes(x = age_yrs, y =Es_perday)) +
-  facet_grid(~MC_variable)+
-  xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
-  scale_y_continuous(label=comma,
-                     breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0,1400), expand=c(0,0))+
-  theme_bw()+
-theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(legend.position = 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
-  theme(panel.border = element_blank())+
-  theme(axis.line = element_line(size = 1, colour = "gray75"))+
-  theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
-  theme(axis.title.y = element_text(colour = "black", 
-                                    size = rel(1.4), angle = 90))+
-  theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1.4)))
-
-plot_Es_sensAnalysis_phase2_peryear
 ```
 
 ![](Es_sensanalysis_source_phase2_files/figure-gfm/plots_Es_phase2_peryear-1.png)<!-- -->

@@ -76,9 +76,6 @@ Figurespath
 datapath <- paste0(getwd(), "/data", collapse = NULL) 
 datapath
 
-
-
-
 ```
 
 ```{r readindata}
@@ -135,8 +132,7 @@ age_yr_tibble <- as_tibble(
 
 ```
 
-Total metabolic energy expenditure at a given stage (E~s~) 
-------------------------------------------------------------------------
+### Total metabolic energy expenditure at a given stage (E~s~) 
 
 E~s~ = 0.02 x %O~2~ x T~s~ x R~s~ x V~t~ - Sumich (1986)
 
@@ -248,9 +244,6 @@ for (a in seq(from = 1, to = 12, by = 1)){
           & round(age_yrs, 3) == round(age_yrs_i,3))
         
         A_cost_i
-        
-        # Lifestage <- A_cost_i$Lifestage
-        # A_stage <- a
         
         set.seed(12345)
         
@@ -483,10 +476,10 @@ Es_sensAnalysis_phase1_permth %>% write_csv("data/Es_sensAnalysis_phase1_permth_
 
 ```
 
-E~s~ per month - Phase 1 - stacked plot from sensitivity analysis
+#### E~s~ per month - Phase 1 - stacked plot from sensitivity analysis
 
 
-```{r plots_Es_phase1_stacked}
+```{r plots_Es_phase1_stacked, echo=FALSE}
 Es_sensAnalysis_phase1 <- read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv")
 
 plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>% 
@@ -504,7 +497,7 @@ plot_Es_sensAnalysis_phase1
 ```
 
 
-E~s~ per month - Phase 1 - plot from sensitivity analysis
+#### E~s~ per month - Phase 1 - plot from sensitivity analysis
 
 ```{r plots_Es_phase1_permth, echo=FALSE}
 Es_sensAnalysis_phase1_permth$MC_var_factor <- 
@@ -548,7 +541,7 @@ plot_Es_sensAnalysis_phase1_permth
 
 ```
 
-E~s~ per day at each age (month) - Phase 1 - plot from sensitivity analysis
+#### E~s~ per day at each age (month) - Phase 1 - plot from sensitivity analysis
 
 ```{r plots_Es_phase1_mthly_perday, echo=FALSE}
 

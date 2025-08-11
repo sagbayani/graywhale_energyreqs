@@ -1,7 +1,7 @@
 Energy Expenditure (Es) Sensitivity Analysis - Phase 1
 ================
 Selina Agbayani
-02 March 2022 - code updated on 27 July, 2025
+02 March 2022 - code updated on 10 August, 2025
 
 NOTE - this code will run for a long time.
 
@@ -112,7 +112,7 @@ age_yr_tibble <- as_tibble(
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-## Total metabolic energy expenditure at a given stage (E<sub>s</sub>)
+### Total metabolic energy expenditure at a given stage (E<sub>s</sub>)
 
 E<sub>s</sub> = 0.02 x %O<sub>2</sub> x T<sub>s</sub> x R<sub>s</sub> x
 V<sub>t</sub> - Sumich (1986)
@@ -242,9 +242,6 @@ for (a in seq(from = 1, to = 12, by = 1)){
           & round(age_yrs, 3) == round(age_yrs_i,3))
         
         A_cost_i
-        
-        # Lifestage <- A_cost_i$Lifestage
-        # A_stage <- a
         
         set.seed(12345)
         
@@ -407,12 +404,12 @@ kable(head(Es_sensAnalysis_phase1))
 
 | age_yrs | Lifestage | Activity_stages | no_days | MC_variable | mean_bpm | se_bpm | mean_bpd | Vt_mean | Vt_sd | Es_perday | Es_perday_sd | Es_perday_quant025 | Es_perday_quant975 | Es | Es_sd | Es_quant025 | Es_quant975 |
 |---:|:---|:---|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0.0849315 | Calf | calving grounds | 31 | all | 2.139991 | 0.0050110 | 3081.587 | 22.95101 | 0.5847316 | 148.4422 | 42.1294030 | 68.16864 | 231.5142 | 4601.708 | 1306.01149 | 2113.228 | 7176.939 |
-| 0.0849315 | Calf | calving grounds | 31 | Rs | 2.139991 | 0.0050110 | 3081.587 | 22.95142 | 0.0000000 | 148.5262 | 0.3477870 | 147.83541 | 149.2173 | 4604.314 | 10.78140 | 4582.898 | 4625.736 |
-| 0.0849315 | Calf | calving grounds | 31 | Vt | 2.139991 | 0.0050110 | 3081.587 | 22.95101 | 0.5847316 | 148.5236 | 3.7998712 | 140.99256 | 155.9472 | 4604.233 | 117.79601 | 4370.769 | 4834.363 |
-| 0.0849315 | Calf | calving grounds | 31 | pctO2 | 2.139991 | 0.0050110 | 3081.587 | 22.95142 | 0.0000000 | 148.4969 | 42.4312801 | 64.06514 | 231.6992 | 4603.405 | 1315.36968 | 1986.019 | 7182.676 |
-| 0.1616438 | Calf | calving grounds | 28 | all | 1.559994 | 0.0040089 | 2246.391 | 32.98501 | 0.8901977 | 155.5199 | 44.1658368 | 71.16298 | 242.7532 | 4354.556 | 1236.64343 | 1992.563 | 6797.090 |
-| 0.1616438 | Calf | calving grounds | 28 | Rs | 1.559994 | 0.0040089 | 2246.391 | 32.98563 | 0.0000000 | 155.6071 | 0.3998796 | 154.81333 | 156.4012 | 4356.999 | 11.19663 | 4334.773 | 4379.234 |
+| 0.0849315 | Calf | calving grounds | 31 | all | 2.139991 | 0.0050110 | 3081.587 | 22.93833 | 0.5753449 | 148.3600 | 42.0993544 | 68.14553 | 231.3579 | 4599.159 | 1305.07999 | 2112.511 | 7172.095 |
+| 0.0849315 | Calf | calving grounds | 31 | Rs | 2.139991 | 0.0050110 | 3081.587 | 22.93873 | 0.0000000 | 148.4442 | 0.3475948 | 147.75371 | 149.1348 | 4601.769 | 10.77544 | 4580.365 | 4623.180 |
+| 0.0849315 | Calf | calving grounds | 31 | Vt | 2.139991 | 0.0050110 | 3081.587 | 22.93833 | 0.5753449 | 148.4416 | 3.7393673 | 141.03293 | 155.7557 | 4601.689 | 115.92039 | 4372.021 | 4828.426 |
+| 0.0849315 | Calf | calving grounds | 31 | pctO2 | 2.139991 | 0.0050110 | 3081.587 | 22.93873 | 0.0000000 | 148.4149 | 42.4078314 | 64.02973 | 231.5712 | 4600.861 | 1314.64277 | 1984.922 | 7178.707 |
+| 0.1616438 | Calf | calving grounds | 28 | all | 1.559994 | 0.0040089 | 2246.391 | 32.97086 | 0.8899073 | 155.4531 | 44.1469354 | 71.13242 | 242.6481 | 4352.688 | 1236.11419 | 1991.708 | 6794.146 |
+| 0.1616438 | Calf | calving grounds | 28 | Rs | 1.559994 | 0.0040089 | 2246.391 | 32.97147 | 0.0000000 | 155.5403 | 0.3997079 | 154.74689 | 156.3341 | 4355.129 | 11.19182 | 4332.913 | 4377.354 |
 
 ``` r
 #save Es_sensAnalysis_phase1 table
@@ -487,23 +484,18 @@ kable(head(Es_sensAnalysis_phase1_permth))
 
 | age_yrs | age_mth | Lifestage | no_days | MC_variable | Es | Es_sd | Es_perday | Es_perday_sd |
 |---:|---:|:---|---:|:---|---:|---:|---:|---:|
-| 0.0849315 | 1 | Calf | 31 | all | 4601.708 | 1306.01149 | 148.4422 | 42.1294030 |
-| 0.0849315 | 1 | Calf | 31 | Rs | 4604.314 | 10.78140 | 148.5262 | 0.3477870 |
-| 0.0849315 | 1 | Calf | 31 | Vt | 4604.233 | 117.79601 | 148.5236 | 3.7998712 |
-| 0.0849315 | 1 | Calf | 31 | pctO2 | 4603.405 | 1315.36968 | 148.4969 | 42.4312801 |
-| 0.1616438 | 2 | Calf | 28 | all | 4354.556 | 1236.64343 | 155.5199 | 44.1658368 |
-| 0.1616438 | 2 | Calf | 28 | Rs | 4356.999 | 11.19663 | 155.6071 | 0.3998796 |
+| 0.0849315 | 1 | Calf | 31 | all | 4599.159 | 1305.07999 | 148.3600 | 42.0993544 |
+| 0.0849315 | 1 | Calf | 31 | Rs | 4601.769 | 10.77544 | 148.4442 | 0.3475948 |
+| 0.0849315 | 1 | Calf | 31 | Vt | 4601.689 | 115.92039 | 148.4416 | 3.7393673 |
+| 0.0849315 | 1 | Calf | 31 | pctO2 | 4600.861 | 1314.64277 | 148.4149 | 42.4078314 |
+| 0.1616438 | 2 | Calf | 28 | all | 4352.688 | 1236.11419 | 155.4531 | 44.1469354 |
+| 0.1616438 | 2 | Calf | 28 | Rs | 4355.129 | 11.19182 | 155.5403 | 0.3997079 |
 
 ``` r
 Es_sensAnalysis_phase1_permth %>% write_csv("data/Es_sensAnalysis_phase1_permth_source_bpm.csv", na = "", append = FALSE)
 ```
 
-E<sub>s</sub> per month - Phase 1 - stacked plot from sensitivity
-analysis
-
-``` r
-Es_sensAnalysis_phase1 <- read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv")
-```
+#### E<sub>s</sub> per month - Phase 1 - stacked plot from sensitivity analysis
 
     ## Rows: 60 Columns: 18
     ## ── Column specification ────────────────────────────────────────────────────────
@@ -514,26 +506,12 @@ Es_sensAnalysis_phase1 <- read_csv("data/Es_sensAnalysis_phase1_source_bpm.csv")
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-``` r
-plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>% 
-  ggplot(aes(x = age_yrs, y = Es))+
-  geom_errorbar(aes(ymin = Es - Es_sd, ymax = Es + Es_sd),
-                colour = "blue", width = 0.02)+
-  geom_point()+
-  facet_grid(MC_variable ~ Activity_stages,
-             labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
-  ggtitle("Es table - phase 1")
-
-plot_Es_sensAnalysis_phase1
-```
-
 ![](Es_sensanalysis_source_phase1_files/figure-gfm/plots_Es_phase1_stacked-1.png)<!-- -->
 
-E<sub>s</sub> per month - Phase 1 - plot from sensitivity analysis
+#### E<sub>s</sub> per month - Phase 1 - plot from sensitivity analysis
 
 ![](Es_sensanalysis_source_phase1_files/figure-gfm/plots_Es_phase1_permth-1.png)<!-- -->
 
-E<sub>s</sub> per day at each age (month) - Phase 1 - plot from
-sensitivity analysis
+#### E<sub>s</sub> per day at each age (month) - Phase 1 - plot from sensitivity analysis
 
 ![](Es_sensanalysis_source_phase1_files/figure-gfm/plots_Es_phase1_mthly_perday-1.png)<!-- -->

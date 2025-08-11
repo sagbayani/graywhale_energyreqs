@@ -72,8 +72,6 @@ datapath <- paste0(getwd(), "/data", collapse = NULL)
 datapath
 
 
-
-
 ```
 
 ```{r read_in_data}
@@ -196,8 +194,7 @@ age_yr_tibble <- as_tibble(
 
 ```
 
-Total metabolic energy expenditure at a given stage (E~s~) 
-------------------------------------------------------------------------
+#### Total metabolic energy expenditure at a given stage (E~s~) 
 
 E~s~ = 0.02 x %O~2~ x T~s~ x R~s~ x V~t~ - Sumich (1986)
 
@@ -232,8 +229,6 @@ A_cost_phase2 <-  A_cost_reference_phase2 %>%
   filter(age_yrs == 0) %>% 
   select(Lifestage, no_days, bpm, se_bpm) 
 
-#A_cost_tibble <- A_cost_reference_phase2 
-# Lifestage <- "Juvenile/Adult"
 no_days <- sum(A_cost_reference_phase2$no_days)
 Lifestage
 no_days
@@ -249,7 +244,7 @@ row <- tibble(Lifestage = Lifestage,
 
 A_cost_phase2 <- rbind(A_cost_phase2, row)
 
-kable(A_cost_phase2)
+kable(head(A_cost_phase2))
 
 #adult/juveniles
 Es_sensAnalysis_phase2 <- as.data.frame(matrix(ncol = 18, nrow = 0))
@@ -289,8 +284,6 @@ Es_sensAnalysis_phase2 <-
             )
   )
 
-#Es_table_phase2 <- Es_table_phase1
-
 
 
 for (age in seq(from = 1, to = 31, by = 1)){
@@ -305,9 +298,7 @@ for (age in seq(from = 1, to = 31, by = 1)){
       Vt_age <- age -0.5
     }
     
-    
-    
-    # for (a in c("calving grounds", "northbound", "foraging", "southbound")){
+
     for (activity in activity_stages){
       
       Lifestage
@@ -315,11 +306,9 @@ for (age in seq(from = 1, to = 31, by = 1)){
       
       strcolname <- as.character(age)
       
-      A_cost_i <- A_cost_reference %>% dplyr::filter(
-        Activity_stages == activity & 
-          Lifestage == "Juvenile/Adult" 
-        & age_yrs_min <= age
-        & age_yrs_max >= age)
+      A_cost_i <- A_cost_reference %>% 
+        filter(Activity_stages == activity & Lifestage == "Juvenile/Adult" 
+               & age_yrs_min <= age & age_yrs_max >= age)
       
       A_cost_i
       
@@ -327,13 +316,11 @@ for (age in seq(from = 1, to = 31, by = 1)){
         
         if (age == 1){
           Vt_table_i <- 
-            dplyr::filter(Vt_table_phase1, 
-                          round(age_yrs, 3) == round(Vt_age,3))
+            filter(Vt_table_phase1, round(age_yrs, 3) == round(Vt_age,3))
           
         } else { 
           Vt_table_i <- 
-            dplyr::filter(Vt_table_phase2, 
-                          round(age_yrs, 3) == round(Vt_age,3))
+            filter(Vt_table_phase2, round(age_yrs, 3) == round(Vt_age,3))
         }
         
         
@@ -389,19 +376,6 @@ for (age in seq(from = 1, to = 31, by = 1)){
         
         mean_bpm_reps <- bpm_tibble$mean_bpm
         
-        # breath_hold_time <- 1/mean_bpm_reps
-        # #plot(breath_hold_time)
-        # mean(breath_hold_time)
-        # sd(breath_hold_time)
-        
-        # #breaths per day
-        # bpd <- 1440/breath_hold_time
-        # mean(bpd)
-        # sd(bpd)
-        # #plot(bpd)
-        
-        #other option - truncated normal distribution
-        #bpm <- rtruncnorm(MC_reps, a=0, b=Inf, mean=bpm_i, sd=bpm_sd_i)
         
         # breaths/day
         bpd <- mean_bpm_reps * 60 * 24
@@ -447,7 +421,6 @@ for (age in seq(from = 1, to = 31, by = 1)){
         Es_quant975 <- quantile(Es, 0.975, na.rm = TRUE)
         
         
-        # "age_yrs", "Es", "Es_sd", "quant025", "quant975" 
         row <- tibble(age_yrs = age,
                       Lifestage = Lifestage,
                       Activity_stages = activity,
@@ -487,7 +460,9 @@ Es_sensAnalysis_phase2 %>%
 
 ```
 
-```{r plots_Es_phase2_stacked}
+#### Es - sensitivity analyses by activity stages
+
+```{r plots_Es_phase2_stacked, echo=FALSE}
 Es_sensAnalysis_phase2 <- read_csv("data/Es_sensAnalysis_phase2_source_bpm.csv")
 
 plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>% 
@@ -526,29 +501,31 @@ plot_Es_sensAnalysis_phase2
 
 ```
 
+#### Es - sensitivity analyses 
+
 ```{r Es_phase2_peryear}
 
 #pull out blank Es_subtable
-Es_subtable <- Es_sensAnalysis_phase2 %>% dplyr::filter(age_yrs >999, Lifestage == Lifestage)
-kable(Es_subtable)
+Es_subtable <- Es_sensAnalysis_phase2 %>% filter(age_yrs >999, Lifestage == Lifestage)
+kable(head(Es_subtable))
 
 
-Es_table_2  <- Es_subtable %>%  dplyr::select(age_yrs, Lifestage, no_days, 
-                                              MC_variable, Es, Es_sd)
+Es_table_2  <- Es_subtable %>%  select(age_yrs, Lifestage, 
+                                       no_days, MC_variable, Es, Es_sd)
 
 ## Calculate sum of Es for ages 1+
 for (i in seq(from = 1, to = 31, by = 1)){
   
   for (MC_var in c("all","Rs", "Vt", "pctO2")){
     
-    Es_subtable <- Es_sensAnalysis_phase2 %>% dplyr::filter(age_yrs == i & MC_variable == MC_var )
+    Es_subtable <- Es_sensAnalysis_phase2 %>% 
+      filter(age_yrs == i & MC_variable == MC_var )
     no_days <- sum(Es_subtable$no_days)
     Es <- sum(Es_subtable$Es)
     Lifestage <- "Juvenile/Adult"
     
     sum_of_variances <- 0
     for (row in 1:nrow(Es_subtable)){
-      #for (i in c( 0.33, 0.42, 0.5)){ 
       Es_subtable_i <- Es_subtable[row, "Es"]
       Es_sd_i <- Es_subtable[row, "Es_sd"]
       sum_of_variances <- sum_of_variances + (Es_sd_i)^2
@@ -572,13 +549,16 @@ Es_sensAnalysis_phase2_peryear <- Es_table_2
 
 Es_sensAnalysis_phase2_peryear$Es_perday <-
   Es_sensAnalysis_phase2_peryear$Es / Es_sensAnalysis_phase2_peryear$no_days
-Es_sensAnalysis_phase2_peryear$Es_sd_perday <- Es_sensAnalysis_phase2_peryear$Es_sd / Es_sensAnalysis_phase2_peryear$no_days
+Es_sensAnalysis_phase2_peryear$Es_sd_perday <- 
+  Es_sensAnalysis_phase2_peryear$Es_sd / Es_sensAnalysis_phase2_peryear$no_days
 
 Es_sensAnalysis_phase2_peryear %>% write_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv", na = "", append = FALSE)
 
 ```
 
-```{r plots_Es_phase2_peryear}
+
+
+```{r plots_Es_phase2_peryear, echo=FALSE}
 
 plot_Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>% 
   dplyr::filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30) %>% 
@@ -591,16 +571,11 @@ plot_Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>%
   xlab("Age (years)") +
   ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
-  scale_y_continuous(label=comma,
+                     scale_y_continuous(label=comma,
                      breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0,1400), expand=c(0,0))+
   theme_bw()+
-theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position = 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
   theme(panel.border = element_blank())+
   theme(axis.line = element_line(size = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
