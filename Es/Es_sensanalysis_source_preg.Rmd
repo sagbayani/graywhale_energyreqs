@@ -75,9 +75,6 @@ Figurespath
 datapath <- paste0(getwd(), "/data", collapse = NULL) 
 datapath
 
-
-
-
 ```
 
 ```{r read_in_data}
@@ -214,8 +211,7 @@ age_yr_tibble <- as_tibble(
 
 ```
 
-Total metabolic energy expenditure at a given stage (E~s~) 
-------------------------------------------------------------------------
+#### Total metabolic energy expenditure at a given stage (E~s~) 
 
 E~s~ = 0.02 x %O~2~ x T~s~ x R~s~ x V~t~ - Sumich (1986)
 
@@ -424,34 +420,27 @@ Es_sensAnalysis_preg_females  %>% write_csv("data/Es_sensAnalysis_preg_source_bp
 
 ```
 
-```{r plots_Es_preg_stacked}
+```{r plots_Es_preg_stacked, echo=FALSE}
 Es_sensAnalysis_preg_females <- read_csv("data/Es_sensAnalysis_preg_source_bpm.csv")
 
 plot_Es_sensAnalysis_preg_females <- Es_sensAnalysis_preg_females %>% 
-  filter(age_yrs <=40) %>% 
+  filter(age_yrs <=30) %>% 
   ggplot(aes(x = age_yrs, y = Es_perday))+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 linetype= 1, colour = "gray40", width = 0.02)+
    geom_point(size=0.5)+
-  # geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-  #               fill = "gray70")+
-  # geom_line(linewidth = 0.5)+
    facet_grid(MC_variable ~ Activity_stages,
               labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
   xlab("Age (years)") +
   ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
                      limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
-   scale_y_continuous(label=comma,
+  scale_y_continuous(label=comma,
                       breaks = scales::pretty_breaks(n = 5),
                       limits =  c(0, 2500))+
- 
-  #ggtitle("Pregnant females")+
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position.inside = 0)+
-  #theme(panel.border = element_blank())+
   theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 
@@ -522,37 +511,28 @@ Es_preg_table %>%
 
 ```
 
-```{r plots_Es_preg_peryear}
+```{r plots_Es_preg_peryear, echo=FALSE}
 Es_preg_table <- read_csv("data/Es_sensAnalysis_preg_peryear_source_bpm.csv")
 
 plot_Es_preg_table <- Es_preg_table %>% 
   filter(age_yrs <= 30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) +
-  # geom_errorbar(aes(ymin = Es_perday - Es_sd_perday,
-  #                   ymax = Es_perday + Es_sd_perday),
-  #               linetype = 1, colour = 'gray40', width = 0) +
-  # geom_point() +
-  geom_ribbon(aes(ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
-                fill = "gray70")+
-  geom_line(linewidth = 0.5)+
+  geom_errorbar(aes(ymin = Es_perday - Es_sd_perday,
+                     ymax = Es_perday + Es_sd_perday),
+                 linetype = 1, colour = 'gray40', width = 0) +
+  geom_point() +
   facet_grid(.~MC_variable)+
   xlab("Age (years)") +
   ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
+                     limits = c(0, 30.5))+ # max x-axis 30 yrs add space for labels.
   scale_y_continuous(label=comma,
                      breaks = scales::pretty_breaks(n = 10),
                      limits =  c(0, 1700))+
-
-  #limits = c(0,1400), expand=c(0,0))+
-  ggtitle("Pregnant")+
+ggtitle("Pregnant")+
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position.inside= 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
-  #theme(panel.border = element_blank())+
   theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 

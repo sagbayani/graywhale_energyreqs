@@ -1,7 +1,7 @@
 Energy Expenditure (Es) Sensitivity Analysis - Pregnant
 ================
 Selina Agbayani
-10 March 2022 - code updated 31 July, 2025
+10 March 2022 - code updated 11 August, 2025
 
 ``` r
 # Set path for output figures: 
@@ -46,7 +46,18 @@ Es_sensAnalysis_phase1 <- as_tibble(
   )
   )
 )
+```
 
+    ## Rows: 60 Columns: 18
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr  (3): Lifestage, Activity_stages, MC_variable
+    ## dbl (15): age_yrs, no_days, mean_bpm, se_bpm, mean_bpd, Vt_mean, Vt_sd, Es_p...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 Es_sensAnalysis_phase2_peryear <- as_tibble(
   read_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv"), 
   col_types = (list(cols(
@@ -61,8 +72,18 @@ Es_sensAnalysis_phase2_peryear <- as_tibble(
   )
   )
 )
+```
 
+    ## Rows: 124 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): Lifestage, MC_variable
+    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_sd_perday
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+``` r
 Vt_table_phase1 <- as_tibble(
   read_csv("data/Vt_table_phase1.csv"),                                
   col_types = (list(cols(age_yrs = col_double(),
@@ -74,8 +95,17 @@ Vt_table_phase1 <- as_tibble(
   )
   )
 )
+```
 
+    ## Rows: 25 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (5): age_yrs, Vt_mean, Vt_sd, quant025, quant975
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
+``` r
 Vt_table_phase2 <- as_tibble(
   read_csv("data/Vt_table_phase2.csv"),                                
   col_types = (list(cols(age_yrs = col_double(),
@@ -87,10 +117,17 @@ Vt_table_phase2 <- as_tibble(
   )
   )
 )
+```
 
+    ## Rows: 173 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (5): age_yrs, Vt_mean, Vt_sd, quant025, quant975
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-
-
+``` r
 Vt_table_phase2_f <- as_tibble(
   read_csv("data/Vt_table_phase2_f.csv"),                                
   col_types = (list(cols(age_yrs = col_double(),
@@ -102,9 +139,17 @@ Vt_table_phase2_f <- as_tibble(
   )
   )
 )
+```
 
+    ## Rows: 172 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## dbl (5): age_yrs, Vt_mean_f, Vt_sd_f, quant025_f, quant975_f
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-
+``` r
 # Read in Activity Cost Reference data from csv  ORIGINAL SOURCE VALUES
 A_cost_reference <- as_tibble(
   read_csv("data/ActivityCost_ReferenceData_BreathsPerDay_Table_VA_2017_original_sources.csv"),
@@ -126,7 +171,18 @@ A_cost_reference <- as_tibble(
   )
   )
 )
+```
 
+    ## Rows: 60 Columns: 14
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (5): Lifestage, Description, Activity_stages, source_no_days, source_bpm
+    ## dbl (9): ID, no_days, bpm, se_bpm, age_yrs, age_yrs_min, age_yrs_max, pct_O2...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 kable(head(A_cost_reference))
 ```
 
@@ -175,7 +231,16 @@ age_yr_tibble <- as_tibble(
 )
 ```
 
-## Total metabolic energy expenditure at a given stage (E<sub>s</sub>)
+    ## Rows: 25 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (1): month
+    ## dbl (4): no_days_in_mth, age_mth, no_days_cumul, age_yrs
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+#### Total metabolic energy expenditure at a given stage (E<sub>s</sub>)
 
 E<sub>s</sub> = 0.02 x %O<sub>2</sub> x T<sub>s</sub> x R<sub>s</sub> x
 V<sub>t</sub> - Sumich (1986)
@@ -394,46 +459,14 @@ kable(head(Es_sensAnalysis_preg_females))
 Es_sensAnalysis_preg_females  %>% write_csv("data/Es_sensAnalysis_preg_source_bpm.csv", na = "", append = FALSE)
 ```
 
-``` r
-Es_sensAnalysis_preg_females <- read_csv("data/Es_sensAnalysis_preg_source_bpm.csv")
-
-plot_Es_sensAnalysis_preg_females <- Es_sensAnalysis_preg_females %>% 
-  filter(age_yrs <=40) %>% 
-  ggplot(aes(x = age_yrs, y = Es_perday))+
-  # geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-  #               colour = "gray80", width = 0.02)+
-  #  geom_point()+
-  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                fill = "gray70")+
-  geom_line(linewidth = 0.5)+
-   facet_grid(MC_variable ~ Activity_stages,
-              labeller = label_wrap_gen(width = 2, multi_line = TRUE)) +
-  xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
-                     limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
-   scale_y_continuous(label=comma,
-                      breaks = scales::pretty_breaks(n = 5),
-                      limits =  c(0, 2500))+
- 
-  ggtitle("Pregnant females")+
-  theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(legend.position.inside = 0)+
-  theme(panel.border = element_blank())+
-  theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
-  theme(axis.text = element_text(colour = "black", size = rel(1)))+
-  theme(axis.title.y = element_text(colour = "black", 
-                                    size = rel(1), angle = 90))+
-  theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1)))
-
-plot_Es_sensAnalysis_preg_females
-```
-
-    ## Warning: Removed 10 rows containing missing values or values outside the scale range
-    ## (`geom_line()`).
+    ## Rows: 1360 Columns: 15
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr  (3): Lifestage, Activity_stages, MC_variable
+    ## dbl (12): age_yrs, no_days, mean_bpm, se_bpm, Es_perday, Es_perday_sd, Es_pe...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ![](Es_sensanalysis_source_preg_files/figure-gfm/plots_Es_preg_stacked-1.png)<!-- -->
 
@@ -503,43 +536,13 @@ Es_preg_table %>%
             na = "", append = FALSE)
 ```
 
-``` r
-plot_Es_preg_table <- Es_preg_table %>% 
-  filter(age_yrs <= 30) %>% 
-  ggplot(aes(x = age_yrs, y =Es_perday)) +
-  # geom_errorbar(aes(ymin = Es_perday - Es_sd_perday, 
-  #                   ymax = Es_perday + Es_sd_perday),
-  #               linetype = 3, colour = 'gray40', width = 0) +
-  # geom_point() +
-  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                fill = "gray70")+
-  geom_line(linewidth = 0.5)+
-  facet_grid(~MC_variable)+
-  xlab("Age (years)") +
-  ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
-  scale_y_continuous(label=comma,
-                     breaks = scales::pretty_breaks(n = 10),
-                     limits =  c(0, 1500))+
-  
-  #limits = c(0,1400), expand=c(0,0))+
-  ggtitle("Pregnant")+
-  theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(legend.position.inside= 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
-  theme(panel.border = element_blank())+
-  theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
-  theme(axis.text = element_text(colour = "black", size = rel(1)))+
-  theme(axis.title.y = element_text(colour = "black", 
-                                    size = rel(1), angle = 90))+
-  theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1)))
-
-plot_Es_preg_table
-```
+    ## Rows: 272 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): Lifestage, MC_variable
+    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_sd_perday
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ![](Es_sensanalysis_source_preg_files/figure-gfm/plots_Es_preg_peryear-1.png)<!-- -->
