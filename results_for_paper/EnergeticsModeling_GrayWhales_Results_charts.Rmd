@@ -50,7 +50,7 @@ library(pandoc)
 
 #quiet messages
 options(readr.show_col_types = FALSE)
-# invisible(dev.off())
+
 
 ```
 
@@ -162,9 +162,8 @@ plot_P_cost_mass_perday <- P_cost_table %>%
              size = rel(4),
              color = "black")
   
-
-
 #plot_P_cost_mass_perday
+
 ```
 
 
@@ -193,20 +192,20 @@ plot_P_cost_mass_peryear <- P_cost_table_peryear %>% filter(sex == "N/A" & age_y
   xlab("Age (years)") +
   ylab(bquote('Production cost (MJ day'^'-1'*')'))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 9))+
-                     #limits = c(0, 50)) +  
+
   scale_y_continuous(labels= scales::comma,
                      sec.axis=sec_axis(~.*100, name = "Mass (kg)",
                                        labels = scales::comma), 
                      breaks = scales::pretty_breaks(n = 8) 
                      )+
-                       #limits = c(0, 50)) +
+
           
   theme_bw() + 
   theme(panel.grid = element_blank())+
   theme(legend.position = "none")+
     theme(legend.background = element_rect(fill = "white"))+
     theme(legend.text = element_text(colour = "black", size = rel(1)))+
-    theme(legend.key = element_rect(fill = "transparent"))+ #colour = "transparent"))+
+    theme(legend.key = element_rect(fill = "transparent"))+ 
     ggtitle(element_blank()) +
     theme(plot.background = element_rect(fill = "white"))+
     theme(panel.background = element_rect(fill = "white"))+
@@ -286,15 +285,12 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
   geom_point(aes(x = age_mth-0.5, y =Es_perday), size = 0.5) +
   xlab("Age (months)") +
   ylab(bquote('Es (MJ day'^'-1'*')')) +
-  #ylab(bquote('GER (MJ day '^'-1'*')'))
-  
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+ 
-  #limits = c(0, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(label = comma, 
                      breaks = scales::pretty_breaks(n = 10),
                      limits = c(0,550))+
   theme_bw()+
-    labs(tag = "A")+
+  labs(tag = "A")+
   theme(plot.tag = element_text(size = rel(1.5), 
                                 colour = "black"))+
   theme(panel.grid = element_blank())+
@@ -307,7 +303,6 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
   theme(strip.background =element_rect(fill="transparent", 
                                        colour = "transparent"))+
   theme(strip.text = element_text(size = rel(1)))
-#ggtitle("Es table Phase 1 - per mth")
 
 #plot_Es_table_phase1_mthly_perday
 
@@ -325,7 +320,6 @@ Es_table_alladults_preg_lact_peryear$Lifestage_f = factor(Es_table_alladults_pre
 
 
 # plots  
-
 plot_Es_table_alladults_preg_lact_yearly_perday <- 
   Es_table_alladults_preg_lact_peryear %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
@@ -333,24 +327,18 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
   geom_errorbar(aes(x = age_yrs, 
                     ymin = Es_perday - Es_sd_perday, 
                     ymax = Es_perday + Es_sd_perday),
-                linewidth = 0.5, colour = 'gray40', width = 0, linetype = 1) +
-  # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
-  #                 fill = 'gray40', alpha = 0.3) +
+                linewidth = 0.5, colour = 'gray40', 
+                width = 0, linetype = 1) +
   geom_point(size =0.5)+
-  #geom_line()   +
   xlab("Age (years)") +
   ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
-                     limits = c(0, 32)) +  # max x-axis 30 yrs. 
+                     limits = c(0, 32)) + # max 30 yrs, add space for labels. 
   scale_y_continuous(label = comma, 
                      breaks = scales::pretty_breaks(n = 8),
-                     limits = c(0,max(Es_table_alladults_preg_lact_peryear$Es_perday +
-                                        Es_table_alladults_preg_lact_peryear$Es_sd_perday)))+
-  # scale_y_continuous(label = function(x){(x/1000)}, breaks = scales::pretty_breaks(n = 8),
-  #                    limits = c(0, 1000000))+
-  
+                     limits = c(0,max(Es_table_alladults_preg_lact_peryear$Es_perday +                                        Es_table_alladults_preg_lact_peryear$Es_sd_perday)))+
   theme_bw()+
-    labs(tag = "B")+
+  labs(tag = "B")+
   theme(plot.tag = element_text(size = rel(1.5), 
                                 colour = "black"))+
   theme(panel.grid = element_blank())+
@@ -358,10 +346,11 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
                                  colour = "black"))+
   theme(axis.title.x = element_text(size = rel(1)),
         axis.title.y = element_text(size = rel(0.5), colour = "white"))+
+                                              #(white text for spacing)
   theme(strip.background =element_rect(fill="transparent", 
                                        colour = "transparent"))+
   theme(strip.text = element_text(size = rel(1)))
-#theme(legend.position = "none")
+
 
 #plot_Es_table_alladults_preg_lact_yearly_perday
 
@@ -406,22 +395,21 @@ plot_predict_GER_phase1_permth <- predict_GER_table_phase1_permth %>%
   geom_errorbar(aes(x = age_mth-0.5, 
                     ymin = mean_GER-GER_sd, 
                     ymax = mean_GER+GER_sd), 
-                width=0, size = 0.5, linetype = 1, color="gray40") + 
+                width=0, linewidth = 0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_mth-0.5, y= mean_GER), 
              shape = 21, fill = "black")+
   xlab("Age (months)") +
-  ylab(bquote('Gross Energy Reqs (MJ day '^'-1'*')')) +
+  ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 12)) + 
-  #limits = c(0, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(breaks = scales::pretty_breaks(n = 7),
                      limits = c(0,1100)) + 
   theme_bw()+
   labs(tag = "A")+
   theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
-  theme(axis.text = element_text(size = rel(1.2),
+  theme(axis.text = element_text(size = rel(1.4),
                                  colour = "black")) +
-  theme(axis.title.x = element_text(size = rel(1.5),
+  theme(axis.title.x = element_text(size = rel(1.6),
                                     colour = "black")) +
   theme(axis.title.y = element_text(size = rel(1.4),
                                     colour = "black"))
@@ -440,9 +428,10 @@ predict_GER_table_phase1_permth <- read_csv("data/predict_GER_table_sensAnalysis
 plot_MilkReqs_phase1 <- predict_GER_table_phase1_permth %>% 
   dplyr::filter(sex == "N/A" & phase == "1") %>% 
   ggplot() +
-  #geom_line(aes(x = age_yrs, y= FR_foraging))+
-  geom_errorbar(aes(x = age_mth-0.5, ymin = FR_foraging - FR_sd_foraging, ymax = FR_foraging + FR_sd_foraging),
-                size = 0.5, width=0, linetype = 1, color="gray40") + 
+  geom_errorbar(aes(x = age_mth-0.5, 
+                    ymin = FR_foraging - FR_sd_foraging, 
+                    ymax = FR_foraging + FR_sd_foraging),
+                linewidth = 0.5, width=0, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_mth-0.5, y= FR_foraging), shape = 21, fill = "black") +
   xlab("Age (months)") +
   ylab(bquote('Milk Requirements (L day '^'-1'*')')) +
@@ -467,50 +456,47 @@ plot_MilkReqs_phase1 <- predict_GER_table_phase1_permth %>%
 plot_FoodReqs_phase1 <- predict_GER_table_phase1_permth %>% 
   filter(sex == "N/A" & phase == "1") %>% 
   ggplot() +
-  #geom_line(aes(x = age_yrs, y= FR_foraging))+
-  geom_errorbar(aes(x = age_mth-0.5, ymin = FR_foraging - FR_sd_foraging, ymax = FR_foraging + FR_sd_foraging),
-                size = 0.5, width=0, linetype = 1, color="gray40") + 
+  geom_errorbar(aes(x = age_mth-0.5, 
+                    ymin = FR_foraging - FR_sd_foraging, 
+                    ymax = FR_foraging + FR_sd_foraging),
+                linewidth = 0.5, width=0, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_mth-0.5, y= FR_foraging), 
              shape = 21, fill = "black")+
-  # geom_line(aes(x = age_yrs, y= quant025), linetype = "dashed", colour = "gray20")+
-  # geom_line(aes(x = age_yrs, y= quant975), linetype = "dashed", colour = "gray20")+
-  #facet_wrap(~sex)+
-  #xlab("Age (months)") +
   ylab(bquote('Food Requirements (kg day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 2),
-                     limits = c(9.9, 12), expand=c(0,0)
-  ) +  # max x-axis 30 yrs.
+                     limits = c(9.9, 12), expand=c(0,0)) +  
   scale_y_continuous(position = "right",      label=comma,
                      breaks = scales::pretty_breaks(n = 10),
-                     limits = c(0, 300)
-  ) +
+                     limits = c(0, 300)) +
   theme_bw()+ 
   labs(tag = "B")+
   theme(plot.tag = element_text(size = rel(2), colour = "white"))+
+  theme(plot.tag.position = "top")+
   theme(panel.grid = element_blank(),
         axis.title.x = element_text(size = rel(1.6),
                                     colour = "white"))+
   theme(axis.text =element_text(size = rel(1.4),
                                 colour = "black"),
         axis.title.y = element_text(size = rel(1.4),
-                                    colour = "black")
-  )
+                                    colour = "black"))
 
 
 #plot_FoodReqs_phase1
 
 ## plot milk and food requirments for phase 1 on same chart but different axes
+milkreqs_figure <- ggarrange(plot_MilkReqs_phase1, 
+                             plot_FoodReqs_phase1, 
+                             widths = c(2, 0.9))
 
-milkreqs_figure <- ggarrange(plot_MilkReqs_phase1, plot_FoodReqs_phase1, widths = c(2, 0.9))
 #milkreqs_figure
 
-
+#panel phase 1 GER, milk and food reqs 
 Figure4 <- ggarrange(plot_predict_GER_phase1_permth,milkreqs_figure) 
 
 ggsave(paste0(Figurespath,"/Figure4_Phase1_GER_Milk_FoodReqs.jpg"),
        Figure4,
-       width = 15,
-       height = 5, dpi = 300
+       width = 10,
+       height = 4, dpi = 300
      )
 
 
@@ -570,15 +556,7 @@ plot_GER_panel <- predict_GER_table_panel %>%
         strip.background = element_rect(
           color="transparent", fill="transparent"),
         strip.text = element_text(size = rel(1.2), colour = "black"))
-  # annotate("text", x = 20, y = 5200,
-  #          label = paste0("Foraging season"),
-  #          size = 6,
-  #          hjust = 1) +
-  # annotate("text", x = 20, y = 200,
-  #          label = paste0("Annual"),
-  #          size = 6,
-  #          hjust = 1) +
-  
+
 #plot_GER_panel 
 
 ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
@@ -636,8 +614,6 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
   scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
                      limits = c(1,30)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0, 20))+
-  
   theme_bw() +
   labs(tag = "B")+
   theme(plot.tag = element_text(size = rel(2), colour = "black"))+
@@ -652,10 +628,6 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
 
 
 #plot_FoodReqs_panel
-
-
-
-
 
 ```
 
@@ -678,9 +650,7 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
   ylab(bquote('Consumption day'^'-1'*' (% body wt)')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
                      limits = c(1,30)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 6)
-                     #limits = c(3.5, 10)
-                     )+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 6))+
   
   theme_bw() +
   labs(tag = "C")+
@@ -690,15 +660,9 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
         axis.title = element_text(size = rel(1.2), colour = "black"),
         strip.background = element_rect(
           color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1.2), colour = "black")
-  )
-
-
+        strip.text = element_text(size = rel(1.2), colour = "black"))
 
 #plot_pct_bodyweight_all
-
-
-
 
 ```
 
@@ -713,16 +677,10 @@ ggsave(paste0(Figurespath,"/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg"),
        height = 12, dpi = 300
      )
 
-# knitr::include_graphics(path = paste0(Figurespath,"/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg"), rel_path = FALSE)
-
-
 ```
 
 ![](figures/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg)
 Figure 5.  A) Daily gross energy requirements for a full year (annual; black circles) and for when feeding is limited to the foraging season (white circles). B) Average daily food requirements (kg day-1) of benthic invertebrate prey for pregnant females, lactating females, and others (juveniles and other adult gray whales) during foraging season. C) Average percentage of body weight consumed per day during the foraging season for juveniles and other adults, pregnant females, and lactating females. Note that the y-axis does not always start at 0. Panels from left to right represent single juveniles (1–7 y) and adults (>8 y), pregnant whales for the duration of the pregnancy, lactating whales for the duration of nursing from birth to weaning at 9.6 months (per Agbayani et al., 2020), pregnant whales for the duration of the pregnancy (with the first 6 months of lactation while fasting), and lactating whales in the last 3.6 months of lactation while foraging in the Arctic feeding grounds. To calculate daily gross energy requirements on an annual basis for single juveniles (1–7 y) and adults (>8 y) the gross energy requirement was assumed to be borne over 365 days and for the foraging season it was assumed to be ~154 days. For pregnant females the annual gross energy requirement was calculated over ~396 days and foraging season was assumed to be ~153 days. For lactating females the annual gross energy requirement was calculated over 293 days and foraging season was assumed to be ~119 days. Values are plotted at the midpoint of each year. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations.
-
-
-
 
 
 
@@ -764,7 +722,7 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
   xlab("Age (months)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
-                     limits = c(0, 12.5)) +  # max x-axis 30 yrs. 
+                     limits = c(0, 12.5)) + 
   scale_y_continuous(breaks = scales::pretty_breaks(n = 7),
                      limits = c(0,1100)) + 
   theme_bw()+
@@ -775,12 +733,12 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
   theme(panel.spacing = unit(0.3, "lines"))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(2)))+
+    theme(strip.text = element_text(size = rel(1.5)))+
   theme(axis.text = element_text(size = rel(1.5),
                                  colour = "black")) +
-  theme(axis.title.x = element_text(size = rel(2),
+  theme(axis.title.x = element_text(size = rel(1.5),
                                     colour = "black")) +
-  theme(axis.title.y = element_text(size = rel(2),
+  theme(axis.title.y = element_text(size = rel(1.5),
                                     colour = "black"))
 
 
@@ -813,11 +771,6 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
   dplyr::filter(sex=="N/A" & phase == "2" & 
                   age_yrs > 1 & age_yrs <= 30) %>% 
   ggplot() +
-  # geom_line(aes(x=age_yrs, y=mean_GER),
-  #           color='black',
-  #           size = 1.2,
-  #           linetype = "longdash") +
-  
   geom_errorbar(aes(x = age_yrs-0.5, 
                     ymin = mean_GER-GER_sd, 
                     ymax = mean_GER+GER_sd), 
@@ -828,12 +781,10 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(0, 30.5), expand = c(0,0)) +  # max x-axis 30 yrs. 
+                     limits = c(0, 30.5), expand = c(0,0)) +
+                      # max x-axis 30 yrs, add space for labels 
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     #limits = c(-50, 4000), expand = c(0,0),
                      labels = comma)+
-  #ggtitle("Juveniles / non-reproductive adults")+
-  
   theme_bw() +
   labs(tag = "B")+
   theme(plot.tag = element_text(size = rel(3), 
@@ -841,8 +792,8 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
   theme(panel.grid = element_blank()) +
   theme(panel.spacing = unit(0.3, "lines"))+
    theme(strip.background = element_rect(color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(2)))+
-  theme(axis.title = element_text(size = rel(2), colour = "black"))+
+    theme(strip.text = element_text(size = rel(1.5)))+
+  theme(axis.title = element_text(size = rel(1.5), colour = "black"))+
   theme(axis.text = element_text(size = rel(1.5), colour = "black"))
 
 #plot_predict_GER_table_sensAnalysis_phase2
@@ -855,6 +806,7 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
 predict_GER_table_sensAnalysis_preg <-
   as_tibble(read_csv("data/predict_GER_table_sensAnalysis_preg.csv"))
 
+predict_GER_table_sensAnalysis_preg$phase <- "Pregnant (with first 6 mths lactation)"
 
 predict_GER_table_sensAnalysis_preg$MC_var_factor <- 
   factor(predict_GER_table_sensAnalysis_preg$MC_variable, 
@@ -862,14 +814,13 @@ predict_GER_table_sensAnalysis_preg$MC_var_factor <-
 
 levels(predict_GER_table_sensAnalysis_preg$MC_var_factor) <- c("All variables","P", "Es", "E F+U", "Hg", "P newborn", "GER calf first 6mo.")
 
-
 plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   filter(age_yrs>1 & age_yrs <=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
                     ymax = mean_GER + GER_sd), 
-                width=0, size = 0.5, linetype = 1,color="gray80") + 
+                width=0, size = 0.5, linetype = 1,color="gray40") + 
   geom_point(aes(x = age_yrs, y= mean_GER), 
              shape = 21, fill = "white")+
   geom_errorbar(aes(x = age_yrs, 
@@ -878,34 +829,28 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
                 width=0, size =0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
-  #facet_grid(~MC_variable)+
   facet_grid(phase~MC_var_factor, 
-             labeller = label_wrap_gen(width=15, multi_line = TRUE)) +
-  #facet_wrap(~MC_variable)+
+             labeller = label_wrap_gen(width=30, multi_line = TRUE)) +
   xlab("Age (years)") +
    ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
-                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 4)
-                     #limits = c(0,max(plot_predict_GER_sensAnalysis_preg$quant975_foraging))
-  ) +
-  #ggtitle("Pregnant females")+
+                     limits = c(8, 30)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 4)) +
   theme_bw()+
-    labs(tag = "C")+
+  labs(tag = "C")+
   theme(plot.tag = element_text(size = rel(3), 
                                 colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(panel.spacing = unit(0.3, "lines"))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(2)))+
+    theme(strip.text = element_text(size = rel(1.5)))+
   theme(axis.text = element_text(size = rel(1.5),
                                  colour = "black"))+
-  theme(axis.title.x = element_text(size = rel(2)),
-        axis.title.y = element_text(size = rel(2)))+
+  theme(axis.title.x = element_text(size = rel(1.5)),
+        axis.title.y = element_text(size = rel(1.5)))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))
-  #theme(strip.text = element_text(size = rel(1.5)))
 
 #plot_predict_GER_sensAnalysis_preg              
 
@@ -920,6 +865,7 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
 predict_GER_table_sensAnalysis_lact <-
   as_tibble(read_csv("data/predict_GER_table_sensAnalysis_lact.csv"))
 
+predict_GER_table_sensAnalysis_lact$phase <- "Lactating (last 3.6 mths)"
 
 predict_GER_table_sensAnalysis_lact$MC_var_factor <- 
   factor(predict_GER_table_sensAnalysis_lact$MC_variable, 
@@ -942,33 +888,27 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
                 width=0, size = 0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
-  #facet_grid(~MC_variable)+
  facet_grid(phase~MC_var_factor, 
-             labeller = label_wrap_gen(width=15, multi_line = TRUE)) +
-  #facet_wrap(~MC_variable)+
+             labeller = label_wrap_gen(width=30, multi_line = TRUE)) +
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
                      limits = c(8, 30)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 4)
-                     #limits = c(0,max(plot_predict_GER_sensAnalysis_lact$quant975_foraging))
-  ) +
-#    ggtitle("Lactating females")+
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 4))+
   theme_bw()+
-    labs(tag = "D")+
+  labs(tag = "D")+
   theme(plot.tag = element_text(size = rel(3), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(panel.spacing = unit(0.3, "lines"))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(2)))+
+    theme(strip.text = element_text(size = rel(1.5)))+
   theme(axis.text = element_text(size = rel(1.5),
                                  colour = "black"))+
-  theme(axis.title.x = element_text(size = rel(2)),
-        axis.title.y = element_text(size = rel(2)))+
+  theme(axis.title.x = element_text(size = rel(1.5)),
+        axis.title.y = element_text(size = rel(1.5)))+
   theme(strip.background = element_rect(
     color="transparent", fill="transparent"))
-  #theme(strip.text = element_text(size = rel(1.5)))
 
 #plot_predict_GER_sensAnalysis_lact          
 
@@ -1119,32 +1059,21 @@ plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>%
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                  colour = "gray45", width = 0)+
   geom_point(size=0.5)+
-  # geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-  #               fill = "gray70")+
-  # geom_line(linewidth = 0.5)+
   facet_grid(MC_var_factor~Activity_stages, 
              labeller = label_wrap_gen(width = 15, multi_line = TRUE)) +
              
-  #ggtitle("Phase 2 - Juveniles/Adults")+
   xlab("Age (months)") +
   ylab(bquote('Es (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
                      limits = c(0, 12))+
-  #limits = c(0, 30.5), expand=c(0,0) +  # max x-axis 30 yrs.
-  # scale_y_continuous(label=comma,
-  #                     breaks = scales::pretty_breaks(n = 4),
-  #                     limits =  c(0, 2000))+
-
   theme_bw() +
   labs(tag="A")+
   theme(plot.tag = element_text(size = rel(2),
                                     colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(legend.position.inside = 0)+
-  #theme(panel.border = element_blank())+
   theme(strip.background =element_rect(fill="transparent",
                                        colour = "transparent"))+
-  #theme(axis.line = element_line(linewidth = 1, colour = "black"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 
                                     size = rel(1), angle = 90))+
@@ -1191,21 +1120,17 @@ plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>%
 
   facet_grid(MC_var_factor~Activity_stages_factor,
              labeller = labeller(label_wrap_gen(width = 15, multi_line = TRUE))) +
-             
-  #ggtitle("Phase 2 - Juveniles/Adults")+
   xlab("Age (years)") +
   ylab(bquote('Es (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
                      limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0) +  # max x-axis 30 yrs.
   scale_y_continuous(label=comma,
                       breaks = scales::pretty_breaks(n = 4),
                       limits =  c(0, 2000))+
 
   theme_bw() +
-   labs(tag="B")+
-  theme(plot.tag = element_text(size = rel(2),
-                                    colour = "black"))+
+  labs(tag="B")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(legend.position.inside = 0)+
   theme(strip.background =element_rect(fill="transparent",
@@ -1256,7 +1181,6 @@ Es_sensAnalysis_preg  <-  read_csv("data/Es_sensAnalysis_preg_source_bpm.csv")
 
 
 # apply factors to enable facet wrap
-
 Es_sensAnalysis_preg$MC_var_factor <- 
   factor(Es_sensAnalysis_preg$MC_variable, 
          levels=c("all","pctO2","Rs", "Vt"))
@@ -1269,34 +1193,26 @@ Es_sensAnalysis_preg$Activity_stages_factor <-
          levels=c("calving grounds recently pregnant","foraging pregnant","northbound pregnant","southbound pregnant","Southbound recently pregnant"))
 
 
-
 plot_Es_sensAnalysis_preg <- Es_sensAnalysis_preg %>%
     filter(age_yrs>1 & age_yrs <=30) %>% 
    mutate(across(Activity_stages_factor, ~factor(., levels=c("Southbound recently pregnant" ,"calving grounds recently pregnant","northbound pregnant" ,"foraging pregnant", "southbound pregnant" )))) %>%
-  ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
-facet_grid(MC_var_factor~Activity_stages_factor,
+  ggplot(aes(x = age_yrs, y =Es_perday)) + facet_grid(MC_var_factor~Activity_stages_factor,
              labeller = label_wrap_gen(width = 5, multi_line = TRUE))+
             
-  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  geom_errorbar(aes(x = age_yrs, 
+                    ymin = Es_perday - Es_perday_sd, 
+                    ymax = Es_perday + Es_perday_sd),
                 colour = 'gray70', width = 0, linetype = 1) +
-  # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
-  #                 fill = 'gray40', alpha = 0.3) +
   geom_point(size=0.5)+
-  #geom_line()   +
   xlab("Age (years)") +
-
   ylab(bquote('Es (MJ day'^'-1'*')')) +
-
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
-                     limits = c(0, 32)) +  # max x-axis 30 yrs.
-
+                     limits = c(0, 32)) +  # max x-axis 30 yrs, add space for labels
   theme_bw()+
-     labs(tag="A")+
-  theme(plot.tag = element_text(size = rel(2),
-                                    colour = "black"))+
+  labs(tag="A")+
+  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
   theme(panel.grid = element_blank())+
-  theme(axis.text = element_text(size = rel(1),
-                                 colour = "black"))+
+  theme(axis.text = element_text(size = rel(1), colour = "black"))+
   theme(axis.title.x = element_text(size = rel(1)),
         axis.title.y = element_text(size = rel(1)))+
   theme(strip.background =element_rect(fill="transparent",
@@ -1311,7 +1227,6 @@ facet_grid(MC_var_factor~Activity_stages_factor,
 
 ```
 
-__Es sensitivity analysis for lactating whales by activity stages__
 
 ```{r Es_lact_stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
@@ -1326,28 +1241,28 @@ levels(Es_sensAnalysis_lact$MC_var_factor) <- c("All variables","%O2", "Rs", "Vt
 
 Es_sensAnalysis_lact$Activity_stages_factor <- 
   factor(Es_sensAnalysis_lact$Activity_stages, 
-         levels=c("calving grounds lactating","foraging lactating","northbound lactating","southbound post-weaning"))
-
-
+         levels=c("calving grounds lactating","foraging lactating",
+                  "northbound lactating","southbound post-weaning"))
 
 plot_Es_sensAnalysis_lact <- Es_sensAnalysis_lact %>%
     filter(age_yrs>1 & age_yrs <=30) %>% 
-     mutate(across(Activity_stages_factor, ~factor(., levels=c("calving grounds lactating","northbound lactating","foraging lactating","southbound post-weaning")))) %>%
-  ggplot(aes(x = age_yrs, y =Es_perday)) + #shape = Lifestage
+     mutate(across(Activity_stages_factor, 
+                   ~factor(., levels=c("calving grounds lactating",
+                                       "northbound lactating",
+                                       "foraging lactating",
+                                       "southbound post-weaning")))) %>%
+  ggplot(aes(x = age_yrs, y =Es_perday)) + 
   facet_grid(MC_var_factor~Activity_stages_factor,
              labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
-  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
+  geom_errorbar(aes(x = age_yrs, 
+                    ymin = Es_perday - Es_perday_sd, 
+                    ymax = Es_perday + Es_perday_sd),
                 colour = 'gray70', width = 0, linetype = 1) +
-  # geom_ribbon(aes(x = age_yrs, ymin = Es - Es_sd, ymax = Es + Es_sd),
-  #                 fill = 'gray40', alpha = 0.3) +
   geom_point(size=0.5)+
-  #geom_line()   +
   xlab("Age (years)") +
-
   ylab(bquote('Es (MJ day'^'-1'*')')) +
-
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
-                     limits = c(0, 32)) +  # max x-axis 30 yrs.
+                     limits = c(0, 32)) +  # max x-axis 30 yrs, add space for labels
   scale_y_continuous(label = comma,
                      breaks = scales::pretty_breaks(n = 6),
                      limits = c(0,2000))+
@@ -1363,13 +1278,15 @@ plot_Es_sensAnalysis_lact <- Es_sensAnalysis_lact %>%
   theme(strip.background =element_rect(fill="transparent",
                                        colour = "transparent"))+
   theme(strip.text = element_text(size = rel(1)))
-#theme(legend.position.inside = "none")
+
 
 #plot_Es_sensAnalysis_lact
 
 
-Es_sensAnalysis_preglact_by_activitystage <- ggarrange(plot_Es_sensAnalysis_preg, plot_Es_sensAnalysis_lact,
-          ncol=1)
+Es_sensAnalysis_preglact_by_activitystage <- 
+  ggarrange(plot_Es_sensAnalysis_preg, 
+            plot_Es_sensAnalysis_lact,
+            ncol=1)
 
 ggsave(paste0(Figurespath,"/FigureS2_Es_sensAnalysis_preglact_by_activitystage.jpg"),
        Es_sensAnalysis_preglact_by_activitystage,
@@ -1381,4 +1298,4 @@ ggsave(paste0(Figurespath,"/FigureS2_Es_sensAnalysis_preglact_by_activitystage.j
 
 ```
 ![](figures/FigureS2_Es_sensAnalysis_preglact_by_activitystage.jpg)
-
+Figure S2. A) Sensitivity analysis for energetic expenditure (Es) of pregnant whales by activity stage. B) Sensitivity analysis for Es of lactating by activity stage.

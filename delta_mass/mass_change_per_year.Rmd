@@ -505,8 +505,6 @@ Combine mass change tables into one for plotting
 
 mean_masschange <- rbind(mean_masschange, mean_masschange_female, mean_masschange_male)
 
-kable(mean_masschange)
-
 #Save mean mass change to file
 mean_masschange %>% write_csv("data/mean_masschange_per_year.csv", na = "", append = FALSE)
 

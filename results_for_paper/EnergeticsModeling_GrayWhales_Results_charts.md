@@ -128,6 +128,7 @@ largest range of uncertainty (see Suppl. Figure S2 and S3).
 
 ## Supplementary Figures: Es sensitivity analysis for pregnant only and lactating whales (from birth to 9.6 months) by activity stages
 
-**Es sensitivity analysis for lactating whales by activity stages**
-
 ![](figures/FigureS2_Es_sensAnalysis_preglact_by_activitystage.jpg)
+Figure S2. A) Sensitivity analysis for energetic expenditure (Es) of
+pregnant whales by activity stage. B) Sensitivity analysis for Es of
+lactating by activity stage.

@@ -10,7 +10,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
@@ -55,14 +54,13 @@ library(extrafont)
 
 ```
 
-
 ```{r functions, include=FALSE}
+
 #Call R script with custom functions
-source("../functions.R", local = knitr::knit_global())
-```   
+source(paste0(getwd(),"/functions.R"), local = knitr::knit_global())
+```
 
-
-```{r set output paths}       
+```{r set output paths}
 # Set path for output figures: 
 Figurespath <- paste0(getwd(), "/production_cost/figures", collapse = NULL)
 Figurespath
@@ -78,44 +76,45 @@ datapath
 ## Read data in (mean mass change)
 
 gw_pred_mass <- as_tibble(read_csv("data/mass_table.csv"),
-                                 col_types = (list(cols(age_yrs = col_double(),
-                                                        mean_mass = col_double(),
-                                                        sd_mass = col_double(),
-                                                        mean_lwr = col_double(),
-                                                        mean_upr = col_double(),
-                                                        quant025 = col_double(),
-                                                        quant975 = col_double(),
-                                                        female_mass = col_double(),
-                                                        male_mass = col_double()
-                                                        )
-                                                   )
-                                              )
-                                 )
+                          col_types = (list(cols(age_yrs = col_double(),
+                                                 mean_mass = col_double(),
+                                                 sd_mass = col_double(),
+                                                 mean_lwr = col_double(),
+                                                 mean_upr = col_double(),
+                                                 quant025 = col_double(),
+                                                 quant975 = col_double(),
+                                                 female_mass = col_double(),
+                                                 male_mass = col_double()
+                                                 )
+                                            )
+                                       )
+                          )
 
 
 
-mean_masschange_peryear <- as_data_frame(read_csv("data/mean_masschange_per_year.csv"),
-                                 col_types = (list(cols(age_yrs = col_double(),
-                                                        mean_masschange = col_double(),
-                                                        sd_masschange = col_double(),
-                                                        sex = col_character()
-                                                        )
-                                                   )
-                                              )
-                                 )
+mean_masschange_peryear <- 
+  as_data_frame(read_csv("data/mean_masschange_per_year.csv"),
+                col_types = (list(cols(age_yrs = col_double(),
+                                       mean_masschange = col_double(),
+                                       sd_masschange = col_double(),
+                                       sex = col_character()
+                                       )
+                                  )
+                             )
+                )
 
 
-age_yr_tibble <- as_tibble(read_csv("data/age_yr_tibble.csv"),
-                           col_types = (list(cols(month = col_character(),
-                                                  no_days_in_mth = col_double(),
-                                                  age_mth = col_double(),
-                                                  no_days_cumul = col_double(),
-                                                  age_yrs = col_double()
-                                                  )
-                                             )
-                                        )
-                           )
-
+age_yr_tibble <- 
+  as_tibble(read_csv("data/age_yr_tibble.csv"),
+            col_types = (list(cols(month = col_character(),
+                                   no_days_in_mth = col_double(),
+                                   age_mth = col_double(),
+                                   no_days_cumul = col_double(),
+                                   age_yrs = col_double()
+                                   )
+                              )
+                         )
+            )
 
 
 P_cost_table_phase1  <-  read_csv("data/P_cost_table_phase1.csv")
@@ -125,15 +124,11 @@ P_nb_table <- P_cost_table_phase1 %>%
 
 ```
 
-
-
-**Calculate Production Costs (P) using equation from Winship et al. 2002**
- P = change in Mass x [(p_lipid x ED_lipid) + (1-p_lipid) x (1-p_water) x ED_protein]
-
-Calculate Production Costs 
+### Production Cost formula and input variables
 
 ```{r define_variables}
-
+#  Calculate Production Costs (P) using equation from Winship et al. 2002
+#  P = change in Mass x [(p_lipid x ED_lipid) + (1-p_lipid) x (1-p_water) x ED_protein]
  
 #Energy density of lipid (MJ/kg)  
 #ED_lipid <- 39.3 #39300 KJ/kg * 0.001 - Schmidt-Nielsen (1990)
@@ -168,7 +163,7 @@ p_protein_avg_calf <- 0.0972   # avg p_protein from 6 months age
 #Calculated From Rice & Wolman 1971
 p_protein_adult_SB <-  0.1062   # fraction of protein in southbound adults (fat)
 p_protein_adult_NB <- 0.1086   # fraction of protein in northbound adults (thin)
-p_protein_adult <- (p_protein_adult_SB+p_protein_adult_NB)/2       # Avg non-calves NB (0.1086) & SB (0.1062) from Rice and Wolman 2971)
+p_protein_adult <- (p_protein_adult_SB+p_protein_adult_NB)/2   # Avg non-calves NB (0.1086) & SB (0.1062) from Rice and Wolman 2971)
 
 
 
@@ -179,8 +174,7 @@ p_protein_adult <- (p_protein_adult_SB+p_protein_adult_NB)/2       # Avg non-cal
 
 ```
 
-
-Calculate Production Cost
+#### Production Cost per year
 
 ```{r P_cost_peryear}
 MC_reps = 10000
@@ -188,62 +182,76 @@ MC_reps = 10000
 P_cost_table<- as.data.frame(matrix(ncol = 7, nrow = 0))
 
 cnames <- c("age_yrs", "mean_masschange", "sex",  
-            "mean_P", "sd_P" , "p_lipid", "p_protein"        
-            )            
+            "mean_P", "sd_P" , "p_lipid", "p_protein")            
 
 colnames(P_cost_table) <- cnames
 
-P_cost_table <- as_tibble(P_cost_table, 
-                          col_types = (list(ID=col_integer(),
-                                            age_yrs = col_double(),
-                                            mean_masschange = col_double(),
-                                            sex = col_character(),
-                                            mean_P = col_double(),
-                                            sd_P = col_double(),
-                                            p_lipid = col_double(),
-                                            p_protein = col_double()
-                                            )
-                                       )
-                          )
+P_cost_table <- 
+  as_tibble(P_cost_table,
+            col_types = (list(ID=col_integer(),
+                              age_yrs = col_double(),
+                              mean_masschange = col_double(),
+                              sex = col_character(),
+                              mean_P = col_double(),
+                              sd_P = col_double(),
+                              p_lipid = col_double(),
+                              p_protein = col_double()
+                              )
+                         )
+            )
 
 
 for (s in c("Female", "Male", "N/A")){
 
     for (i in seq(from = 0, to = 75, by = 1)){
-    
-        #s <- "N/A"
-        #i = 8
+        
         age <-  i
         
         strcolname <- as.character(age)
         
-        mass_change_i <- dplyr::filter(mean_masschange_peryear, age_yrs == age & sex == s)
+        mass_change_i <- filter(mean_masschange_peryear, 
+                                age_yrs == age & sex == s)
         
         mass_chg <- mass_change_i$mean_masschange
         sd <- mass_change_i$sd_masschange
         
         set.seed(12345)
-        mean_masschange_i <- as_tibble(rnorm(MC_reps, mass_chg, sd), col.names = str(i))
-        names(mean_masschange_i)[1] <- "mass_chg"
-        mean_masschange_i <- mean_masschange_i %>%  dplyr::mutate(age_yrs = strcolname)
+        mean_masschange_i <- 
+          as_tibble(rnorm(MC_reps, mass_chg, sd), col.names = str(i))
         
-        mean_masschange_i <- mean_masschange_i %>%  dplyr::mutate(ID = row_number())
+        names(mean_masschange_i)[1] <- "mass_chg"
+        
+        mean_masschange_i <- mean_masschange_i %>%  
+          mutate(age_yrs = strcolname)
+        
+        mean_masschange_i <- mean_masschange_i %>%  
+          mutate(ID = row_number())
         
 
         #runif - random uniform distribution
-        p_lipid_i <- as_tibble(runif(MC_reps, min = p_lipid_min, max = p_lipid_max), col.names = str(i))
+        p_lipid_i <- as_tibble(runif(MC_reps, 
+                                     min = p_lipid_min, 
+                                     max = p_lipid_max), 
+                               col.names = str(i))
+        
         names(p_lipid_i)[1] <- "p_lipid"
-        p_lipid_i <- p_lipid_i %>%  dplyr::mutate(age_yrs = strcolname)
-        p_lipid_i <- p_lipid_i %>%  dplyr::mutate(ID = row_number())
+        p_lipid_i <- p_lipid_i %>%  mutate(age_yrs = strcolname)
+        p_lipid_i <- p_lipid_i %>%  mutate(ID = row_number())
         
         mean_masschange_i$p_lipid <- p_lipid_i$p_lipid
         
         #runif - random uniform distribution
-        p_protein_adult_i <- as_tibble(runif(MC_reps, min = p_protein_adult_SB, 
-                                             max = p_protein_adult_NB), col.names = str(i))
+        p_protein_adult_i <- as_tibble(runif(MC_reps, 
+                                             min = p_protein_adult_SB, 
+                                             max = p_protein_adult_NB), 
+                                       col.names = str(i))
+        
         names(p_protein_adult_i)[1] <- "p_protein"
-        p_protein_adult_i <- p_protein_adult_i %>%  dplyr::mutate(age_yrs = strcolname)
-        p_protein_adult_i <- p_protein_adult_i %>%  dplyr::mutate(ID = row_number())
+        
+        p_protein_adult_i <- p_protein_adult_i %>%  
+          mutate(age_yrs = strcolname)
+        p_protein_adult_i <- p_protein_adult_i %>%  
+          mutate(ID = row_number())
         
         mean_masschange_i$p_protein_adult <- p_protein_adult_i$p_protein
 
@@ -254,9 +262,7 @@ for (s in c("Female", "Male", "N/A")){
         p_lipid_i <- mean_masschange_i$p_lipid
         p_protein_i <- mean_masschange_i$p_protein_adult
         
-        
-        
-        #### TO DO: create a column p_protein_i to track what value of p_protein is being used ###
+       
         ####  p_protein_i by age ###
         if (age==0) {
           p_protein <- p_protein_nb
@@ -267,7 +273,8 @@ for (s in c("Female", "Male", "N/A")){
         }
         
         #Calculate Production costs for each age cohort
-        P_cost_i <- mass_chg_i*((p_lipid_i * ED_lipid) + (p_protein * ED_protein))
+        P_cost_i <- 
+          mass_chg_i*((p_lipid_i * ED_lipid) + (p_protein * ED_protein))
         
 
         #Calculate mean and sd P_cost
@@ -295,7 +302,7 @@ for (s in c("Female", "Male", "N/A")){
     }
 
     
-kable(P_cost_table)
+kable(head(P_cost_table))
 
 P_cost_table$mean_P_perday <- P_cost_table$mean_P / 365
 P_cost_table$sd_P_perday <- P_cost_table$sd_P / 365
@@ -307,12 +314,10 @@ P_cost_table %>% write_csv("data/P_cost_table_peryear.csv", na = "", append = FA
 
 ```
 
+#### Average annual production cost
 
-
-_Graph P_cost_
-
-```{r plots_P_cost_peryear}
-P_cost_table %>%  kable()
+```{r plots_P_cost_peryear, echo=FALSE}
+kable(head(P_cost_table))
 
 P_cost_table_NA <- P_cost_table %>% dplyr::filter(P_cost_table$sex == "N/A" & P_cost_table$age_yrs >0) 
 
@@ -323,40 +328,40 @@ plot_PCost <- P_cost_table_NA %>%
                   ymax = (mean_mass + sd_mass) *3.5), 
               fill = "gray", alpha = 0.8)+
   geom_line(aes(x = age_yrs, y = mean_mass*3.5), 
-             linetype = 2, size = 1, colour = "black")+
+             linetype = 2, linewidth = 1, colour = "black")+
   geom_ribbon(aes(x = age_yrs, 
                   ymin = (mean_P - sd_P),
                   ymax = (mean_P + sd_P)), 
-                  #width = 0, linetype = 3, size = 1, colour= "white")+
               fill = "gray", alpha = 0.8)+
   geom_line(aes(x = age_yrs, y= mean_P), 
-              size = 1, linetype = 3, colour = "black")+
+              linewidth = 1, linetype = 3, colour = "black")+
   xlab("Age (years)") +
   ylab("Production Cost per year (MJ)")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 9))+
-                     #limits = c(0, 50)) +  
   scale_y_continuous(label=comma,
                      breaks = scales::pretty_breaks(n = 10), 
                      sec.axis=sec_axis(~./3.5, 
                      name = "Mass (kg)", label=comma,
                      breaks = scales::pretty_breaks(n = 10)))+
-                       #limits = c(0, 50)) +
   theme_bw() + 
   theme(panel.grid = element_blank())+
   theme(legend.position = "none")+
     theme(legend.background = element_rect(fill = "white"))+
     theme(legend.text = element_text(colour = "black", size = rel(1)))+
-    theme(legend.key = element_rect(fill = "transparent"))+ #colour = "transparent"))+
+    theme(legend.key = element_rect(fill = "transparent"))+ 
     ggtitle(element_blank()) +
     theme(plot.background = element_rect(fill = "white"))+
     theme(panel.background = element_rect(fill = "white"))+
     theme(panel.border = element_blank())+
-    theme(axis.line = element_line(size = 1, colour = "black"))+
+    theme(axis.line = element_line(linewidth = 1, colour = "black"))+
     theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
     theme(axis.title.y = element_text(colour = "black", 
                                       size = rel(1.4), 
                                       angle = 90, 
-                                      margin = margin(t = 0, r = 10, b = 0, l = 0)))+
+                                      margin = margin(t = 0, 
+                                                      r = 10, 
+                                                      b = 0, 
+                                                      l = 0)))+
     theme(axis.title.x = element_text(colour = "black", size = rel(1.4)))+
     theme(axis.ticks = element_line(colour="black"))+
   theme(axis.title.y.right  = element_text(colour = "black", 
@@ -381,80 +386,30 @@ plot_PCost
 
 
 
-#black charts
-
-plot_PCost_black <- P_cost_table_NA %>% 
-    ggplot() +
-  geom_ribbon(aes(x = age_yrs, 
-                  ymin = (mean_mass - sd_mass) *3.5, 
-                  ymax = (mean_mass + sd_mass) *3.5), 
-              fill = "yellow", alpha = 0.3)+
-  geom_line(aes(x = age_yrs, y = mean_mass*3.5), 
-             linetype = 2, size = 1, colour = "white")+
-  geom_ribbon(aes(x = age_yrs, 
-                  ymin = (mean_P - sd_P),
-                  ymax = (mean_P + sd_P)), 
-                  #width = 0, linetype = 3, size = 1, colour= "white")+
-               fill = "dodgerblue2", alpha = 0.5)+
-    geom_line(aes(x = age_yrs, y= mean_P), 
-              size = 1, linetype = 3, colour = "white")+
-  xlab("Age (years)") +
-  ylab("Production Cost per year (MJ)")+
-  #ylab(bquote('Milk Requirements (L day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 9))+
-                     #limits = c(0, 9)) +  
-  scale_y_continuous(label=comma,
-                     breaks = scales::pretty_breaks(n = 10), 
-                     sec.axis=sec_axis(~./3.5, 
-                     name = "Mass (kg)", label=comma,
-                     breaks = scales::pretty_breaks(n = 10)))+
-                       #limits = c(0, 50)) +
-  theme_bw() + 
-  theme(panel.grid = element_blank())+
-  theme(legend.position = "none")+
-    theme(legend.background = element_rect(fill = "black"))+
-    theme(legend.text = element_text(colour = "white", size = rel(1)))+
-    theme(legend.key = element_rect(fill = "transparent"))+ #colour = "transparent"))+
-    ggtitle(element_blank()) +
-    theme(plot.background = element_rect(fill = "black"))+
-    theme(panel.background = element_rect(fill = "black"))+
-    theme(panel.border = element_blank())+
-    theme(axis.line = element_line(size = 1, colour = "white"))+
-    theme(axis.text = element_text(colour = "white", size = rel(1.2)))+
-    theme(axis.title.y = element_text(colour = "white", size = rel(1.4), angle = 90))+
-    theme(axis.title.x = element_text(colour = "white", size = rel(1.4)))+
-    theme(axis.ticks = element_line(colour="white"))+
-  theme(axis.title.y.right  = element_text(colour = "white", size = rel(1.2)))
-
-
-plot_PCost_black
-
 ```
 
+#### Average daily production cost per year
 
-```{r plots_P_cost_perday}
+```{r plots_P_cost_perday, echo=FALSE}
 
-
-
-plot_P_cost_perday <- P_cost_table %>% filter(sex == "N/A" & age_yrs >=1 & age_yrs<=30) %>%  
+plot_P_cost_perday <- P_cost_table %>% 
+  filter(sex == "N/A" & age_yrs >=1 & age_yrs<=30) %>%  
   ggplot() +
   geom_ribbon(aes(x = age_yrs, 
                   ymin = (mean_mass - sd_mass) /100, 
                   ymax = (mean_mass + sd_mass) /100), 
               fill = "gray", alpha = 0.8)+
   geom_line(aes(x = age_yrs, y = mean_mass/100), 
-             linetype = 2, size = 1, colour = "black")+
+             linetype = 2, linewidth = 1, colour = "black")+
   geom_ribbon(aes(x = age_yrs, 
                   ymin = (mean_P_perday - sd_P_perday),
                   ymax = (mean_P_perday + sd_P_perday)), 
-                  #width = 0, linetype = 3, size = 1, colour= "white")+
               fill = "gray", alpha = 0.8)+
   geom_line(aes(x = age_yrs, y= mean_P_perday), 
-              size = 1, linetype = 3, colour = "black")+
+              linewidth = 1, linetype = 3, colour = "black")+
   xlab("Age (years)") +
   ylab(bquote('Production Cost (MJ day'^'-1'*')'))+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 9))+
-                     #limits = c(0, 50)) +  
   scale_y_continuous(label=comma,
                      sec.axis=sec_axis(~.*100, name = "Mass (kg)"), 
                      breaks = scales::pretty_breaks(n = 8))+
@@ -463,23 +418,29 @@ plot_P_cost_perday <- P_cost_table %>% filter(sex == "N/A" & age_yrs >=1 & age_y
   theme(legend.position = "none")+
     theme(legend.background = element_rect(fill = "white"))+
     theme(legend.text = element_text(colour = "black", size = rel(1)))+
-    theme(legend.key = element_rect(fill = "transparent"))+ #colour = "transparent"))+
+    theme(legend.key = element_rect(fill = "transparent"))+
     ggtitle(element_blank()) +
     theme(plot.background = element_rect(fill = "white"))+
     theme(panel.background = element_rect(fill = "white"))+
     theme(panel.border = element_blank())+
-    theme(axis.line = element_line(size = 1, colour = "black"))+
+    theme(axis.line = element_line(linewidth = 1, colour = "black"))+
     theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
     theme(axis.title.y = element_text(colour = "black", 
                                       size = rel(1.4), 
                                       angle = 90, 
-                                      margin = margin(t = 0, r = 10, b = 0, l = 0)))+
+                                      margin = margin(t = 0, 
+                                                      r = 10, 
+                                                      b = 0, 
+                                                      l = 0)))+
     theme(axis.title.x = element_text(colour = "black", size = rel(1.4)))+
     theme(axis.ticks = element_line(colour="black"))+
   theme(axis.title.y.right  = element_text(colour = "black", 
                                       size = rel(1.2), 
                                       angle = 270, 
-                                      margin = margin(t = 0, r = 0, b = 0, l = 10)))+
+                                      margin = margin(t = 0, 
+                                                      r = 0, 
+                                                      b = 0, 
+                                                      l = 10)))+
     annotate("text", x= 30, y = 25,
              label = "Prod. Cost", 
              hjust = 1,
@@ -492,10 +453,6 @@ plot_P_cost_perday <- P_cost_table %>% filter(sex == "N/A" & age_yrs >=1 & age_y
              color = "black") 
 
   
-  
-  
-  
-
 
 plot_P_cost_perday
 
@@ -504,8 +461,7 @@ plot_P_cost_perday
 
 ```
 
-
-
+#### Production Cost for pregnant whales
 
 ```{r P_cost_preg}
 
@@ -513,33 +469,34 @@ plot_P_cost_perday
 P_cost_table_preg<- as.data.frame(matrix(ncol = 7, nrow = 0))
 
 cnames <- c("age_yrs", "mean_masschange", "sex",  
-            "mean_P", "sd_P", "p_lipid", "p_protein"         
-            )            
+            "mean_P", "sd_P", "p_lipid", "p_protein")            
 
 colnames(P_cost_table_preg) <- cnames
 
-P_cost_table_preg <- as_tibble(P_cost_table_preg, 
-                          col_types = (list(ID=col_integer(),
-                                            age_yrs = col_double(),
-                                            mean_masschange = col_double(),
-                                            sex = col_character(),
-                                            mean_P = col_double(),
-                                            sd_P = col_double(),
-                                            p_lipid = col_double(),
-                                            p_protein = col_double()
-                                            )
-                                       )
-                          )
+P_cost_table_preg <- 
+  as_tibble(P_cost_table_preg, 
+            col_types = (list(ID=col_integer(),
+                              age_yrs = col_double(),
+                              mean_masschange = col_double(),
+                              sex = col_character(),
+                              mean_P = col_double(),
+                              sd_P = col_double(),
+                              p_lipid = col_double(),
+                              p_protein = col_double()
+                              )
+                         )
+            )
 
 
 for (s in c("Female")){
 
     for (i in seq(from = 8, to = 75, by = 1)){
-        #s <-  "Female"
+
         age <-  i
         strcolname <- as.character(age)
         
-        mass_change_i <- dplyr::filter(mean_masschange_peryear, age_yrs == age & sex == s)
+        mass_change_i <- filter(mean_masschange_peryear, 
+                                age_yrs == age & sex == s)
         
         mass_chg <- mass_change_i$mean_masschange
         sd <- mass_change_i$sd_masschange
@@ -549,14 +506,15 @@ for (s in c("Female")){
                                        col.names = str(i))
         names(mean_masschange_i)[1] <- "mass_chg"
         mean_masschange_i <- mean_masschange_i %>%  
-          dplyr::mutate(age_yrs = strcolname)
+          mutate(age_yrs = strcolname)
         
         mean_masschange_i <- mean_masschange_i %>%  
-          dplyr::mutate(ID = row_number())
+          mutate(ID = row_number())
         
 
         
-        # (pregnant/lactating): 0.369 ± 0.016 (Normal distbn)   - from Fortune et al. (Right whales)
+        # (pregnant/lactating): 0.369 ± 0.016 (Normal distbn) -
+        #                        from Fortune et al. (Right whales)
         # p_lipid_preg <- 0.369
         # p_lipid_preg_sd <-  0.016
         
@@ -567,10 +525,10 @@ for (s in c("Female")){
                                      col.names = str(i))        
         names(p_lipid_preg_i)[1] <- "p_lipid_preg"
         p_lipid_preg_i <- p_lipid_preg_i %>%  
-          dplyr::mutate(age_yrs = strcolname)
+          mutate(age_yrs = strcolname)
         
         p_lipid_preg_i <- p_lipid_preg_i %>%  
-          dplyr::mutate(ID = row_number())
+          mutate(ID = row_number())
         
         mean_masschange_i$p_lipid_preg <- p_lipid_preg_i$p_lipid_preg
 
@@ -582,9 +540,9 @@ for (s in c("Female")){
         names(p_protein_adult_i)[1] <- "p_protein"
         
         p_protein_adult_i <- p_protein_adult_i %>%  
-          dplyr::mutate(age_yrs = strcolname)
+          mutate(age_yrs = strcolname)
         p_protein_adult_i <- p_protein_adult_i %>%  
-          dplyr::mutate(ID = row_number())
+          mutate(ID = row_number())
         
         mean_masschange_i$p_protein_adult <- p_protein_adult_i$p_protein
 
@@ -596,7 +554,6 @@ for (s in c("Female")){
         p_protein_i <- mean_masschange_i$p_protein_adult
         
         
-        #### TO DO: create a column p_protein_i to track what value of p_protein is being used ###
         ####  p_protein_i by age ###
         if (age==0) {
           p_protein <- p_protein_nb
@@ -606,12 +563,10 @@ for (s in c("Female")){
           p_protein <-  mean(p_protein_i)
         }
         
-        
-        
-        
-        
+
         #Calculate Production costs for each age cohort
-        P_cost_i <- mass_chg_i*((p_lipid_preg_i * ED_lipid) + (p_protein * ED_protein))
+        P_cost_i <- 
+          mass_chg_i*((p_lipid_preg_i*ED_lipid) + (p_protein*ED_protein))
         
         #Calculate mean and sd P_cost
         mean_masschange <- mean(mean_masschange_i$mass_chg)
@@ -620,33 +575,22 @@ for (s in c("Female")){
         sd_P_cost <- sd(P_cost_i, na.rm = TRUE) 
         
         
-        
         newRow <- tibble(age_yrs = age,
-                          mean_masschange = mean_masschange,
-                          sd_masschange = sd,
-                          sex = s, 
-                          mean_P = mean_P_cost,
-                          sd_P = sd_P_cost,
+                         mean_masschange = mean_masschange,
+                         sd_masschange = sd,
+                         sex = s, 
+                         mean_P = mean_P_cost,
+                         sd_P = sd_P_cost,
                          p_lipid = p_lipid_preg,
-                         p_protein = p_protein
-                          )
+                         p_protein = p_protein)
         
         P_cost_table_preg <- rbind(P_cost_table_preg, newRow)
 
-        
-        # # Save calculated statistics to P_cost Table 
-        # P_cost_table_2$mean_P <- ifelse(P_cost_table_2$age_yrs == age & P_cost_table_2$sex == s,  
-        #                               mean_P_cost,
-        #                               P_cost_table_2$mean_P)
-        # P_cost_table_2$sd_P <- ifelse(P_cost_table_2$age_yrs == age & P_cost_table_2$sex == s, 
-        #                             sd_P_cost,
-        #                             P_cost_table_2$sd_P)
     }
-    
-    }
+  }
 
     
-kable(P_cost_table_preg)
+kable(head(P_cost_table_preg))
 
 P_cost_table_preg$mean_P_perday <- P_cost_table_preg$mean_P / 365
 P_cost_table_preg$sd_P_perday <- P_cost_table_preg$sd_P / 365
@@ -656,11 +600,8 @@ P_cost_table_preg %>% write_csv("data/P_cost_table_preg.csv", na = "", append = 
 
 ```
 
+```{r plots_P_cost_preg, echo=FALSE}
 
-
-
-
-```{r plots_P_cost_preg}
 head(P_cost_table_preg)
 
 P_cost_table_preg <- as_data_frame(read_csv("data/P_cost_table_preg.csv"))
@@ -672,12 +613,9 @@ plot_PCost_preg <- P_cost_table_preg %>%
     geom_line(aes(x = age_yrs, y=mean_P), linetype = 1) +
     xlab("Age (years)") +
   ylab("Production Cost per year (MJ)")+
-  #ylab(bquote('Milk Requirements (L day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 9))+
-                     #limits = c(0, 9)) +  
   scale_y_continuous(label=comma,
                      breaks = scales::pretty_breaks(n = 10))+
-                       #limits = c(0, 50)) +
   theme_bw() + 
   theme(panel.grid = element_blank())+
   theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
@@ -694,12 +632,10 @@ plot_PCost_preg <- P_cost_table_preg %>%
              size = rel(5),
              color = "black")
 
-
-  
-
 plot_PCost_preg
 ```
 
+#### Production Cost for lactating whales
 
 ```{r P_cost_lact}
 
@@ -728,7 +664,6 @@ P_cost_table_lact <- as_tibble(P_cost_table_lact,
 for (s in c("Female")){
 
     for (i in seq(from = 8, to = 75, by = 1)){
-        #s <-  "Female"
         age <-  i
         strcolname <- as.character(age)
         
@@ -789,7 +724,7 @@ for (s in c("Female")){
         
 
         #Calculate Production costs for each age cohort
-        P_cost_i <- mass_chg_i*((p_lipid_lact_i * ED_lipid) + (p_protein_adult * ED_protein))
+        P_cost_i <- mass_chg_i*((p_lipid_lact_i*ED_lipid)+(p_protein_adult* ED_protein))
         
         #Calculate mean and sd P_cost
         mean_masschange <- mean(mean_masschange_i$mass_chg)
@@ -800,31 +735,22 @@ for (s in c("Female")){
         
         
         newRow <- tibble(age_yrs = age,
-                          mean_masschange = mass_chg,
-                          sd_masschange = sd,
-                          sex = s, 
-                          mean_P= mean_P_cost,
-                          sd_P = sd_P_cost,
+                         mean_masschange = mass_chg,
+                         sd_masschange = sd,
+                         sex = s, 
+                         mean_P= mean_P_cost,
+                         sd_P = sd_P_cost,
                          p_lipid = p_lipid_lact,
-                         p_protein = p_protein
-                          )
+                         p_protein = p_protein)
         
         P_cost_table_lact <- rbind(P_cost_table_lact, newRow)
-
         
-        # # Save calculated statistics to P_cost Table 
-        # P_cost_table_2$mean_P <- ifelse(P_cost_table_2$age_yrs == age & P_cost_table_2$sex == s,  
-        #                               mean_P_cost,
-        #                               P_cost_table_2$mean_P)
-        # P_cost_table_2$sd_P <- ifelse(P_cost_table_2$age_yrs == age & P_cost_table_2$sex == s, 
-        #                             sd_P_cost,
-        #                             P_cost_table_2$sd_P)
-    }
+     }
     
     }
 
     
-kable(P_cost_table_lact)
+kable(head(P_cost_table_lact))
 
 P_cost_table_lact$mean_P_perday <- P_cost_table_lact$mean_P / 365
 P_cost_table_lact$sd_P_perday <- P_cost_table_lact$sd_P / 365
@@ -835,11 +761,7 @@ P_cost_table_lact %>% write_csv("data/P_cost_table_lact.csv", na = "", append = 
 
 ```
 
-
-
-
-
-```{r plots_P_cost_lact}
+```{r plots_P_cost_lact, echo=FALSE}
 head(P_cost_table_lact)
 
 P_cost_table_lact <- as_data_frame(read_csv("data/P_cost_table_lact.csv"))
@@ -851,19 +773,19 @@ plot_PCost_lact <- P_cost_table_lact %>%
     geom_line(aes(x = age_yrs, y=mean_P), linetype = 1) +
     xlab("Age (years)") +
   ylab("Production Cost per year (MJ)")+
-  #ylab(bquote('Milk Requirements (L day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 9))+
-                     #limits = c(0, 9)) +  
   scale_y_continuous(label=comma,
                      breaks = scales::pretty_breaks(n = 10))+
-                       #limits = c(0, 50)) +
   theme_bw() + 
   theme(panel.grid = element_blank())+
   theme(axis.text = element_text(colour = "black", size = rel(1.2)))+
     theme(axis.title.y = element_text(colour = "black", 
                                       size = rel(1.2), 
                                       angle = 90, 
-                                      margin = margin(t = 0, r = 10, b = 0, l = 0)))+
+                                      margin = margin(t = 0, 
+                                                      r = 10, 
+                                                      b = 0, 
+                                                      l = 0)))+
     theme(axis.title.x = element_text(colour = "black", size = rel(1.2)))+
     theme(axis.ticks = element_line(colour="black"))+
 
@@ -873,14 +795,10 @@ plot_PCost_lact <- P_cost_table_lact %>%
              size = rel(5),
              color = "black")
 
-
-  
-
 plot_PCost_lact
 ```
 
-
-```{r plot_Pcost_preglact_3panel}
+```{r plot_Pcost_preglact_3panel, echo=FALSE}
 
 P_cost_table_NA$Lifestage <- "Juvenile/Adult"
 P_cost_table_preg$Lifestage <- "Pregnant"
@@ -918,8 +836,6 @@ plot_P_cost_3panel <- P_cost_3panel_tibble %>%
   scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
                      limits = c(1,30)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 6))+
-                     #limits = c(0, 20))+
-  
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
@@ -935,4 +851,3 @@ plot_P_cost_3panel
 
 
 ```
-

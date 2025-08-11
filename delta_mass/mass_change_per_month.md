@@ -1,9 +1,9 @@
 Mass change - phase 1 per month
 ================
 Selina Agbayani
-Jan 19, 2021, updated and cleaned 25 July, 2025
+Jan 19, 2021, updated and cleaned 10 August, 2025
 
-NOTE: This code will run for a long time.
+##### NOTE: If MC_reps =10,000 this code will run for a long time.
 
 ``` r
 ############ Set path for output figures: ###############

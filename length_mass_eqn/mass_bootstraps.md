@@ -16,7 +16,7 @@ Figurespath
 datapath <- paste0(getwd(), "/data", collapse = NULL) 
 ```
 
-**GREY WHALE LENGTHS AT AGE DATASET**
+## GRAY WHALE LENGTHS AT AGE DATASET
 
 ``` r
 #Read in data for predicted lengths per age step (data from Agbayani et al. 2020)  
@@ -86,7 +86,7 @@ age_yr_tibble <- as_tibble(
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-*Fitting the mass/length data to a linear model*
+### Fitting the mass/length data to a linear model
 
 ``` r
 #Calculate log base 10 for lengths and masss
@@ -161,8 +161,6 @@ summary(lm_log10)
 # ## F-statistic: 303.7 on 1 and 13 DF,  p-value: 2.143e-10
 ```
 
-Create blank mass table
-
 ``` r
 kable(head(gw_pred_lengths))
 ```
@@ -227,7 +225,7 @@ kable(head(mass_table))
 | age_yrs | mass_kg | mass_sd | mean_lwr | mean_upr | quant025 | quant975 |
 |:--------|:--------|:--------|:---------|:---------|:---------|:---------|
 
-Predicting mass per year from linear model for first 12 months
+### Predicting mass per year from linear model for first 12 months
 
 ``` r
 # Predict mass 10,000 times per age step, and calculate the mean, 
@@ -300,7 +298,7 @@ kable(head(mass_table))
 | 0.1616438 | 2003.8171 | 53.21868 | 1696.1860 | 2367.260 | 1901.3875 | 2109.690 |
 | 0.2041096 | 2291.4431 | 62.29993 | 1966.1135 | 2670.624 | 2171.5715 | 2415.419 |
 
-Predicting mass per year from linear model for ages \>1 yr
+### Predicting mass per year from linear model for ages \>1 yr
 
 ``` r
 # Predict mass 10,000 times per age step (0.5 yrs), and calculate the mean, 
@@ -367,11 +365,7 @@ kable(head(mass_table))
 | 0.1616438 | 2003.8171 | 53.21868 | 1696.1860 | 2367.260 | 1901.3875 | 2109.690 |
 | 0.2041096 | 2291.4431 | 62.29993 | 1966.1135 | 2670.624 | 2171.5715 | 2415.419 |
 
-*Plotting mass data onto graphs*
-
-![](mass_bootstraps_files/figure-gfm/mass%20plots-1.png)<!-- -->![](mass_bootstraps_files/figure-gfm/mass%20plots-2.png)<!-- -->
-
-*Plotting sex-specific mass curves*
+### Predicting mass by sex
 
 ``` r
 # Percent diffs between measured predicted lengths 
@@ -420,15 +414,13 @@ kable(head(mass_table))
 | 0.2041096 | 2291.4431 | 62.29993 | 1966.1135 | 2670.624 | 2171.5715 | 2415.419 | 2356.713 | 2254.9473 |
 
 ``` r
-#kable(mass_table)
-
 #save mass_table csv
 mass_table %>% write_csv("data/mass_table.csv", na = "", append = FALSE)
 ```
 
-Predicted Mass by sex
-
-![](mass_bootstraps_files/figure-gfm/plot%20age%20mass%20by%20sex-1.png)<!-- -->![](mass_bootstraps_files/figure-gfm/plot%20age%20mass%20by%20sex-2.png)<!-- -->![](mass_bootstraps_files/figure-gfm/plot%20age%20mass%20by%20sex-3.png)<!-- -->
-
     ## png 
     ##   2
+
+### Plotting Mass and Mass by sex
+
+<img src="C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs/length_mass_eqn/figures/bootstrap_mass_estimates_2panel.jpg" width="3000" />

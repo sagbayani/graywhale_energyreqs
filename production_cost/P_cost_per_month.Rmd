@@ -1,6 +1,6 @@
 ---
 title: "Production Cost - Phase 1 - per month"
-author: "Seline Agbayani"
+author: "Selina Agbayani"
 date: "June 17, 2022 - code updated and cleaned `r format(Sys.time(), '%d %B, %Y')`"
 output:
   github_document:
@@ -58,8 +58,9 @@ library(extrafont)
 
 
 ```{r functions, include=FALSE}
+
 #Call R script with custom functions
-source("../functions.R", local = knitr::knit_global())
+source(paste0(getwd(),"/functions.R"), local = knitr::knit_global())
 ```   
 
 
@@ -123,13 +124,11 @@ age_yr_tibble <- as_tibble(
 ```
 
 
-
-**Calculate Production Costs (P) using equation from Winship et al. 2002**
- P = change in Mass x [(p_lipid x ED_lipid) + (1-p_lipid) x (1-p_water) x ED_protein]
-
-Calculate Production Costs 
+### Production Cost Formula and input variables
 
 ```{r}
+# Calculate Production Costs (P) using equation from Winship et al. 2002**
+# P = change in Mass x {[(p_lipid x ED_lipid) + (1-p_lipid) x (1-p_water) x ED_protein)]
 
 #########  PRODUCTION COSTS  #########
 # 
@@ -161,7 +160,7 @@ p_protein_adult <- (p_protein_adult_SB+p_protein_adult_NB)/2       # Avg non-cal
 ```
 
 
-Calculate Production Cost per month
+### Production Cost per month
 
 ```{r}
 MC_reps = 10000
@@ -336,81 +335,7 @@ P_cost_table %>% write_csv("data/P_cost_table_phase1.csv", na = "", append = FAL
 ```
 
 
-
-
-*Plotting Production Cost*
-
-```{r Plot production cost, echo=FALSE}
-kable(head(P_cost_table))
-
-
-plot_PCost <- P_cost_table %>% 
-  dplyr::filter(sex == "N/A" & age_mth > 0) %>%
-  ggplot() +
-  geom_point(aes(x = age_mth-0.5, y= mean_P), size = 2)+
-  geom_errorbar(aes(x = age_mth-0.5, 
-                    ymin = mean_P - sd_P, 
-                    ymax = mean_P + sd_P), 
-                width=0, size=1, linetype = 2, color="gray40") +
-  xlab("Age (months)") +
-  ylab(bquote('Mean production cost (P) in MJ')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(0, 12)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(0, 11000),
-                     labels = scales::comma) +
-  theme_bw() +
-  theme(panel.grid = element_blank(),
-        axis.title.x = element_text(size = rel(1.4), colour = "black"),
-        axis.text.x = element_text(size = rel(1.2), colour = "black"),
-        axis.title.y = element_text(size = rel(1.4), colour = "black"),
-        axis.text.y = element_text(size = rel(1.2), colour = "black"),
-        strip.background = element_blank(),
-        legend.position="none" 
-        ) 
-    
-
-plot_PCost
-
-
-```
-
-Production Cost per day
-
-```{r plot Production Cost per day, echo=FALSE}
-
-plot_PCost_perday <- P_cost_table %>% 
-  dplyr::filter(sex == "N/A") %>%
-  ggplot() +
-  geom_point(aes(x = age_mth-0.5, y= mean_P_perday), size = 2)+
-  geom_errorbar(aes(x = age_mth-0.5, 
-                    ymin = mean_P_perday - sd_P_perday, 
-                    ymax = mean_P_perday + sd_P_perday), 
-                width=0, size=1, linetype = 2, color="gray40") +
-  xlab("Age (months)") +
-  ylab(bquote('Mean production cost (P) in MJ day'^'-1')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(0, 12)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     limits = c(0, 400),
-                     labels = scales::comma) +
-  theme_bw() +
-  theme(panel.grid = element_blank(),
-        axis.title.x = element_text(size = rel(1.4), colour = "black"),
-        axis.text.x = element_text(size = rel(1.2), colour = "black"),
-        axis.title.y = element_text(size = rel(1.2), colour = "black"),
-        axis.text.y = element_text(size = rel(1.2), colour = "black"),
-        strip.background = element_blank(),
-        legend.position="none" 
-        ) 
-    
-
-plot_PCost_perday
-
-
-```
-
-Production Cost and Mass 
+Production Cost per month vs  Mass 
 
 ```{r plot_Pcost_mass, echo=FALSE}
 
@@ -482,7 +407,7 @@ plot_P_cost_mass
 
 
 
-Production Cost and Mass per day
+### Production Cost per day vs Mass 
 
 ```{r plot_Pcost_perday_mass, echo=FALSE}
 
@@ -560,241 +485,6 @@ plot_P_cost_mass_perday
 ```
 
 
-
-
-
-```{r Pcost from birth to weaning, echo=FALSE}
-# Production cost from birth to weaning  (from 0 to 10th mth, i.e. 304 days)
-
-# mass_at_birth_tibble <- mass_table %>% filter(age_yrs == 0)  #at birth
-# 
-# mass_at_birth_mean <- mass_at_birth_tibble$mean_mass 
-# mass_at_birth_sd <- mass_at_birth_tibble$sd_mass
-# 
-# age_at_weaning_tibble <- age_yr_tibble %>% filter(age_mth == 10)
-# age_yrs_at_weaning <- age_at_weaning_tibble$age_yrs
-# mass_at_weaning_tibble <- mass_table %>%  filter(age_yrs == age_yrs_at_weaning)  #10th mth  i.e. 0.8333333
-# 
-# mass_at_weaning_mean <-mass_at_weaning_tibble$mean_mass 
-# mass_at_weaning_sd <-mass_at_weaning_tibble$sd_mass
-# 
-# 
-# MC_reps = 10000
-# 
-# set.seed(12345)
-# mass_at_birth_reps <- rnorm(MC_reps, mass_at_birth_mean, mass_at_birth_sd)
-# mass_at_weaning_reps <- rnorm(MC_reps, mass_at_weaning_mean, mass_at_weaning_sd)
-# 
-# masschange_lactation_reps <- mass_at_weaning_reps - mass_at_birth_reps
-# 
-# masschange_lactation_mean <- mean(masschange_lactation_reps)
-# masschange_lactation_sd <- sd(masschange_lactation_reps)
-# 
-# masschange_lactation_mean
-# masschange_lactation_sd
-# 
-# 
-# p_lipid_young_reps <- runif(MC_reps, min = 0.33, max = 0.39)
-# 
-# P_cost_birth_to_weaning_reps <- masschange_lactation_reps*((p_lipid_young_reps * ED_lipid) + 
-#                                                         (p_protein_nb * ED_protein))
-#            
-# P_cost_birth_to_weaning_mean <- mean(P_cost_birth_to_weaning_reps)
-# P_cost_birth_to_weaning_mean
-# 
-# P_cost_birth_to_weaning_sd <- sd(P_cost_birth_to_weaning_reps)
-# P_cost_birth_to_weaning_sd
-# 
-# P_cost_birth_to_weaning_quant025 <-  quantile(P_cost_birth_to_weaning_reps, 0.025, na.rm = TRUE)         
-# P_cost_birth_to_weaning_quant025
-# 
-# P_cost_birth_to_weaning_quant975 <-  quantile(P_cost_birth_to_weaning_reps, 0.975, na.rm = TRUE)         
-# P_cost_birth_to_weaning_quant975        
-# 
-# 
-# # Ts from 0 to 10th month = 304 days
-# age_yr_tibble_10mth <- age_yr_tibble %>% filter(age_mth == 10)
-# Ts_birth_to_weaning <-  age_yr_tibble_10mth$no_days_cumul
-# P_cost_birth_to_weaning_mean_perday <- P_cost_birth_to_weaning_mean / Ts_birth_to_weaning
-# P_cost_birth_to_weaning_sd_perday <- P_cost_birth_to_weaning_sd / Ts_birth_to_weaning
-# 
-# P_cost_birth_to_weaning_perday_reps <- rnorm(MC_reps,P_cost_birth_to_weaning_mean_perday,P_cost_birth_to_weaning_sd_perday )
-# 
-# P_cost_birth_to_weaning_perday_quant025 <- quantile(P_cost_birth_to_weaning_perday_reps, 0.025, na.rm = TRUE) 
-# P_cost_birth_to_weaning_perday_quant975 <- quantile(P_cost_birth_to_weaning_perday_reps, 0.975, na.rm = TRUE) 
-# 
-# 
-# 
-# P_cost_birth_to_weaning_tibble <- as.data.frame(matrix(ncol = 11, nrow = 0))
-# 
-# cnames <- c("time_period", "Ts", "sex", 
-#             "P_cost_mean", "P_cost_sd", "P_quant025", "P_quant975",
-#             "P_cost_mean_perday", "P_cost_sd_perday", "P_perday_quant025", "P_perday_quant975")            
-# 
-# colnames(P_cost_birth_to_weaning_tibble) <- cnames
-# 
-# P_cost_birth_to_weaning_tibble <- as_tibble(P_cost_birth_to_weaning_tibble,
-#                                             col_types = (list(ID = col_integer(),
-#                                                               time_period =  col_character(),
-#                                                               Ts = col_double(),
-#                                                               sex = col_character(), 
-#                                                               P_cost_mean = col_double(), 
-#                                                               P_cost_sd = col_double(), 
-#                                                               P_quant025 = col_double(), 
-#                                                               P_quant975 = col_double(),
-#                                                               P_cost_mean_perday = col_double(),
-#                                                               P_cost_sd_perday = col_double(),
-#                                                               P_cost_perday_quant025 = col_double(),
-#                                                               P_cost_perday_quant975 = col_double()
-#                                             )
-#                                             )
-# )
-# 
-# 
-# row <-  tibble(time_period = "birth to weaning",
-#                Ts = Ts_birth_to_weaning,
-#                sex = "N/A",
-#                P_cost_mean = P_cost_birth_to_weaning_mean,
-#                P_cost_sd = P_cost_birth_to_weaning_sd,
-#                P_quant025 = P_cost_birth_to_weaning_quant025,
-#                P_quant975 = P_cost_birth_to_weaning_quant975,
-#                P_cost_mean_perday = P_cost_birth_to_weaning_mean_perday,
-#                P_cost_sd_perday =  P_cost_birth_to_weaning_sd_perday,
-#                P_cost_perday_quant025 = P_cost_birth_to_weaning_perday_quant025,
-#                P_cost_perday_quant975 = P_cost_birth_to_weaning_perday_quant975
-#         )
-# 
-# 
-#         
-# P_cost_birth_to_weaning_tibble <- rbind(P_cost_birth_to_weaning_tibble, row)
-# 
-# 
-# 
-# kable(P_cost_birth_to_weaning_tibble)
-# 
-# 
-# P_cost_birth_to_weaning_tibble %>% write_csv("data/P_cost_birth_to_weaning_tibble.csv", na = "", append = FALSE)
-
-
-```
-
-
-
-```{r Pcost from birth to 6th month, echo=FALSE}
-#Production cost from birth to 6th mth (# days)
-
-# mass_at_birth_tibble <- mass_table %>% filter(age_yrs == 0)  #at birth
-# 
-# mass_at_birth_mean <- mass_at_birth_tibble$mean_mass 
-# mass_at_birth_sd <- mass_at_birth_tibble$sd_mass
-# 
-# age_at_6mths_tibble <- age_yr_tibble %>% filter(age_mth == 6)
-# age_yrs_at_6mths <- age_at_6mths_tibble$age_yrs
-# mass_at_6mths_tibble <- mass_table %>%  filter(age_yrs == age_yrs_at_6mths)  #10th mth  i.e. 0.8333333
-# 
-# mass_at_6mths_mean <-mass_at_6mths_tibble$mean_mass 
-# mass_at_6mths_sd <-mass_at_6mths_tibble$sd_mass
-# 
-# 
-# MC_reps = 10000
-# 
-# set.seed(12345)
-# mass_at_birth_reps <- rnorm(MC_reps, mass_at_birth_mean, mass_at_birth_sd)
-# mass_at_6mths_reps <- rnorm(MC_reps, mass_at_6mths_mean, mass_at_6mths_sd)
-# 
-# masschange_lactation_reps <- mass_at_6mths_reps - mass_at_birth_reps
-# 
-# masschange_lactation_mean <- mean(masschange_lactation_reps)
-# masschange_lactation_sd <- sd(masschange_lactation_reps)
-# 
-# masschange_lactation_mean
-# masschange_lactation_sd
-# 
-# 
-# p_lipid_young_reps <- runif(MC_reps, min = 0.33, max = 0.38)
-# 
-# P_cost_birth_to_6mths_reps <- masschange_lactation_reps*((p_lipid_young_reps * ED_lipid) + 
-#                                                         (p_protein_nb * ED_protein))
-#            
-# P_cost_birth_to_6mths_mean <- mean(P_cost_birth_to_6mths_reps)
-# P_cost_birth_to_6mths_mean
-# 
-# P_cost_birth_to_6mths_sd <- sd(P_cost_birth_to_6mths_reps)
-# P_cost_birth_to_6mths_sd
-# 
-# P_cost_birth_to_6mths_quant025 <-  quantile(P_cost_birth_to_6mths_reps, 0.025, na.rm = TRUE)         
-# P_cost_birth_to_6mths_quant025
-# 
-# P_cost_birth_to_6mths_quant975 <-  quantile(P_cost_birth_to_6mths_reps, 0.975, na.rm = TRUE)         
-# P_cost_birth_to_6mths_quant975        
-# 
-# 
-# # Ts from 0 to 6h month = 181
-# age_yr_tibble_6mth <- age_yr_tibble %>% filter(age_mth == 6)
-# Ts_birth_to_6mths <-  age_yr_tibble_6mth$no_days_cumul
-# 
-# P_cost_birth_to_6mths_mean_perday <- P_cost_birth_to_6mths_mean / Ts_birth_to_6mths
-# P_cost_birth_to_6mths_sd_perday <- P_cost_birth_to_6mths_sd / Ts_birth_to_6mths
-# 
-# P_cost_birth_to_6mths_perday_reps <- rnorm(MC_reps,P_cost_birth_to_6mths_mean_perday,P_cost_birth_to_6mths_sd_perday )
-# 
-# P_cost_birth_to_6mths_perday_quant025 <- quantile(P_cost_birth_to_6mths_perday_reps, 0.025, na.rm = TRUE) 
-# P_cost_birth_to_6mths_perday_quant975 <- quantile(P_cost_birth_to_6mths_perday_reps, 0.975, na.rm = TRUE) 
-# 
-# 
-# 
-# P_cost_birth_to_6mths_tibble <- as.data.frame(matrix(ncol = 11, nrow = 0))
-# 
-# cnames <- c("time_period", "Ts", "sex", 
-#             "P_cost_mean", "P_cost_sd", "P_quant025", "P_quant975",
-#             "P_cost_mean_perday", "P_cost_sd_perday", "P_perday_quant025", "P_perday_quant975")            
-# 
-# colnames(P_cost_birth_to_6mths_tibble) <- cnames
-# 
-# P_cost_birth_to_6mths_tibble <- as_tibble(P_cost_birth_to_6mths_tibble,
-#                                             col_types = (list(ID = col_integer(),
-#                                                               time_period =  col_character(),
-#                                                               Ts = col_double(),
-#                                                               sex = col_character(), 
-#                                                               P_cost_mean = col_double(), 
-#                                                               P_cost_sd = col_double(), 
-#                                                               P_quant025 = col_double(), 
-#                                                               P_quant975 = col_double(),
-#                                                               P_cost_mean_perday = col_double(),
-#                                                               P_cost_sd_perday = col_double(),
-#                                                               P_cost_perday_quant025 = col_double(),
-#                                                               P_cost_perday_quant975 = col_double()
-#                                             )
-#                                             )
-# )
-# 
-# 
-# row <-  tibble(time_period = "birth to 6mths",
-#                Ts = Ts_birth_to_6mths,
-#                sex = "N/A",
-#                P_cost_mean = P_cost_birth_to_6mths_mean,
-#                P_cost_sd = P_cost_birth_to_6mths_sd,
-#                P_quant025 = P_cost_birth_to_6mths_quant025,
-#                P_quant975 = P_cost_birth_to_6mths_quant975,
-#                P_cost_mean_perday = P_cost_birth_to_6mths_mean_perday,
-#                P_cost_sd_perday =  P_cost_birth_to_6mths_sd_perday,
-#                P_cost_perday_quant025 = P_cost_birth_to_6mths_perday_quant025,
-#                P_cost_perday_quant975 = P_cost_birth_to_6mths_perday_quant975
-#         )
-# 
-# 
-#         
-# P_cost_birth_to_6mths_tibble <- rbind(P_cost_birth_to_6mths_tibble, row)
-# 
-# 
-# 
-# kable(P_cost_birth_to_6mths_tibble)
-# 
-# 
-# P_cost_birth_to_6mths_tibble %>% write_csv("data/P_cost_birth_to_6mths_tibble.csv", na = "", append = FALSE)
-
-
-```
 
 
 
