@@ -70,9 +70,6 @@ Figurespath
 datapath <- paste0(getwd(), "/data", collapse = NULL) 
 datapath
 
-
-
-
 ```
 
 ```{r read_in_data}
@@ -160,7 +157,6 @@ Vt_table_phase2_f <- as_tibble(
 )
 
 
-
 # Read in Activity Cost Reference data from csv  ORIGINAL SOURCE VALUES
 A_cost_reference <- as_tibble(
   read_csv("data/ActivityCost_ReferenceData_BreathsPerDay_Table_VA_2017_original_sources.csv"),
@@ -209,8 +205,7 @@ age_yr_tibble <- as_tibble(
 
 ```
 
-Total metabolic energy expenditure at a given stage (E~s~) 
-------------------------------------------------------------------------
+#### Total metabolic energy expenditure at a given stage (E~s~) 
 
 E~s~ = 0.02 x %O~2~ x T~s~ x R~s~ x V~t~ - Sumich (1986)
 
@@ -226,7 +221,7 @@ V~t~ - Tidal lung volume (L)
 #Original code was run with MC_reps <- 10000  and took a very long time
 #To test and explore the code, use less reps 
 
-MC_reps = 100
+MC_reps = 10000
 
 # lactating only 
 Lifestage <-  "Lactating"
@@ -424,18 +419,15 @@ Es_sensAnalysis_lact_females %>% write_csv("data/Es_sensAnalysis_lact_females_so
 
 ```
 
-```{r Es_lact_stacked}
+```{r Es_lact_stacked, echo=FALSE}
 Es_sensAnalysis_lact_females <- read_csv("data/Es_sensAnalysis_lact_females_source_bpm.csv")
 
 plot_Es_sensAnalysis_lact_females <- Es_sensAnalysis_lact_females %>% 
-  filter(age_yrs<=40) %>% 
+  filter(age_yrs<=30) %>% 
   ggplot(aes(x = age_yrs, y = Es_perday))+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 linetype = 1, colour = "gray40", width = 0.02)+
    geom_point(size = 0.5)+
-  #  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-  #               fill = "gray70")+
-  # geom_line(linewidth = 0.5)+
    facet_grid(MC_variable ~ Activity_stages,
               labeller = label_wrap_gen(width = 2, 
                                         multi_line = TRUE)) +
@@ -443,19 +435,14 @@ plot_Es_sensAnalysis_lact_females <- Es_sensAnalysis_lact_females %>%
    ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) + 
    scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
                      limits = c(0, 30.5))+
-   #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
    scale_y_continuous(label=comma,
                       breaks = scales::pretty_breaks(n = 5),
                       limits =  c(0, 2500))+
 
  
-  #ggtitle("Lactating")+
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position.inside = 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
-  #theme(panel.border = element_blank())+
   theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 
@@ -473,12 +460,12 @@ plot_Es_sensAnalysis_lact_females
 ```{r Es_lact_peryear}
 
 # lactating only
-Es_subtable_lact <- Es_sensAnalysis_lact_females %>% dplyr::filter(age_yrs >999, Lifestage == Lifestage)
+Es_subtable_lact <- Es_sensAnalysis_lact_females %>% 
+  filter(age_yrs >999, Lifestage == Lifestage)
 kable(head(Es_sensAnalysis_lact_females))
 
 Es_lact_table  <- Es_subtable_lact %>%  
   select(age_yrs, Lifestage, no_days, MC_variable, Es, Es_sd)
-
 
 
 ## Calculate sum of Es for pregnant females aged 8+
@@ -500,9 +487,7 @@ for (age in seq(from = 8, to = 75, by = 1)){
       sum_of_variances <- sum_of_variances + (Es_sd_i)^2
     }
     Es_lact_sd  <-  sqrt(sum_of_variances$Es_sd)
-    
-    
-    
+
     newRow <- tibble(age_yrs = age,
                      Lifestage = Lifestage,
                      no_days = no_days,
@@ -525,15 +510,13 @@ Es_lact_table %>%
 ```
 
 
-```{r plots_Es_lact_peryear}
+```{r plots_Es_lact_peryear, echo=FALSE}
+
+Es_lact_table <- read.csv("data/Es_sensAnalysis_lact_peryear_source_bpm.csv")
 
 plot_Es_lact_table <- Es_lact_table %>% 
   filter(age_yrs <= 30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) +
-  # geom_errorbar(aes(ymin = Es_perday - Es_sd_perday,
-  #                   ymax = Es_perday + Es_sd_perday),
-  #               linetype = 1, colour = 'gray40', width = 0) +
-  # geom_point(size = 0.5) +
   geom_ribbon(aes(ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
                 fill = "gray70")+
   geom_line(linewidth = 0.5)+
@@ -542,19 +525,13 @@ plot_Es_lact_table <- Es_lact_table %>%
   ylab(bquote('Energetic expenditure (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10),
                      limits = c(0, 30.5))+
-  #limits = c(0, 30.5), expand=c(0,0)) +  # max x-axis 30 yrs.
   scale_y_continuous(label=comma,
                      breaks = scales::pretty_breaks(n = 10),
                      limits =  c(0, 1500))+
-  
-  #limits = c(0,1400), expand=c(0,0))+
   ggtitle("Lactating")+
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(legend.position.inside= 0)+
-  # theme(plot.background = element_rect(fill = "black"))+
-  # theme(panel.background = element_rect(fill = "black"))+
-  #theme(panel.border = element_blank())+
   theme(axis.line = element_line(linewidth = 1, colour = "gray75"))+
   theme(axis.text = element_text(colour = "black", size = rel(1)))+
   theme(axis.title.y = element_text(colour = "black", 

@@ -1,7 +1,7 @@
 ENERGY REQUIREMENTS OF GRAY WHALES
 ================
 Selina Agbayani
-10 August, 2025
+12 August, 2025
 
 ## GRAY WHALE LIFE CYCLE
 
@@ -105,6 +105,24 @@ calf from birth to 9.6 months that has a negligible contribution to
 range of uncertainty.
 
 ### Total energetic expenditure (*E<sub>s</sub>*)
+
+    ## Error in `select()`:
+    ## ! Can't select columns that don't exist.
+    ## ✖ Column `Es_perday_sd` doesn't exist.
+
+    ## Error in rbind(deparse.level, ...): numbers of columns of arguments do not match
+
+    ## Error in eval(expr, envir, enclos): object 'Es_sensAnalysis_allstages_permth_peryr' not found
+
+    ## Error: object 'Es_sensAnalysis_allstages_permth_peryr' not found
+
+    ## Error in eval(expr, envir, enclos): object 'Es_sensAnalysis_allstages_permth_peryr' not found
+
+    ## Error: object 'Es_sensAnalysis_allstages_permth_peryr' not found
+
+    ## Error in eval(expr, envir, enclos): object 'Es_sensAnalysis_allstages_permth_peryr' not found
+
+    ## Error in eval(expr, envir, enclos): object 'plot_Es_sensAnalysis_allstages_permth_peryr' not found
 
 ![](figures/Figure7_Es_sensAnalysis_allstages_permth_peryr.jpg)
 

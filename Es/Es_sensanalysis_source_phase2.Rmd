@@ -493,7 +493,9 @@ plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>%
   theme(axis.title.y = element_text(colour = "black", 
                                     size = rel(1), angle = 90))+
   theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1)))
+                                    size = rel(1)))+
+  theme(strip.background = element_rect(colour = "transparent", fill = "transparent"))+
+  theme(strip.text = element_text(colour = "black", size = rel(1)))
 
 
 plot_Es_sensAnalysis_phase2
@@ -504,6 +506,7 @@ plot_Es_sensAnalysis_phase2
 #### Es - sensitivity analyses 
 
 ```{r Es_phase2_peryear}
+
 
 #pull out blank Es_subtable
 Es_subtable <- Es_sensAnalysis_phase2 %>% filter(age_yrs >999, Lifestage == Lifestage)
@@ -549,7 +552,7 @@ Es_sensAnalysis_phase2_peryear <- Es_table_2
 
 Es_sensAnalysis_phase2_peryear$Es_perday <-
   Es_sensAnalysis_phase2_peryear$Es / Es_sensAnalysis_phase2_peryear$no_days
-Es_sensAnalysis_phase2_peryear$Es_sd_perday <- 
+Es_sensAnalysis_phase2_peryear$Es_perday_sd <- 
   Es_sensAnalysis_phase2_peryear$Es_sd / Es_sensAnalysis_phase2_peryear$no_days
 
 Es_sensAnalysis_phase2_peryear %>% write_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv", na = "", append = FALSE)
@@ -563,8 +566,8 @@ Es_sensAnalysis_phase2_peryear %>% write_csv("data/Es_sensAnalysis_phase2_peryea
 plot_Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>% 
   dplyr::filter(Lifestage == "Juvenile/Adult" & age_yrs >= 1 & age_yrs < 30) %>% 
   ggplot() +
-  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_sd_perday, 
-                    ymax = Es_perday + Es_sd_perday),
+  geom_errorbar(aes(x = age_yrs, ymin = Es_perday - Es_perday_sd, 
+                    ymax = Es_perday + Es_perday_sd),
                 linetype = 3, colour = 'gray40', width = 0) +
   geom_point(aes(x = age_yrs, y =Es_perday)) +
   facet_grid(~MC_variable)+
@@ -582,7 +585,9 @@ plot_Es_sensAnalysis_phase2_peryear <- Es_sensAnalysis_phase2_peryear %>%
   theme(axis.title.y = element_text(colour = "black", 
                                     size = rel(1.4), angle = 90))+
   theme(axis.title.x = element_text(colour = "black", 
-                                    size = rel(1.4)))
+                                    size = rel(1.4)))+
+  theme(strip.background = element_rect(colour = "transparent", fill = "transparent"))+
+  theme(strip.text = element_text(colour = "black", size = rel(1)))
 
 plot_Es_sensAnalysis_phase2_peryear
 

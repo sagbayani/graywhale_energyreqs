@@ -1,7 +1,7 @@
 Energy Expenditure (Es) Sensitivity Analysis - Phase 2
 ================
 Selina Agbayani
-02 March 2022 - code updated 11 August, 2025
+02 March 2022 - code updated 12 August, 2025
 
 ``` r
 # Set path for output figures: 
@@ -603,7 +603,7 @@ Es_sensAnalysis_phase2_peryear <- Es_table_2
 
 Es_sensAnalysis_phase2_peryear$Es_perday <-
   Es_sensAnalysis_phase2_peryear$Es / Es_sensAnalysis_phase2_peryear$no_days
-Es_sensAnalysis_phase2_peryear$Es_sd_perday <- 
+Es_sensAnalysis_phase2_peryear$Es_perday_sd <- 
   Es_sensAnalysis_phase2_peryear$Es_sd / Es_sensAnalysis_phase2_peryear$no_days
 
 Es_sensAnalysis_phase2_peryear %>% write_csv("data/Es_sensAnalysis_phase2_peryear_source_bpm.csv", na = "", append = FALSE)
