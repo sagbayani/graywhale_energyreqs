@@ -1,7 +1,7 @@
 ---
 title: "Gross Energetic Requirements (GER) Sensitivity Analysis - phase 2 (juvenile/adult)"
 author: "Selina Agbayani"
-date: "25 Jan 2022 - code updated `r format(Sys.time(), '%d %B, %Y')`"
+date: "25 Jan 2022 - code updated `r format(Sys.time(), '%d %B %Y')`"
 output:
   github_document:
   html_document:

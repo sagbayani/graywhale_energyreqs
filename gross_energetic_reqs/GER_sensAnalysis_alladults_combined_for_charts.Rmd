@@ -1,7 +1,7 @@
 ---
-title: "Gross Energetic Requirements(GER) Sensitivity Analysis outputs - alladults - including classic pregnant/lactating only and frontloading while pregnant"
+title: "GER Sensitivity Analysis outputs - all adults, all models"
 author: "Selina Agbayani"
-date: " `r format(Sys.time(), '%d %B, %Y')`"
+date: " `r format(Sys.time(), '%d %B %Y')`"
 output:
   github_document:
   html_document:
@@ -17,9 +17,7 @@ classoption: landscape
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
-knitr::opts_chunk$set(warning = TRUE)
-
-
+knitr::opts_chunk$set(warning = FALSE)
 
 
 ## Setup
@@ -61,10 +59,8 @@ library(ggpubr)
 library(gridExtra)
 
 
-# #quiet col types messages
-# options(readr.show_col_types = FALSE)
-
-
+#quiet col types messages
+options(readr.show_col_types = FALSE)
 
 ```
 
@@ -100,7 +96,7 @@ predict_GER_table_phase2 <- predict_GER_table_phase2 %>%
 
 
 
-#GER for pregnant mother only (no front-loading)
+#GER for pregnant mother only
 predict_GER_table_preg_only <- read_csv("data/predict_GER_table_sensAnalysis_preg_ONLY.csv")
 predict_GER_table_preg_only$Lifestage <- "Pregnant only"
 predict_GER_table_preg_only <- predict_GER_table_preg_only %>% 
@@ -110,7 +106,7 @@ predict_GER_table_preg_only <- predict_GER_table_preg_only %>%
          "pctbodywt", "pctbodywt_sd")
 
 
-#Full lactation period (no front-loading)
+#Full lactation period (birth to weaning at 9.6 months)
 predict_GER_table_lact_all  <-  read_csv("data/predict_GER_table_sensAnalysis_lact_all.csv")
 predict_GER_table_lact_all$Lifestage <- "Lactating (birth to 9.6 mths)"
 predict_GER_table_lact_all <- predict_GER_table_lact_all %>% 
@@ -120,9 +116,9 @@ predict_GER_table_lact_all <- predict_GER_table_lact_all %>%
          "pctbodywt", "pctbodywt_sd")
 
 
-#GER for pregnant mother while foraging, assuming GER for first 6 months of lactation while fasting needs to be consumed the year before  
+#GER for pregnant pregnant (with first 6 months of lactation)
 predict_GER_table_preg_frontload_lact_6 <- read_csv("data/predict_GER_table_sensAnalysis_preg.csv")
-#GER for foraging while nursing (last 3.6 months of lactation) 
+#GER for foraging while lactating (last 3.6 months of lactation) 
 predict_GER_table_preg_frontload_lact_6$Lifestage <- "Pregnant (with first 6 mths lactation)"
 predict_GER_table_preg_frontload_lact_6 <- predict_GER_table_preg_frontload_lact_6 %>% 
   filter(MC_variable == "all", age_yrs <=30) %>% 
@@ -146,7 +142,7 @@ predict_GER_table_alladults <- rbind(predict_GER_table_phase2,
                                      predict_GER_table_preg_frontload_lact_6,
                                      predict_GER_table_sensAnalysis_lact_3.6)
 
-kable(predict_GER_table_alladults)
+kable(head(predict_GER_table_alladults))
 
 predict_GER_table_alladults %>% write_csv("data/predict_GER_sensAnalysis_alladults.csv",   na = "", append = FALSE)
 
@@ -155,10 +151,7 @@ predict_GER_table_alladults %>% write_csv("data/predict_GER_sensAnalysis_alladul
 
 
 
-
-
-__Plotting Gross energetic requirements (multi-panel)__
-```{r plots_GER_preg_lact_panel}
+```{r plots_GER_preg_lact_panel, echo=FALSE}
 predict_GER_table_alladults <- read_csv("data/predict_GER_sensAnalysis_alladults.csv")
 
 predict_GER_table_panel <- within(predict_GER_table_alladults, Lifestage <- 
@@ -190,9 +183,9 @@ plot_GER_panel <- predict_GER_table_panel %>%
              labeller = label_wrap_gen(width = 17, 
                multi_line = TRUE))+
   xlab("Age (years)") +
-  ylab(bquote('Gross Energetic Requirements (MJ day'^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
-                     limits = c(1,30)) +
+  ylab(bquote('GER (MJ day'^'-1'*')')) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 4),
+                     limits = c(1,31)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
                      label = comma)+
   theme_bw() +
@@ -204,16 +197,9 @@ plot_GER_panel <- predict_GER_table_panel %>%
         strip.background = element_rect(
           color="transparent", fill="transparent"),
         strip.text = element_text(size = rel(1), colour = "black"))
-  # annotate("text", x = 20, y = 5200,
-  #          label = paste0("Foraging season"),
-  #          size = 6,
-  #          hjust = 1) +
-  # annotate("text", x = 20, y = 200,
-  #          label = paste0("Annual"),
-  #          size = 6,
-  #          hjust = 1) +
+
   
-plot_GER_panel 
+#plot_GER_panel 
 
 ann_text_annual <- data.frame(age_yrs = 30, mean_GER = 900,
                               Lifestage = factor("Juvenile/Adult",
@@ -236,22 +222,23 @@ plot_GER_panel <- plot_GER_panel +
   geom_text(data = ann_text_annual, 
             aes(x=age_yrs, y=mean_GER),
             label = "Annual",
-            size = 3.5,
+            size = 3,
             hjust = 1) +
   geom_text(data = ann_text_foraging, 
             aes(x=age_yrs, y=mean_GER),
             label = "Foraging Season",
-            size = 3.5,
+            size = 3,
             hjust = 1)
 
-plot_GER_panel
+#plot_GER_panel
 
 
 ```
 
 
-__Plotting Food Requirements (multi panel)__
-```{r plot_FoodReqs_preg_lact_panel}
+
+
+```{r plot_FoodReqs_preg_lact_panel, echo=FALSE}
 
 plot_FoodReqs_panel <- predict_GER_table_panel %>% 
   ggplot() +
@@ -267,8 +254,8 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
              multi_line = TRUE))+
   xlab("Age (years)") +
   ylab(bquote('Food Requirements (kg day'^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
-                     limits = c(1,30)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 4),
+                     limits = c(1,31)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
                      #limits = c(0, 20))+
   
@@ -285,66 +272,23 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
 
 
 
-plot_FoodReqs_panel
-
-
-
-plot_FoodReqs_panel_ribbon <- predict_GER_table_panel %>% 
-  ggplot() +
-  # geom_errorbar(aes(x = age_yrs, 
-  #                 ymin = FR_foraging-FR_sd_foraging,
-  #                 ymax = FR_foraging+FR_sd_foraging),
-  #               width=0, linetype = 1, color="gray40")+
-  # geom_point(aes(x = age_yrs, 
-  #               y= FR_foraging),  
-  #           size = 1)+
-  geom_ribbon(aes(x = age_yrs, 
-                  ymin = FR_foraging-FR_sd_foraging,
-                  ymax = FR_foraging+FR_sd_foraging),
-              alpha = 0.25,
-              fill="gray50")+
-  geom_line(aes(x = age_yrs, 
-                y=FR_foraging),linewidth = 0.5)+ 
-  facet_grid(~Lifestage,
-             labeller = label_wrap_gen(width = 17, 
-             multi_line = TRUE))+
-  xlab("Age (years)") +
-  ylab(bquote('Food Requirements (kg day'^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
-                     limits = c(1,30)) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 10))+
-                     #limits = c(0, 20))+
-  
-  theme_bw() +
-    labs(tag = "B")+
-  theme(plot.tag = element_text(size = rel(2), colour = "black"))+
-  theme(panel.grid = element_blank())+
-  theme(axis.text =  element_text(size = rel(1.2), colour = "black"),
-        axis.title = element_text(size = rel(1.2), colour = "black"),
-        strip.background = element_rect(
-          color="transparent", fill="transparent"),
-        strip.text = element_text(size = rel(1), colour = "black")
-  )
-
-
-
-plot_FoodReqs_panel_ribbon
-
+#plot_FoodReqs_panel
 
 
 ```
 
 
-```{r plot_pct_bodywt_consumed_panel}
+
+```{r plot_pct_bodywt_consumed_panel, echo=FALSE}
 
 
 plot_pct_bodyweight_all <- predict_GER_table_panel %>% 
-  filter(age_yrs > 1) %>% 
+  filter(age_yrs>1) %>% 
   ggplot() +
    geom_errorbar(aes(x = age_yrs-0.5, 
                     ymin = pctbodywt - pctbodywt_sd, 
                     ymax = pctbodywt + pctbodywt_sd),
-                width=0, size=0.5, linetype = 1, color="gray40")+
+                width=0, linewidth=0.5, linetype = 1, color="gray40")+
   geom_point(aes(x = age_yrs-0.5, y= pctbodywt), 
              shape = 21, fill = "black")+
   facet_grid(~Lifestage,
@@ -352,8 +296,8 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
              multi_line = TRUE))+
   xlab("Age (years)") +
   ylab(bquote('Consumption day'^'-1'*' (% body wt)')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
-                     limits = c(1,30)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 4),
+                     limits = c(1,31)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 6)
                      #limits = c(3.5, 10)
                      )+
@@ -371,18 +315,19 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
 
 
 
-plot_pct_bodyweight_all
+#plot_pct_bodyweight_all
 
 
 
 
 ```
 
-```{r multiplot}
+### Multipanel plot for GER, Food Requirements, and pct body weight
 
+```{r multiplot, echo=FALSE}
 
 #save multi-panel plot as hi-res jpg
-multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
+#multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols=1)
 
 
 jpeg(filename = paste0(Figurespath,"/Figure6_multiplot.jpg"), 
@@ -400,6 +345,5 @@ p <- multiplot(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, cols
 
 dev.off()
 
-
 ```
-
+![](figures/Figure6_multiplot.jpg)

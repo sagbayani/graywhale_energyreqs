@@ -2,7 +2,7 @@ Gross Energetic Requirements (GER) Sensitivity Analysis - phase 2
 (juvenile/adult)
 ================
 Selina Agbayani
-25 Jan 2022 - code updated 12 August, 2025
+25 Jan 2022 - code updated 12 August 2025
 
 ``` r
 # Set path for output figures: 

@@ -1,7 +1,8 @@
-GER Sensitivity Analysis - source - Preg/Lact
+GER Sensitivity Analysis - Pregnant with first 6 months lactation, and
+Lactation (last 3.6 months)
 ================
-S. Agbayani
-04 August, 2025
+Selina Agbayani
+12 August 2025
 
 ``` r
 # Set path for output figures: 
@@ -42,71 +43,17 @@ A_cost_reference <- as_tibble(
   )
 )
 
-kable(A_cost_reference)
+kable(head(A_cost_reference))
 ```
 
 | ID | Lifestage | Description | Activity_stages | no_days | source_no_days | bpm | se_bpm | source_bpm | age_yrs | age_yrs_min | age_yrs_max | pct_O2 | pct_O2_sd |
 |---:|:---|:---|:---|---:|:---|---:|---:|:---|---:|---:|---:|---:|---:|
-| 1 | Calf | Lagoon 0-1 mths (Jan) | calving grounds | 31 | Sumich (1986); Findley & Vidal (2002); Pike 1962 | 2.14 | 0.50 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.0849315 | 0.0000100 | 0.0849315 | 10.5 | 3.0 |
-| 2 | Calf | Lagoon 2 mth (Feb) | calving grounds | 28 | Sumich (1986); Findley & Vidal (2002); Pike 1962 | 1.56 | 0.40 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.1616438 | 0.0849315 | 0.1616438 | 10.5 | 3.0 |
-| 3 | Calf | Lagoon 3 mths (Mar) | calving grounds | 15 | Sumich (1986); Findley & Vidal (2002); Rice and Wolman 1971 | 1.39 | 0.30 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.2465753 | 0.1616438 | 0.2465753 | 10.5 | 3.0 |
-| 4 | Calf | Northbound 3 mths (Mar) | northbound | 16 | Rodriguez de la Gala Hernandez 2008; Perryman et al. 2010; Poole 1984; Rice and Wolman 1971; Leatherwood 1974 | 0.70 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.2465753 | 0.1616438 | 0.2465753 | 10.5 | 3.0 |
-| 5 | Calf | Northbound 4 mths (Apr) | northbound | 30 | Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Leatherwood 1974 | 0.70 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.3287671 | 0.2465753 | 0.3287671 | 10.5 | 3.0 |
-| 6 | Calf | Northbound 5 mths (May) | northbound | 31 | Braham (1984), Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Rice and Wolman 1971; Leatherwood 1974 | 0.70 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.4136986 | 0.3287671 | 0.4136986 | 10.5 | 3.0 |
-| 7 | Calf | Northbound 6 mths (June) | northbound | 23 | Hessing (1981) as cited in Braham (1984); | 0.70 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.4958904 | 0.4136986 | 0.4958904 | 11.0 | 2.7 |
-| 8 | Calf | Nursing at Foraging grounds 6 mths (June) | nursing at foraging grounds | 7 | Synchenko (2011); Bradford et al. 2012 | 1.22 | 0.30 | Sychenko (2011) | 0.4958904 | 0.4136986 | 0.4958904 | 11.0 | 2.7 |
-| 9 | Calf | Nursing at Foraging grounds 7 mths (July) | nursing at foraging grounds | 31 | Mom/calf observations: Sychenko (2011), Bradford et al 2012; Weller et al. 2003 | 1.22 | 0.30 | Sychenko (2011) | 0.5808219 | 0.4958904 | 0.5808219 | 11.0 | 2.7 |
-| 10 | Calf | Nursing at foraging grounds 8 mths (Aug) | nursing at foraging grounds | 31 | Mom/calf observations: Sychenko (2011), Bradford et al 2012; Weller et al. 2003 | 1.22 | 0.30 | Sychenko (2011) | 0.6657534 | 0.5808219 | 0.6657534 | 11.0 | 2.7 |
-| 11 | Calf | Nursing at foraging grounds (Sep) | nursing at foraging grounds | 30 | Mom/calf observations: Sychenko (2011), Bradford et al 2012; Weller et al. 2003 | 1.22 | 0.30 | Sychenko (2011) | 0.7479452 | 0.6657534 | 0.7479452 | 11.0 | 2.7 |
-| 12 | Calf | nursing at foraging grounds (Oct) | nursing at foraging grounds | 20 | for approx date of weaning (~9.6 mths): Agbayani et al. 2020, Weller et al. 2009 | 1.22 | 0.30 | Sychenko (2011) | 0.8328767 | 0.7479452 | 0.8328767 | 11.0 | 2.7 |
-| 13 | Calf | Southbound post-weaning (Oct) | southbound post-weaning | 11 | Rugh et al. (2001), Braham (1984) | 0.72 | 0.20 | Sumich (1983); Schwarz (2002), as cited in Villegas-Amtmann 2017 | 0.8328767 | 0.7479452 | 0.9150685 | 11.0 | 2.7 |
-| 14 | Calf | Southbound post-weaning (Nov) | southbound post-weaning | 30 | Sumich (1986), Rugh et al. (2001), | 0.72 | 0.20 | Sumich (1983); Schwarz (2002), as cited in Villegas-Amtmann 2017 | 0.9150685 | 0.8328767 | 1.0000000 | 11.0 | 2.7 |
-| 15 | Calf | Southbound post-weaning (Dec) | southbound post-weaning | 31 | Sumich (1986), Rugh et al. (2001), Laake et al. (2012) | 0.72 | 0.20 | Sumich (1983); Schwarz (2002), as cited in Villegas-Amtmann 2017 | 1.0000000 | 0.9150685 | 1.0000000 | 11.0 | 2.7 |
-| 16 | Pregnant | Southbound newly pregnant (Dec) | Southbound recently pregnant | 31 | Rice 1983; Rice and Wolman 1971 | 0.72 | 0.20 | Sumich (1983); Schwarz (2002), as cited in Villegas-Amtmann 2017 | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 17 | Pregnant | Lagoon breeding (Jan) | calving grounds recently pregnant | 31 | Rice 1983 | 0.62 | 0.20 | Harvey & Mate (1984), as cited in Villegas-Amtmann et al. 2017 | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 18 | Pregnant | Lagoon breeding (Feb) | calving grounds recently pregnant | 20 | Rice 1983 | 0.62 | 0.20 | Harvey & Mate (1984), as cited in Villegas-Amtmann et al. 2017 | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 19 | Pregnant | Northbound solo pregnant (Feb) | northbound pregnant | 8 | Rice 1983 | 0.50 | 0.20 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 20 | Pregnant | Northbound solo pregnant (Mar) | northbound pregnant | 31 | Rice 1983; Rice & Wolman (1971) | 0.50 | 0.20 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 21 | Pregnant | Northbound solo pregnant (Apr) | northbound pregnant | 30 | Rice 1983; Rice & Wolman (1971) | 0.50 | 0.20 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 22 | Pregnant | Northbound pregnant (May) | northbound pregnant | 31 | Rice 1983 | 0.50 | 0.20 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 23 | Pregnant | Foraging pregnant (june) | foraging pregnant | 30 | Rice 1983; Rice & Wolman (1971) | 1.34 | 0.10 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 24 | Pregnant | Foraging pregnant (july) | foraging pregnant | 31 | Rice 1983 | 1.34 | 0.10 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 25 | Pregnant | Foraging pregnant (Aug) | foraging pregnant | 31 | Rice 1983 | 1.34 | 0.10 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 26 | Pregnant | Foraging pregnant (Sep) | foraging pregnant | 30 | Rice 1983 | 1.34 | 0.10 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 27 | Pregnant | Foraging pregnant (Oct) | foraging pregnant | 31 | Rice 1983 | 1.34 | 0.10 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 28 | Pregnant | Southbound pregnant (Nov) | southbound pregnant | 30 | Rice 1983; Sumich (1986), | 0.72 | 0.20 | Sumich (1983) and Schwarz (2002) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 29 | Pregnant | Southbound pregnant (Dec) | southbound pregnant | 31 | Rice 1983; Sumich (1986), | 0.72 | 0.20 | Sumich (1983) and Schwarz (2002) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 30 | Lactating | Lagoon lactating (Jan) | calving grounds lactating | 31 | Rice 1983; Sumich (1986); Findley & Vidal (2002); Pike 1962 | 0.62 | 0.20 | Harvey & Mate (1984) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 31 | Lactating | Lagoon lactating (Feb) | calving grounds lactating | 28 | Rice 1983; Sumich (1986); Findley & Vidal (2002); Rugh et al. 2001 | 0.62 | 0.20 | Harvey & Mate (1984) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 32 | Lactating | Lagoon lactating (March) | calving grounds lactating | 15 | (coincides with NB calves) Sumich (1986); Findley & Vidal (2002); Rugh et al. 2001; Rodriguez de la Gala Hernandez 2008 | 0.62 | 0.20 | Harvey & Mate (1984) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 33 | Lactating | Northbound with calf (March) | northbound lactating | 16 | Rodriguez de la Gala Hernandez 2008; Poole 1984; Perryman et al. 2010; Leatherwood (1974) | 0.50 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 34 | Lactating | Northbound with calf (April) | northbound lactating | 30 | Braham (1984), Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Leatherwood 1974; Rice and Wolman (1971) | 0.50 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 35 | Lactating | Northbound with calf (May) | northbound lactating | 31 | Braham (1984), Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Leatherwood 1974; | 0.50 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 36 | Lactating | Northbound with Calf (June) | northbound lactating | 23 | Hessing (1981) as cited in Braham (1984) | 0.50 | 0.10 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 37 | Lactating | Foraging lactating (June) | foraging lactating | 7 | Mom/calf observations: Synchenko (2011) | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 38 | Lactating | Foraging lactating (July) | foraging lactating | 31 | Mom/calf observations: Sychenko (2011), Bradford et al 2012 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 39 | Lactating | Foraging lactating (Aug) | foraging lactating | 31 | Mom/calf observations: Sychenko (2011), Bradford et al 2012 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 40 | Lactating | Foraging lactating (Sep) | foraging lactating | 30 | Mom/calf observations: Sychenko (2011), Bradford et al 2012 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 41 | Lactating | Foraging lactating (Oct) | foraging lactating | 20 | for approx date of weaning (~9.6 mths): Agbayani et al. 2020, Weller et al. 2009 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 42 | Lactating | Southbound post-weaning (Oct) | southbound post-weaning | 11 | Braham (1984); Rugh et al. (2001); Rodriguez de la Gala-Hernandez (2008); Pike (1962) | 0.72 | 0.20 | Sumich (1983) and Schwarz (2002) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 43 | Lactating | Southbound post-weaning (Nov) | southbound post-weaning | 30 | Rugh et al. 2001; Braham (1984); Rodriguez de la Gala-Hernandez (2008) | 0.72 | 0.20 | Sumich (1983) and Schwarz (2002) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 44 | Lactating | Southbound postweaning (Dec) | southbound post-weaning | 31 | Rugh et al. 2001; Braham (1984); Rodriguez de la Gala-Hernandez (2008); Sumich 1986 | 0.72 | 0.20 | Sumich (1983) and Schwarz (2002) | NA | 8.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 45 | Juvenile/Adult | Southbound solo (Jan) | southbound | 15 | Rodriguez de la Gala-Hernandez (2008); Sumich 1986 | 0.72 | 0.20 | Sumich (1983) and Schwarz (2002) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 46 | Juvenile/Adult | Lagoon solo (Jan) | calving grounds | 16 | Sumich (1986), Findley & Vidal (2002); Rice and Wolman 1971; Findley and Vidal 2002 | 0.62 | 0.20 | Harvey & Mate (1984), Sumich (1986) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 47 | Juvenile/Adult | Lagoon solo (Feb) | calving grounds | 14 | Rice and Wolman (1971); Findley & Vidal (2002); Urban et al. 2021; Rugh et al. 2001 | 0.62 | 0.20 | Harvey & Mate (1984), Sumich (1986) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 48 | Juvenile/Adult | Northbound solo (Feb) | northbound | 14 | Rice and Wolman (1971); Poole (1984), Pike (1962), Rodriguez de la Gala Hernandez et al. 2008; Sumich (1986) | 0.50 | 0.03 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 49 | Juvenile/Adult | Northbound solo (March) | northbound | 31 | Rice and Wolman (1971); Poole (1984), Pike (1962), Rodriguez de la Gala Hernandez et al. 2008; Braham (1984); Urban et al. 2021 (Maria started migrating March 9); Leatherwood 1974 | 0.50 | 0.03 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 50 | Juvenile/Adult | Northbound solo (April) | northbound | 30 | Rice and Wolman (1971) \*data ends in April; Poole (1984), Pike (1962), Rodriguez de la Gala Hernandez et al. 2008; Braham (1984); Urban et al. 2021 | 0.50 | 0.03 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 51 | Juvenile/Adult | Northbound solo (May) | northbound | 15 | Poole (1984), Pike (1962), Rodriguez de la Gala Hernandez et al. 2008; Braham (1984); Urban et al. 2021 (Maria stopped migrating May 24) | 0.50 | 0.03 | Rodriguez de la Gala-Hernandez et al. (2008) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 52 | Juvenile/Adult | Foraging solo (May) | foraging | 16 | Kim and Oliver (1989); Heide-Jorgensen et al. (2012); 5 months (May to Oct); Urban et al. 2021 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 53 | Juvenile/Adult | Foraging solo (June) | foraging | 30 | Kim and Oliver (1989); Pike (1962); Heide-Jorgensen et al. (2012); Urban et al. 2021 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 54 | Juvenile/Adult | Foraging solo (July) | foraging | 31 | Kim and Oliver (1989); Pike (1962); Heide-Jorgensen et al. (2012); Urban et al. 2021; Bradford et al. 2012 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 55 | Juvenile/Adult | Foraging solo (Aug) | foraging | 31 | Pike (1962); Heide-Jorgensen et al. (2012); Bradford et al. 2012 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 56 | Juvenile/Adult | Foraging solo (Sep) | foraging | 30 | Pike (1962); Heide-Jorgensen et al. (2012); Bradford et al. 2012 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 57 | Juvenile/Adult | Foraging solo (Oct) | foraging | 16 | Kim and Oliver (1989); Pike (1962); Heide-Jorgensen et al. (2012); Bradford et al. 2012; Rugh et al. 2001 | 1.04 | 0.20 | O. Sychenko (unpubl.) | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 58 | Juvenile/Adult | Southbound (Oct) | southbound | 15 | Rugh et al. 2001; Braham (1984); Rodriguez de la Gala-Hernandez (2008); Pike (1962) | 0.72 | 0.20 | Sumich (1983); Schwarz (2002); Villegas-Amtmann 2017 | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 59 | Juvenile/Adult | Southbound (Nov) | southbound | 30 | Sumich (1986), Rugh et al. (2001), Braham 1984; | 0.72 | 0.20 | Sumich (1983); Schwarz (2002); Villegas-Amtmann 2017 | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
-| 60 | Juvenile/Adult | Southbound (Dec) | southbound | 31 | Sumich (1986), Laake et al. (2012); Pike 1962; Rugh et al. (2001), Braham (1984); Leatherwood (1974) | 0.72 | 0.20 | Sumich (1983); Schwarz (2002); Villegas-Amtmann 2017 | NA | 1.0000000 | 75.0000000 | 11.0 | 2.7 |
+| 1 | Calf | Lagoon 0-1 mths (Jan) | calving grounds | 31 | Sumich (1986); Findley & Vidal (2002); Pike 1962 | 2.14 | 0.5 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.0849315 | 0.0000100 | 0.0849315 | 10.5 | 3 |
+| 2 | Calf | Lagoon 2 mth (Feb) | calving grounds | 28 | Sumich (1986); Findley & Vidal (2002); Pike 1962 | 1.56 | 0.4 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.1616438 | 0.0849315 | 0.1616438 | 10.5 | 3 |
+| 3 | Calf | Lagoon 3 mths (Mar) | calving grounds | 15 | Sumich (1986); Findley & Vidal (2002); Rice and Wolman 1971 | 1.39 | 0.3 | Sumich (1986) as cited in Villegas-Amtmann et al. 2017 | 0.2465753 | 0.1616438 | 0.2465753 | 10.5 | 3 |
+| 4 | Calf | Northbound 3 mths (Mar) | northbound | 16 | Rodriguez de la Gala Hernandez 2008; Perryman et al. 2010; Poole 1984; Rice and Wolman 1971; Leatherwood 1974 | 0.70 | 0.1 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.2465753 | 0.1616438 | 0.2465753 | 10.5 | 3 |
+| 5 | Calf | Northbound 4 mths (Apr) | northbound | 30 | Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Leatherwood 1974 | 0.70 | 0.1 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.3287671 | 0.2465753 | 0.3287671 | 10.5 | 3 |
+| 6 | Calf | Northbound 5 mths (May) | northbound | 31 | Braham (1984), Poole (1984); Rodriguez de la Gala Hernandez et al. 2008; Perryman et al. 2010; Rice and Wolman 1971; Leatherwood 1974 | 0.70 | 0.1 | Rodriguez de la Gala-Hernandez et al. (2008) | 0.4136986 | 0.3287671 | 0.4136986 | 10.5 | 3 |
 
 ``` r
 Activity_days <- A_cost_reference %>% select(Lifestage, Activity_stages, no_days) %>%  
@@ -118,28 +65,17 @@ Activity_days <- A_cost_reference %>% select(Lifestage, Activity_stages, no_days
     ## `.groups` argument.
 
 ``` r
-kable(Activity_days)
+kable(head(Activity_days))
 ```
 
-| Lifestage      | Activity_stages                   | no_days |
-|:---------------|:----------------------------------|--------:|
-| Calf           | calving grounds                   |      74 |
-| Calf           | northbound                        |     100 |
-| Calf           | nursing at foraging grounds       |     119 |
-| Calf           | southbound post-weaning           |      72 |
-| Juvenile/Adult | calving grounds                   |      30 |
-| Juvenile/Adult | foraging                          |     154 |
-| Juvenile/Adult | northbound                        |      90 |
-| Juvenile/Adult | southbound                        |      91 |
-| Lactating      | calving grounds lactating         |      74 |
-| Lactating      | foraging lactating                |     119 |
-| Lactating      | northbound lactating              |     100 |
-| Lactating      | southbound post-weaning           |      72 |
-| Pregnant       | Southbound recently pregnant      |      31 |
-| Pregnant       | calving grounds recently pregnant |      51 |
-| Pregnant       | foraging pregnant                 |     153 |
-| Pregnant       | northbound pregnant               |     100 |
-| Pregnant       | southbound pregnant               |      61 |
+| Lifestage      | Activity_stages             | no_days |
+|:---------------|:----------------------------|--------:|
+| Calf           | calving grounds             |      74 |
+| Calf           | northbound                  |     100 |
+| Calf           | nursing at foraging grounds |     119 |
+| Calf           | southbound post-weaning     |      72 |
+| Juvenile/Adult | calving grounds             |      30 |
+| Juvenile/Adult | foraging                    |     154 |
 
 ``` r
 P_cost_table <- as_tibble(
@@ -167,12 +103,12 @@ kable(head(P_cost_table))
 
 | age_mth | age_yrs | mean_masschange | sd_masschange | sex | mean_P | sd_P | quant025 | quant975 | p_lipid | p_protein | mass | mass_sd | Ts | mean_masschange_perday | sd_masschange_perday | mean_P_perday | sd_P_perday |
 |---:|---:|---:|---:|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0 | 0.0000000 | 986.5660 | 20.894489 | N/A | 17045.480 | 766.9967 | 15657.439 | 15657.439 | 0.3638438 | 0.1260 | 983.0272 | 26.76770 | 0 | Inf | Inf | Inf | Inf |
-| 1 | 0.0849315 | 516.6026 | 8.099161 | N/A | 8749.367 | 379.7509 | 8081.308 | 8081.308 | 0.3898447 | 0.1116 | 1498.2581 | 37.14344 | 31 | 16.66460 | 0.2612633 | 282.2376 | 12.25003 |
-| 2 | 0.1616438 | 507.6841 | 12.548106 | N/A | 8425.023 | 405.8457 | 7683.912 | 7683.912 | 0.3721566 | 0.0972 | 2003.8171 | 53.21868 | 28 | 18.13158 | 0.4481466 | 300.8937 | 14.49449 |
-| 3 | 0.2465753 | 578.9767 | 13.529226 | N/A | 9608.130 | 456.2691 | 8778.818 | 8778.818 | 0.3872586 | 0.0972 | 2580.5024 | 70.55082 | 31 | 18.67667 | 0.4364266 | 309.9397 | 14.71836 |
-| 4 | 0.3287671 | 555.4428 | 9.504603 | N/A | 9217.611 | 412.1595 | 8489.886 | 8489.886 | 0.3358296 | 0.0972 | 3134.3355 | 82.72707 | 30 | 18.51476 | 0.3168201 | 307.2537 | 13.73865 |
-| 5 | 0.4136986 | 552.6109 | 6.368057 | N/A | 9170.642 | 393.0700 | 8496.816 | 8496.816 | 0.3745950 | 0.0972 | 3685.8679 | 90.88511 | 31 | 17.82616 | 0.2054212 | 295.8271 | 12.67968 |
+| 0 | 0.0000000 | 982.8522 | 27.098452 | N/A | 16981.262 | 821.2318 | 15470.356 | 15470.356 | 0.3638438 | 0.1260 | 983.0272 | 26.76770 | 0 | Inf | Inf | Inf | Inf |
+| 1 | 0.0849315 | 515.1631 | 10.503953 | N/A | 8724.966 | 395.5805 | 8014.291 | 8014.291 | 0.3898447 | 0.1116 | 1498.2581 | 37.14344 | 31 | 16.61816 | 0.3388372 | 281.4505 | 12.76066 |
+| 2 | 0.1616438 | 505.4539 | 16.273872 | N/A | 8387.981 | 439.8056 | 7571.593 | 7571.593 | 0.3721566 | 0.0972 | 2003.8171 | 53.21868 | 28 | 18.05192 | 0.5812097 | 299.5708 | 15.70734 |
+| 3 | 0.2465753 | 576.5720 | 17.546305 | N/A | 9568.192 | 491.4354 | 8660.599 | 8660.599 | 0.3872586 | 0.0972 | 2580.5024 | 70.55082 | 31 | 18.59910 | 0.5660098 | 308.6514 | 15.85276 |
+| 4 | 0.3287671 | 553.7534 | 12.326696 | N/A | 9189.554 | 431.4328 | 8408.886 | 8408.886 | 0.3358296 | 0.0972 | 3134.3355 | 82.72707 | 30 | 18.45845 | 0.4108899 | 306.3185 | 14.38109 |
+| 5 | 0.4136986 | 551.4791 | 8.258852 | N/A | 9151.843 | 402.0552 | 8449.346 | 8449.346 | 0.3745950 | 0.0972 | 3685.8679 | 90.88511 | 31 | 17.78965 | 0.2664146 | 295.2208 | 12.96952 |
 
 ``` r
 P_cost_table_preg  <-  as_tibble(
@@ -222,14 +158,14 @@ Es_preg_table <- as_tibble(
 kable(head(Es_preg_table))
 ```
 
-| age_yrs | Lifestage | no_days | MC_variable | Es | Es_sd | Es_perday | Es_sd_perday |
-|---:|:---|---:|:---|---:|---:|---:|---:|
-| 8 | Pregnant | 396 | all | 336865.5 | 54456.1206 | 850.6703 | 137.5154560 |
-| 8 | Pregnant | 396 | Rs | 335601.1 | 289.9489 | 847.4775 | 0.7321943 |
-| 8 | Pregnant | 396 | Vt | 335597.4 | 3364.2999 | 847.4681 | 8.4957067 |
-| 8 | Pregnant | 396 | pctO2 | 335543.8 | 51115.6435 | 847.3329 | 129.0799078 |
-| 9 | Pregnant | 396 | all | 356844.8 | 57469.0397 | 901.1231 | 145.1238376 |
-| 9 | Pregnant | 396 | Rs | 355596.4 | 307.2243 | 897.9707 | 0.7758189 |
+| age_yrs | Lifestage | no_days | MC_variable |       Es |     Es_sd | Es_perday | Es_perday_sd |
+|--------:|:----------|--------:|:------------|---------:|----------:|----------:|-------------:|
+|       8 | Pregnant  |     396 | all         | 358005.5 | 60896.633 |  904.0543 |   153.779377 |
+|       8 | Pregnant  |     396 | Rs          | 335071.9 |  3282.733 |  846.1412 |     8.289731 |
+|       8 | Pregnant  |     396 | Vt          | 336264.2 |  4766.348 |  849.1521 |    12.036233 |
+|       8 | Pregnant  |     396 | pctO2       | 355267.5 | 57261.854 |  897.1401 |   144.600641 |
+|       9 | Pregnant  |     396 | all         | 379160.3 | 64274.929 |  957.4756 |   162.310427 |
+|       9 | Pregnant  |     396 | Rs          | 355049.1 |  3478.452 |  896.5887 |     8.783970 |
 
 ``` r
 Es_lact_table <- as_tibble(
@@ -248,14 +184,14 @@ Es_lact_table <- as_tibble(
 kable(head(Es_lact_table))
 ```
 
-| age_yrs | Lifestage | no_days | MC_variable | Es | Es_sd | Es_perday | Es_sd_perday |
+| age_yrs | Lifestage | no_days | MC_variable | Es | Es_sd | Es_perday | Es_perday_sd |
 |---:|:---|---:|:---|---:|---:|---:|---:|
-| 8 | Lactating | 365 | all | 259159.2 | 37390.2731 | 710.0251 | 102.4391045 |
-| 8 | Lactating | 365 | Rs | 258186.5 | 315.0834 | 707.3603 | 0.8632422 |
-| 8 | Lactating | 365 | Vt | 258183.6 | 2322.7170 | 707.3525 | 6.3636082 |
-| 8 | Lactating | 365 | pctO2 | 258142.4 | 35096.7084 | 707.2394 | 96.1553655 |
-| 9 | Lactating | 365 | all | 274529.7 | 39458.9856 | 752.1363 | 108.1068098 |
-| 9 | Lactating | 365 | Rs | 273569.4 | 333.8563 | 749.5053 | 0.9146747 |
+| 8 | Lactating | 365 | all | 258700.3 | 37107.6953 | 708.7680 | 101.6649186 |
+| 8 | Lactating | 365 | Rs | 257831.2 | 314.6498 | 706.3868 | 0.8620541 |
+| 8 | Lactating | 365 | Vt | 257828.6 | 2090.7220 | 706.3797 | 5.7280055 |
+| 8 | Lactating | 365 | pctO2 | 257787.1 | 35048.4037 | 706.2660 | 96.0230239 |
+| 9 | Lactating | 365 | all | 274060.9 | 39177.0048 | 750.8519 | 107.3342596 |
+| 9 | Lactating | 365 | Rs | 273203.2 | 333.4094 | 748.5020 | 0.9134503 |
 
 ``` r
 mass_table <- as_tibble(
@@ -372,7 +308,7 @@ kable(age_yr_tibble)
 
 ``` r
 predict_GER_table_sensAnalysis_phase2  <- as_tibble(
-  read_csv("data/predict_GER_table_sensAnalysis_phase2 .csv"),
+  read_csv("data/predict_GER_table_sensAnalysis_phase2.csv"),
   col_types = (list(ID = col_integer(),
                     phase = col_double(),
                     age_yrs = col_double(),
@@ -394,11 +330,11 @@ predict_GER_table_sensAnalysis_phase2  <- as_tibble(
                     mean_mass = col_double(),
                     percent_body_weight_consumed = col_double()
   )))
-```
 
-    ## Error: 'data/predict_GER_table_sensAnalysis_phase2 .csv' does not exist in current working directory ('C:/Users/AgbayaniS/Documents/R/graywhale_energyreqs').
 
-``` r
+
+
+
 TotalGER_birth_to_weaning_tibble <- as_tibble(
   read_csv("data/TotalGER_birth_to_weaning_tibble.csv"),
   col_types = (list(ID = col_integer(),
@@ -426,6 +362,8 @@ ED_milk = 22.33 #MJ/kg   Average between Tomilin 1946 and Zenkovich 1938,    (Su
 
 MC_reps = 10000
 ```
+
+#### Gross Energy Requirement - Pregnant with first 6 months of lactation
 
 ``` r
 predict_GER_table_sensAnalysis_preg <- as.data.frame(matrix(ncol = 23, nrow = 0))
@@ -542,7 +480,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # Energetic expenditure values
     Es_table_i <- Es_preg_table %>%
-      dplyr::filter(Es_preg_table$age_yrs  == age)
+      filter(Es_preg_table$age_yrs  == age)
     
     Es <- Es_table_i$Es
     if (MC_var == "all" || MC_var == "Es"){
@@ -571,7 +509,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # GER calf 6 mths
     GERcalf_6mths_tibble <- TotalGER_birth_to_weaning_tibble %>% 
-      dplyr::filter(age_range == "0 to 6 mths") 
+      filter(age_range == "0 to 6 mths") 
     
     GERcalf_6mths <- GERcalf_6mths_tibble %>% pull(Total_GER)
     
@@ -589,10 +527,11 @@ for (i in seq(from = 8, to = 75, by = 1)){
     MC_vars_i$sex <- s   # do i need to identify sex here?
     MC_vars_i$GER <- NA
     MC_vars_i<- MC_vars_i %>%  
-      dplyr::select(sex, GER, everything()) #move sex to the first column
+      relocate(sex, GER) #move sex, GER to the front of columns
     
     # Monte carlo - Es
     set.seed(12345)
+    #rnorm -- random normal distribution
     Es_i <-  as_tibble(rnorm(MC_reps, Es, Es_sd))
     names(Es_i)[1] <- "Es"
     
@@ -601,6 +540,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     #### Monte carlo - Fecal and urinary waste - E_FnU
     set.seed(12345)
     if (MC_var == "E_FnU" || MC_var == "all"){
+      #runif -- random uniform distribution
       E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_min, max = E_FnU_max)) 
     } else {
       E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_mean, max = E_FnU_mean)) 
@@ -652,7 +592,6 @@ for (i in seq(from = 8, to = 75, by = 1)){
     P_cost <- MC_vars_i$P_cost 
     Es <- MC_vars_i$Es
     E_FnU <- MC_vars_i$E_FnU
-    #E_HIF <- MC_vars_i$E_HIF
     Hg <- MC_vars_i$Hg
     P_nb <- MC_vars_i$P_nb
     GERcalf_0to6m <- MC_vars_i$GERcalf_0to6m
@@ -666,10 +605,9 @@ for (i in seq(from = 8, to = 75, by = 1)){
     MC_vars_i$FR_foraging <- (MC_vars_i$GER_foraging / MC_vars_i$ED_prey) 
     MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 
     
-    #192 days foraging while preg, 134 days foraging while lact)
-    MC_vars_i <- MC_vars_i %>% dplyr::mutate(ID = row_number())
+    MC_vars_i <- MC_vars_i %>% mutate(ID = row_number())
     # move ID to the first column
-    MC_vars_i<- MC_vars_i %>% dplyr::select(ID,everything()) 
+    MC_vars_i<- MC_vars_i %>% relocate(ID) 
     
     mean_GER_i <- mean(MC_vars_i$GER)
     sd_GER_i <- sd(MC_vars_i$GER)
@@ -702,8 +640,8 @@ for (i in seq(from = 8, to = 75, by = 1)){
     P_nb_i <- mean(P_nb)
     GERcalf_0to6m_i <- mean(GERcalf_0to6m)
     
-    MC_vars_i <- MC_vars_i %>%  dplyr::mutate(ID = row_number())
-    MC_vars_i<- MC_vars_i %>%  dplyr::select(ID,everything()) # move ID to the first column
+    MC_vars_i <- MC_vars_i %>%  mutate(ID = row_number())
+    MC_vars_i<- MC_vars_i %>%  relocate(ID) # move ID to the first column
     
     
     row <- tibble(phase = phase,
@@ -743,45 +681,11 @@ predict_GER_table_sensAnalysis_preg %>%
             na = "", append = FALSE)
 ```
 
-``` r
-predict_GER_table_sensAnalysis_preg <- read_csv("data/predict_GER_table_sensAnalysis_preg.csv")
-
-plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
-  filter(age_yrs<=30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs, 
-                    ymin = mean_GER - GER_sd, 
-                    ymax = mean_GER + GER_sd), 
-                width=0, linetype = 3,color="black") + 
-  geom_point(aes(x = age_yrs, y= mean_GER), 
-             shape = 21, fill = "white")+
-  geom_errorbar(aes(x = age_yrs, 
-                    ymin = GER_foraging - sd_foraging, 
-                    ymax = GER_foraging + sd_foraging), 
-                width=0, linetype = 3, color="black") + 
-  geom_point(aes(x = age_yrs, y= GER_foraging), 
-             shape = 21, fill = "black")+
-  facet_grid(~MC_variable)+
-  
-  xlab("Age (years)") +
-  ylab(bquote('GER (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
-                     labels = comma
-                     #limits = c(0,max(plot_predict_GER_sensAnalysis_preg$quant975_foraging))
-  ) +
-  theme_bw() +
-  theme(panel.grid = element_blank())+
-  theme(strip.background =element_rect(fill="transparent",
-                                       colour = "transparent"))+
-  theme(strip.text = element_text(size = rel(1)))
-
-
-plot_predict_GER_sensAnalysis_preg              
-```
+#### GER sensitivity analysis - for pregnant whales (with 6 months of lactation)
 
 ![](GER_sensanalysis_Es_source_preg_lact_files/figure-gfm/plots_GER_preg-1.png)<!-- -->
+
+#### Gross Energy Requirement for Lactating whales (last 3.6 months)
 
 ``` r
 predict_GER_table_sensAnalysis_lact <- 
@@ -839,14 +743,14 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     
     mass <- mass_table %>% 
-      dplyr::filter(age_yrs == age) %>% 
-      dplyr::select(mean_mass) %>% 
+      filter(age_yrs == age) %>% 
+      select(mean_mass) %>% 
       pull(mean_mass)
     
     if (MC_var == "all"){
       mass_sd <- mass_table %>% 
-        dplyr::filter(age_yrs == age) %>% 
-        dplyr::select(sd_mass) %>% 
+        filter(age_yrs == age) %>% 
+        select(sd_mass) %>% 
         pull(sd_mass)
     } else {
       mass_sd <-0
@@ -854,9 +758,9 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     # Production cost values
     P_cost_i <- P_cost_table_lact %>% 
-      dplyr::filter(P_cost_table_lact$age_yrs == age)  
+      filter(P_cost_table_lact$age_yrs == age)  
     P_cost_i <- P_cost_i %>% 
-      dplyr::filter(P_cost_i$sex == s) 
+      filter(P_cost_i$sex == s) 
     
     # no of days
     Ts <- P_cost_i$Ts
@@ -871,7 +775,7 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     # Energy expenditure values
     Es_table_i <- Es_lact_table %>% 
-      dplyr::filter(Es_lact_table$age_yrs == age & 
+      filter(Es_lact_table$age_yrs == age & 
                       Lifestage == "Lactating") 
     Es <- Es_table_i$Es
     
@@ -912,13 +816,14 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     # Monte carlo - Production cost
     set.seed(12345)
+    #rnorm - random normal distribution
     MC_vars_i <- as_tibble(rnorm(MC_reps, mean_P, sd_P))
     names(MC_vars_i)[1] <- "P_cost"
     
     MC_vars_i$sex <- s   # do i need to identify sex here?
     MC_vars_i$GER <- NA
     MC_vars_i<- MC_vars_i %>%  
-      dplyr::select(sex, GER, everything()) #move sex to the first column
+      relocate(sex, GER) #move sex, GER to the front of  columns
     
     # Monte carlo - Es
     set.seed(12345)
@@ -965,8 +870,8 @@ for (i in seq(from = 8, to = 74, by = 1)){
     GERcalf7to9.6mths <- MC_vars_i$GERcalf7to9.6mths
     
     #GER   Es - includes digestion, maintenance and activity
-    MC_vars_i$GER <- ((P_cost + Es + GERcalf7to9.6mths)/365)/(E_FnU) 
-    # 293 days total nursing in one cycle plus postweaning travel days = 365
+    MC_vars_i$GER <- ((P_cost + Es + GERcalf7to9.6mths)/293)/(E_FnU) 
+    # 293 days total nursing in one year 
     MC_vars_i$GER_foraging <- ((P_cost + Es + GERcalf7to9.6mths)/119)/(E_FnU)  
     # 119 days foraging while lactating
     
@@ -974,9 +879,8 @@ for (i in seq(from = 8, to = 74, by = 1)){
     MC_vars_i$FR_foraging <- (MC_vars_i$GER_foraging / MC_vars_i$ED_prey) 
     MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 
     
-    MC_vars_i <- MC_vars_i %>%  dplyr::mutate(ID = row_number())
-    MC_vars_i<- MC_vars_i %>%  
-      dplyr::select(ID,everything()) # move ID to the first column
+    MC_vars_i <- MC_vars_i %>%  mutate(ID = row_number())
+    MC_vars_i<- MC_vars_i %>%  relocate(ID) # move ID to the first column
     
     mean_GER_i <- mean(MC_vars_i$GER)
     sd_GER_i <- sd(MC_vars_i$GER)
@@ -1004,9 +908,8 @@ for (i in seq(from = 8, to = 74, by = 1)){
     GERcalf7to9.6mths_i <- mean(GERcalf7to9.6mths)
     
     
-    MC_vars_i <- MC_vars_i %>%  dplyr::mutate(ID = row_number())
-    MC_vars_i<- MC_vars_i %>% 
-      dplyr::select(ID,everything()) # move ID to the first column
+    MC_vars_i <- MC_vars_i %>%  mutate(ID = row_number())
+    MC_vars_i<- MC_vars_i %>% relocate(ID) # move ID to the first column
     
     
     newrow <- tibble(phase = phase, 
@@ -1042,37 +945,6 @@ for (i in seq(from = 8, to = 74, by = 1)){
 predict_GER_table_sensAnalysis_lact %>% write_csv("data/predict_GER_table_sensAnalysis_lact.csv", na = "", append = FALSE)
 ```
 
-``` r
-predict_GER_table_sensAnalysis_lact <- read_csv("data/predict_GER_table_sensAnalysis_lact.csv")
-
-plot_predict_GER_table_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
-  filter(age_yrs<=30) %>% 
-  ggplot() +
-  geom_errorbar(aes(x = age_yrs, 
-                    ymin = mean_GER - GER_sd, 
-                    ymax = mean_GER + GER_sd), 
-                width=0, linetype = 3,color="gray40") + 
-  geom_point(aes(x = age_yrs, y= mean_GER), 
-             shape = 21, fill = "white")+
-  geom_errorbar(aes(x = age_yrs, 
-                    ymin = GER_foraging - sd_foraging, 
-                    ymax = GER_foraging + sd_foraging), 
-                width=0, linetype = 3, color="gray40") + 
-  geom_point(aes(x = age_yrs, y= GER_foraging), 
-             shape = 21, fill = "black")+
-  facet_grid(~MC_variable)+
-xlab("Age (years)") +
-  ylab(bquote('GER (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
-                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8)
-                     #limits = c(0, max(predict_GER_table_lact$quant975_foraging))
-  ) +
-  theme_bw() +
-  theme(panel.grid = element_blank())
-
-
-plot_predict_GER_table_sensAnalysis_lact
-```
+#### GER sensitivity analysis for lactating whales (last 3.6 months)
 
 ![](GER_sensanalysis_Es_source_preg_lact_files/figure-gfm/plots_GER_lact-1.png)<!-- -->

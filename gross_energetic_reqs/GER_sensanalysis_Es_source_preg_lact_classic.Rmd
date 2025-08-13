@@ -1,12 +1,11 @@
 ---
-title: "GER Sensitivity Analysis - source - Preg/Lact - no front loading"
-author: "S. Agbayani"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+title: "GER Sensitivity Analysis - for Pregnant only and lactating only"
+author: "Selina Agbayani"
+date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   github_document:
   html_document:
-  pdf_document:
-    
+
 editor_options:
   chunk_output_type: console
 classoption: landscape
@@ -56,8 +55,8 @@ library(gtable)
 library(ggpubr)
 
 
-# #quiet col types messages
-# options(readr.show_col_types = FALSE)
+#quiet col types messages
+options(readr.show_col_types = FALSE)
 
 
  
@@ -105,13 +104,13 @@ A_cost_reference <- as_tibble(
   )
 )
 
-kable(A_cost_reference)
+kable(head(A_cost_reference))
 
 Activity_days <- A_cost_reference %>% select(Lifestage, Activity_stages, no_days) %>%  
   group_by(Lifestage, Activity_stages) %>% 
   summarise(no_days = sum(no_days))
 
-kable(Activity_days)
+kable(head(Activity_days))
 
 P_cost_table <- as_tibble(
   read_csv("data/P_cost_table_phase1.csv"),
@@ -182,10 +181,6 @@ Es_preg_table <- as_tibble(
   )
 )
 
-# Es_preg_table <- Es_preg_table %>% 
-#   filter(MC_variable=="all") %>%
-#   select(age_yrs,Lifestage,no_days,Es, Es_sd)
-
 kable(head(Es_preg_table))
 
 
@@ -202,9 +197,6 @@ Es_lact_table <- as_tibble(
   )
 )
 
-# Es_lact_table <- Es_lact_table %>% 
-#   filter(MC_variable=="all") %>%
-#   select(age_yrs,Lifestage,no_days,Es, Es_sd)
 
 kable(head(Es_lact_table))
 
@@ -315,7 +307,6 @@ kable(TotalGER_birth_to_weaning_tibble)
 ```
 
 
-
 ```{r define_variables}
 
 #Energy Density values
@@ -326,6 +317,8 @@ MC_reps = 10000
 
 
 ```
+
+#### Gross Energy Requirement for pregnant only 
 
 ```{r GER_preg}
 
@@ -386,20 +379,20 @@ for (i in seq(from = 8, to = 75, by = 1)){
     MC_var
     
     # Mass values
-    mass_foetus <- mass_table %>% dplyr::filter(age_yrs == 0) 
+    mass_foetus <- mass_table %>% filter(age_yrs == 0) 
     mass_foetus_40pct <- mass_foetus$mean_mass * 0.4 
     
     mass_female <- mass_table %>% 
-      dplyr::filter(age_yrs == age) %>% 
-      dplyr::select(female_mass) %>% 
+      filter(age_yrs == age) %>% 
+      select(female_mass) %>% 
       pull(female_mass)
     mass_preg <- mass_female + mass_foetus_40pct
     
     if (MC_var == "all"){
       mass_foetus_40pct_sd <- mass_foetus$sd_mass * 0.4
       mass_female_sd <- mass_table %>% 
-        dplyr::filter(age_yrs == age) %>% 
-        dplyr::select(sd_mass) %>% 
+        filter(age_yrs == age) %>% 
+        select(sd_mass) %>% 
         pull(sd_mass)
       mass_preg_sd <- sqrt((mass_female_sd^2)+(mass_foetus_40pct_sd^2))
     } else {
@@ -417,9 +410,9 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # Production cost values
     P_cost_i <- P_cost_table_preg %>%
-      dplyr::filter(P_cost_table_preg$age_yrs == age)
+      filter(P_cost_table_preg$age_yrs == age)
     P_cost_i <- P_cost_i %>%
-      dplyr::filter(P_cost_i$sex == s)
+      filter(P_cost_i$sex == s)
     
     mean_P <- P_cost_i$mean_P_perday * 396
     
@@ -431,7 +424,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # Production cost - newborn
     P_nb_table <- P_cost_table %>% 
-      dplyr::filter(age_yrs == 0 & sex == "N/A")
+      filter(age_yrs == 0 & sex == "N/A")
     
     P_nb <- P_nb_table %>% pull(mean_P)
     if (MC_var == "all" || MC_var == "P_nb"){
@@ -442,7 +435,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     
     # Energetic expenditure values
     Es_table_i <- Es_preg_table %>%
-      dplyr::filter(Es_preg_table$age_yrs  == age)
+      filter(Es_preg_table$age_yrs == age)
     
     Es <- Es_table_i$Es
     if (MC_var == "all" || MC_var == "Es"){
@@ -469,18 +462,6 @@ for (i in seq(from = 8, to = 75, by = 1)){
       ED_prey_sd = 0
     }
     
-    # # GER calf to 9.6 mths (end of weaning)
-    # GERcalf_9.6mths_tibble <- TotalGER_birth_to_weaning_tibble %>% 
-    #   dplyr::filter(age_range == "0 to 9.6 mths") 
-    # 
-    # GERcalf_9.6mths <- GERcalf_9.6mths_tibble %>% pull(Total_GER)
-    # 
-    # if (MC_var == "all" || MC_var == "GERcalf"){
-    #   GERcalf_9.6mths_sd <- GERcalf_9.6mths_tibble$Total_GER_sd
-    # } else {
-    #   GERcalf_9.6mths_sd <- 0
-    # }
-    
    # Monte Carlo - Production cost 
     set.seed(12345)
     MC_vars_i <- as_tibble(rnorm(MC_reps, mean_P, sd_P))
@@ -489,7 +470,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     MC_vars_i$sex <- s   # do i need to identify sex here?
     MC_vars_i$GER <- NA
     MC_vars_i<- MC_vars_i %>%  
-      dplyr::select(sex, GER, everything()) #move sex to the first column
+      relocate(sex, GER) #move sex to the first column
     
     # Monte carlo - Es
     set.seed(12345)
@@ -501,6 +482,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     #### Monte carlo - Fecal and urinary waste - E_FnU
     set.seed(12345)
     if (MC_var == "E_FnU" || MC_var == "all"){
+      #runif -- random uniform distribution
       E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_min, max = E_FnU_max)) 
     } else {
       E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_mean, max = E_FnU_mean)) 
@@ -510,6 +492,7 @@ for (i in seq(from = 8, to = 75, by = 1)){
     MC_vars_i <- cbind(MC_vars_i, E_FnU_i)
 
     #### Monte carlo - Energetic density of prey - ED_prey
+    # rnorm -- random normal distribution
     ED_prey_i <- as_tibble(rnorm(MC_reps, ED_prey_mean, ED_prey_sd))
     names(ED_prey_i)[1] <- "ED_prey"
     
@@ -540,17 +523,11 @@ for (i in seq(from = 8, to = 75, by = 1)){
     names(P_nb_i)[1] <- "P_nb"
     MC_vars_i <- cbind(MC_vars_i, P_nb_i)
     
-    # #Cost of nursing calf for first 6 mths
-    # #GER from birth to 6mths
-    # GERcalf_0to6m <- as_tibble(rnorm(MC_reps, GERcalf_6mths, GERcalf_6mths_sd))
-    # names(GERcalf_0to6m)[1] <- "GERcalf_0to6m"
-    # MC_vars_i <- cbind(MC_vars_i, GERcalf_0to6m)
-    
-    
     # Pcost of mother
     P_cost <- MC_vars_i$P_cost 
     Es <- MC_vars_i$Es
     E_FnU <- MC_vars_i$E_FnU
+
     #E_HIF <- MC_vars_i$E_HIF
     Hg <- MC_vars_i$Hg
     P_nb <- MC_vars_i$P_nb
@@ -559,14 +536,14 @@ for (i in seq(from = 8, to = 75, by = 1)){
     #GER  preg  = GER preg whale ONLY
     #Es includes digestion, maintenance and activity          
 
-    MC_vars_i$GER <- ((P_cost + Es + Hg + P_nb)/396)/E_FnU  #preg total days = 396
-    MC_vars_i$GER_foraging <- ((P_cost + Es + Hg + P_nb)/153)/E_FnU  #foraging pregnant = 153
+    MC_vars_i$GER <- ((P_cost + Es + Hg + P_nb)/396)/E_FnU  #total days pregnant = 396
+    MC_vars_i$GER_foraging <- ((P_cost + Es + Hg + P_nb)/153)/E_FnU  ## days foraging pregnant = 153
     
     MC_vars_i$FR_foraging <- (MC_vars_i$GER_foraging / MC_vars_i$ED_prey) 
     MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 
     
-    #192 days foraging while preg, 134 days foraging while lact)
-    MC_vars_i <- MC_vars_i %>% dplyr::mutate(ID = row_number())
+    MC_vars_i <- MC_vars_i %>% mutate(ID = row_number())
+    
     # move ID to the first column
     MC_vars_i<- MC_vars_i %>% relocate(ID) 
     
@@ -599,7 +576,6 @@ for (i in seq(from = 8, to = 75, by = 1)){
     mass_sd_i <- sd(MC_vars_i$mass)
     
     P_nb_i <- mean(P_nb)
-    # GERcalf_0to6m_i <- mean(GERcalf_0to6m)
     
     MC_vars_i <- MC_vars_i %>%  mutate(ID = row_number())
     MC_vars_i<- MC_vars_i %>%  relocate(ID) # move ID to the first column
@@ -643,12 +619,13 @@ predict_GER_table_sensAnalysis_preg_only %>%
 
 ```
 
+#### GER Sensitivity analysis for pregnant whales (only) 
 
-```{r plots_GER_preg}
+```{r plots_GER_preg, echo=FALSE}
 predict_GER_table_sensAnalysis_preg_only <- read_csv("data/predict_GER_table_sensAnalysis_preg_ONLY.csv")
 
 plot_predict_GER_sensAnalysis_preg_only <- predict_GER_table_sensAnalysis_preg_only%>%
-  #dplyr::filter(sex=="Female") %>% 
+  filter(age_yrs<=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -663,15 +640,12 @@ plot_predict_GER_sensAnalysis_preg_only <- predict_GER_table_sensAnalysis_preg_o
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
   facet_grid(~MC_variable)+
-  ggtitle("GER for pregnant whale only")+
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(8, 40)) +  # max x-axis 30 yrs. 
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
+                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
   scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
-                     labels = comma
-                     #limits = c(0,max(plot_predict_GER_sensAnalysis_preg$quant975_foraging))
-  ) +
+                     labels = comma) +
   theme_bw() +
   theme(panel.grid = element_blank())+
   theme(strip.background =element_rect(fill="transparent",
@@ -684,7 +658,7 @@ plot_predict_GER_sensAnalysis_preg_only
 
 ```
 
-
+### Gross Energy Requirements for Lactating only
 
 ```{r GER_lact}
 
@@ -870,7 +844,7 @@ for (i in seq(from = 8, to = 74, by = 1)){
     
     #GER   Es - includes digestion, maintenance and activity
     MC_vars_i$GER <- ((P_cost + Es + GERcalf0to9.6mths)/293)/(E_FnU) 
-    # 293 days total nursing in one cycle plus postweaning travel days = 365
+    # 293 days total nursing 
     MC_vars_i$GER_foraging <- ((P_cost + Es + GERcalf0to9.6mths)/119)/(E_FnU)  
     # 119 days foraging while lactating
     
@@ -948,11 +922,11 @@ predict_GER_table_sensAnalysis_lact_all %>% write_csv("data/predict_GER_table_se
 
 ```
 
+#### GER Sensitiivity analysis for lactating whales (from birth to weaning at 9.6 months)
 
-
-```{r plots_GER_lact}
+```{r plots_GER_lact, echo=FALSE}
 plot_predict_GER_table_sensAnalysis_lact_all <- predict_GER_table_sensAnalysis_lact_all %>%
-  filter(age_yrs<=40) %>% 
+  filter(age_yrs<=30) %>% 
   ggplot() +
   geom_errorbar(aes(x = age_yrs, 
                     ymin = mean_GER - GER_sd, 
@@ -967,16 +941,12 @@ plot_predict_GER_table_sensAnalysis_lact_all <- predict_GER_table_sensAnalysis_l
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
   facet_grid(~MC_variable)+
-  ggtitle("GER for lactating whales (full lactation period)")+
-xlab("Age (years)") +
+  xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
-                     limits = c(8, 40)) +  # max x-axis 30 yrs. 
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 8)
-                     #limits = c(0, max(predict_GER_table_lact$quant975_foraging))
-  ) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
+                     limits = c(8, 30)) +  # max x-axis 30 yrs. 
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 8)) +
   theme_bw() +
-  theme(panel.grid = element_blank())+
   theme(panel.grid = element_blank())+
   theme(strip.background =element_rect(fill="transparent",
                                        colour = "transparent"))+
