@@ -1,5 +1,5 @@
 ---
-title: "Gross Energetic Requirements(GER) Sensitivity Analysis - phase 2"
+title: "Gross Energetic Requirements (GER) Sensitivity Analysis - phase 2 (juvenile/adult)"
 author: "Selina Agbayani"
 date: "25 Jan 2022 - code updated `r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -19,9 +19,6 @@ knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(error = TRUE)
 knitr::opts_chunk$set(warning = TRUE)
-
-
-
 
 ## Setup
 
@@ -110,13 +107,13 @@ A_cost_reference <- as_tibble(
   )
 )
 
-kable(A_cost_reference)
+kable(head(A_cost_reference))
 
 Activity_days <- A_cost_reference %>% select(Lifestage, Activity_stages, no_days) %>%  
   group_by(Lifestage, Activity_stages) %>% 
   summarise(no_days = sum(no_days))
 
-kable(Activity_days)
+kable(head(Activity_days))
 activity_stages <- Activity_days$Activity_stages
 
 
@@ -152,10 +149,7 @@ Es_table_phase2_peryear <- as_tibble(
 )
 
 Es_table_phase2_peryear <- Es_table_phase2_peryear %>%  filter(age_yrs >=1)
-kable(Es_table_phase2_peryear)
-
-
-
+kable(head(Es_table_phase2_peryear))
 
 
 mass_table <- as_tibble(
@@ -202,7 +196,7 @@ age_yr_tibble <- as_tibble(
   )
 )
 
-kable(age_yr_tibble)
+kable(head(age_yr_tibble))
 
 predict_GER_table_sensAnalysis_phase1_permth <- as_tibble(
   read_csv("data/predict_GER_table_sensAnalysis_phase1_permth_source_bpm.csv"),
@@ -225,16 +219,17 @@ predict_GER_table_sensAnalysis_phase1_permth <- as_tibble(
     FR_quant975 = col_double(),
     Ts = col_double(),
     age_mth = col_double()
+    )
   )
-)
 
 
-kable(predict_GER_table_sensAnalysis_phase1_permth)
+
+kable(head(predict_GER_table_sensAnalysis_phase1_permth))
 ```
 
 
-MC calculations for Production Cost and Es
-```{r EDvalues}
+
+```{r define parameters}
 
 #Energy Density values
 ED_milk = 22.33 #MJ/kg   Average between Tomilin 1946 and Zenkovich 1938,    
@@ -251,6 +246,7 @@ MC_reps = 10000
 
 ```
 
+#### Gross Energy Requirement - phase 2 (juvenile/adult)
 
 ```{r GER_phase2}
 
@@ -297,24 +293,24 @@ predict_GER_table_sensAnalysis_phase2 <- as_tibble(
 
 
 
-predict_GER_table_sensAnalysis_phase2
+kable(head(predict_GER_table_sensAnalysis_phase2))
 
 for (s in c("N/A")){ 
   for (MC_var in c("all","P_cost", "Es", "E_FnU")){
     for (i in seq(from = 1, to = 31, by = 1)){
-      
+    
       if (i == 1) {
         #Pull first year value from phase 1
         firstyear_GER <- predict_GER_table_sensAnalysis_phase1_permth %>% 
-          filter(phase == 1 & sex == s & age_yrs <= 1 & MC_var == "all")
+          filter(phase == 1 & sex == s & age_yrs <= 1 & MC_variable == "all")
         
         # Mass value
-        mass <- mass_table %>% dplyr::filter(age_yrs == 1) %>% 
-          dplyr::select(mean_mass) %>% pull(mean_mass)
+        mass <- mass_table %>% filter(age_yrs == 1) %>% 
+          select(mean_mass) %>% pull(mean_mass)
         
         if (MC_var == "all"){
-          mass_sd <- mass_table %>% dplyr::filter(age_yrs == 1) %>% 
-            dplyr::select(sd_mass) %>% pull(sd_mass)
+          mass_sd <- mass_table %>% filter(age_yrs == 1) %>% 
+            select(sd_mass) %>% pull(sd_mass)
         } else {
           mass_sd <- 0
         }
@@ -349,16 +345,15 @@ for (s in c("N/A")){
         age <-  i
         
         # Mass values
-        
         mass <- mass_table %>% 
-          dplyr::filter(age_yrs == age) %>% 
-          dplyr::select(mean_mass) %>% 
+          filter(age_yrs == age) %>% 
+          select(mean_mass) %>% 
           pull(mean_mass)
         
         if (MC_var == "all"){
         mass_sd <- mass_table %>% 
-          dplyr::filter(age_yrs == age) %>% 
-          dplyr::select(sd_mass) %>% 
+          filter(age_yrs == age) %>% 
+          select(sd_mass) %>% 
           pull(sd_mass)
         } else {
           mass_sd <-0
@@ -366,9 +361,9 @@ for (s in c("N/A")){
         
         # Production cost values
         P_cost_i <- P_cost_table_peryear %>% 
-          dplyr::filter(P_cost_table_peryear$age_yrs == age)  
+          filter(P_cost_table_peryear$age_yrs == age)  
         P_cost_i <- P_cost_i %>% 
-          dplyr::filter(P_cost_i$sex == s) 
+          filter(P_cost_i$sex == s) 
         
         # no of days
         Ts <- P_cost_i$Ts
@@ -383,8 +378,8 @@ for (s in c("N/A")){
         
         # Energy expenditure values
         Es_table_i <- Es_table_phase2_peryear %>% 
-          dplyr::filter(Es_table_phase2_peryear$age_yrs == age & 
-                          Lifestage == "Juvenile/Adult") 
+          filter(Es_table_phase2_peryear$age_yrs == age & 
+                   Lifestage == "Juvenile/Adult") 
         Es <- Es_table_i$Es
         
         if (MC_var == "all" || MC_var == "Es"){
@@ -417,7 +412,7 @@ for (s in c("N/A")){
         #Add columns and move to the front
         MC_vars_i$sex <- s
         MC_vars_i$GER <- NA
-        MC_vars_i<- MC_vars_i %>%  dplyr::select(sex, GER, everything()) 
+        MC_vars_i<- MC_vars_i %>%  relocate(sex, GER) #move sex, GER to front of columns
         
         
         #### Monte carlo - Energy expenditure - Es
@@ -427,9 +422,10 @@ for (s in c("N/A")){
         
         MC_vars_i <- cbind(MC_vars_i, Es_i)
         
-        #### Monte carlo - Fecal and urinary waste - E_FnU
+        #### Monte carlo - Fecal and urinary waste - E_FnU  
         set.seed(12345)
-        if (MC_var == "E_FnU" || MC_var == "all"){
+        if (MC_var == "E_FnU" || MC_var == "all"){   
+          #runif - random uniform distribution
           E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_min, max = E_FnU_max)) 
         } else {
           E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_mean, max = E_FnU_mean)) 
@@ -440,6 +436,7 @@ for (s in c("N/A")){
         
         #### Monte carlo - Energetic density of prey - ED_prey
         set.seed(12345)
+        #rnorm - random normal distribution
         ED_prey_i <- as_tibble(rnorm(MC_reps, ED_prey_mean, ED_prey_sd)) 
         names(ED_prey_i)[1] <- "ED_prey"
         
@@ -468,8 +465,8 @@ for (s in c("N/A")){
         MC_vars_i$pctbodywt <- (MC_vars_i$FR_foraging / MC_vars_i$mass)*100 
         
         
-        MC_vars_i <- MC_vars_i %>%  dplyr::mutate(ID = row_number())
-        MC_vars_i<- MC_vars_i %>%  dplyr::select(ID,everything()) # move ID to the first column
+        MC_vars_i <- MC_vars_i %>%  mutate(ID = row_number())
+        MC_vars_i<- MC_vars_i %>%  relocate(ID) # move ID to the first column
         
         mean_GER_i <- mean(MC_vars_i$GER)
         sd_GER_i <- sd(MC_vars_i$GER)
@@ -526,57 +523,49 @@ for (s in c("N/A")){
   }
 }
 
-
+kable(head(predict_GER_table_sensAnalysis_phase2))
 
 predict_GER_table_sensAnalysis_phase2 %>% 
   write_csv("data/predict_GER_table_sensAnalysis_phase2.csv", 
             na = "", append = FALSE)
-kable(head(predict_GER_table_sensAnalysis_phase2))
-kable(tail(predict_GER_table_sensAnalysis_phase2))
+
+
 
 
 ```
 
 
-```{r plots_GER_phase2}
+```{r plots_GER_phase2, echo=FALSE}
 predict_GER_table_sensAnalysis_phase2 <- read_csv("data/predict_GER_table_sensAnalysis_phase2.csv")
 
 predict_GER_table_sensAnalysis_phase2 %>% 
   filter(sex=="N/A" & phase == "2" & age_yrs >= 1 )%>% 
   head() %>% kable()
-kable(predict_GER_table_sensAnalysis_phase2)
+#kable(head(predict_GER_table_sensAnalysis_phase2))
 
 predict_GER_table_sensAnalysis_phase2$MC_var_factor <- 
   factor(predict_GER_table_sensAnalysis_phase2$MC_variable, 
          levels=c('all','P_cost','Es','E_FnU'))
 
 # New facet label names for MC_var_factor variable
-MC_var_factor.labs <- c("All variables", "P", "Es", "E F+U")
-names(MC_var_factor.labs) <- c("all", "P_cost", "Es","E_FnU")
+levels(predict_GER_table_sensAnalysis_phase2$MC_var_factor) <- 
+   c("All variables", "P", "Es", "E F+U")
 
 
 plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_phase2 %>%
-  dplyr::filter(sex=="N/A" & phase == "2" & 
-                  age_yrs > 1 & age_yrs <= 30) %>% 
+  filter(sex=="N/A" & phase == "2" & age_yrs > 1 & age_yrs <= 30) %>% 
   ggplot() +
-  # geom_line(aes(x=age_yrs, y=mean_GER),
-  #           color='black',
-  #           size = 1.2,
-  #           linetype = "longdash") +
-  
   geom_errorbar(aes(x = age_yrs-0.5, 
                     ymin = mean_GER-GER_sd, 
                     ymax = mean_GER+GER_sd), 
                 width=0, linewidth=0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_yrs-0.5, y= mean_GER), shape = 21, fill = "black")+
-  facet_grid(~MC_var_factor, 
-             labeller = labeller(MC_var_factor = MC_var_factor.labs)) +
+  facet_grid(~MC_var_factor)+
   xlab("Age (years)") +
-  ylab(bquote('Gross Energetic Reqs (MJ day '^'-1'*')')) +
+  ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10), 
                      limits = c(0, 30.5), expand = c(0,0)) +  # max x-axis 30 yrs. 
   scale_y_continuous(breaks = scales::pretty_breaks(n = 10),
-                     #limits = c(-50, 4000), expand = c(0,0),
                      labels = comma)+
   
   theme_bw() +
@@ -590,10 +579,6 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
                                        colour = "transparent"))+
   theme(strip.text = element_text(size = rel(1)))
 
-  # annotate("text", x = 28, y = 3500,
-  #          label = paste0("Annual"),
-  #          size = 6,
-  #          hjust = 1) 
 
 plot_predict_GER_table_sensAnalysis_phase2
 
