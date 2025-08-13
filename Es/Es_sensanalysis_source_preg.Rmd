@@ -114,7 +114,7 @@ Es_sensAnalysis_phase2_peryear <- as_tibble(
     Es = col_double(),
     Es_sd = col_double(),
     Es_perday = col_double(),
-    Es_sd_perday = col_double()
+    Es_perday_sd = col_double()
   )
   )
   )
@@ -502,7 +502,7 @@ for (age in seq(from = 8, to = 75, by = 1)){
 }}
 
 Es_preg_table$Es_perday <- Es_preg_table$Es/Es_preg_table$no_days
-Es_preg_table$Es_sd_perday <- Es_preg_table$Es_sd/Es_preg_table$no_days
+Es_preg_table$Es_perday_sd <- Es_preg_table$Es_sd/Es_preg_table$no_days
 
 
 Es_preg_table %>% 
@@ -517,8 +517,8 @@ Es_preg_table <- read_csv("data/Es_sensAnalysis_preg_peryear_source_bpm.csv")
 plot_Es_preg_table <- Es_preg_table %>% 
   filter(age_yrs <= 30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) +
-  geom_errorbar(aes(ymin = Es_perday - Es_sd_perday,
-                     ymax = Es_perday + Es_sd_perday),
+  geom_errorbar(aes(ymin = Es_perday - Es_perday_sd,
+                     ymax = Es_perday + Es_perday_sd),
                  linetype = 1, colour = 'gray40', width = 0) +
   geom_point() +
   facet_grid(.~MC_variable)+

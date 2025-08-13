@@ -542,7 +542,7 @@ plot_GER_panel <- predict_GER_table_panel %>%
              labeller = label_wrap_gen(width = 17, 
                multi_line = TRUE))+
   xlab("Age (years)") +
-  ylab(bquote('Gross Energetic Requirements (MJ day'^'-1'*')')) +
+  ylab(bquote('GER (MJ day'^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 3),
                      limits = c(1,30)) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 8),

@@ -109,7 +109,7 @@ Es_sensAnalysis_phase2_peryear <- as_tibble(
     Es = col_double(),
     Es_sd = col_double(),
     Es_perday = col_double(),
-    Es_sd_perday = col_double()
+    Es_perday_sd = col_double()
   )
   )
   )
@@ -501,7 +501,7 @@ for (age in seq(from = 8, to = 75, by = 1)){
 
 
 Es_lact_table$Es_perday <- Es_lact_table$Es / Es_lact_table$no_days 
-Es_lact_table$Es_sd_perday <- Es_lact_table$Es_sd / Es_lact_table$no_days
+Es_lact_table$Es_perday_sd <- Es_lact_table$Es_sd / Es_lact_table$no_days
 
 Es_lact_table %>% 
   write_csv("data/Es_sensAnalysis_lact_peryear_source_bpm.csv", 
@@ -517,7 +517,7 @@ Es_lact_table <- read.csv("data/Es_sensAnalysis_lact_peryear_source_bpm.csv")
 plot_Es_lact_table <- Es_lact_table %>% 
   filter(age_yrs <= 30) %>% 
   ggplot(aes(x = age_yrs, y =Es_perday)) +
-  geom_ribbon(aes(ymin = Es_perday - Es_sd_perday, ymax = Es_perday + Es_sd_perday),
+  geom_ribbon(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 fill = "gray70")+
   geom_line(linewidth = 0.5)+
   facet_grid(~MC_variable)+

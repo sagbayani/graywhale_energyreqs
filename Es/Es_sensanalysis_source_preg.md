@@ -1,7 +1,7 @@
 Energy Expenditure (Es) Sensitivity Analysis - Pregnant
 ================
 Selina Agbayani
-10 March 2022 - code updated 11 August, 2025
+10 March 2022 - code updated 12 August, 2025
 
 ``` r
 # Set path for output figures: 
@@ -67,7 +67,7 @@ Es_sensAnalysis_phase2_peryear <- as_tibble(
     Es = col_double(),
     Es_sd = col_double(),
     Es_perday = col_double(),
-    Es_sd_perday = col_double()
+    Es_perday_sd = col_double()
   )
   )
   )
@@ -78,7 +78,7 @@ Es_sensAnalysis_phase2_peryear <- as_tibble(
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr (2): Lifestage, MC_variable
-    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_sd_perday
+    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_perday_sd
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
@@ -528,7 +528,7 @@ for (age in seq(from = 8, to = 75, by = 1)){
 }}
 
 Es_preg_table$Es_perday <- Es_preg_table$Es/Es_preg_table$no_days
-Es_preg_table$Es_sd_perday <- Es_preg_table$Es_sd/Es_preg_table$no_days
+Es_preg_table$Es_perday_sd <- Es_preg_table$Es_sd/Es_preg_table$no_days
 
 
 Es_preg_table %>% 
@@ -540,7 +540,7 @@ Es_preg_table %>%
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr (2): Lifestage, MC_variable
-    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_sd_perday
+    ## dbl (6): age_yrs, no_days, Es, Es_sd, Es_perday, Es_perday_sd
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
