@@ -578,14 +578,14 @@ ann_text_foraging <- data.frame(age_yrs = 30, mean_GER = 3700,
 
 plot_GER_panel <- plot_GER_panel + 
   geom_text(data = ann_text_annual, 
-            aes(x=age_yrs, y=mean_GER),
+            aes(x=age_yrs, y=mean_GER-100),
             label = "Annual",
-            size = 3.5,
+            size = 3.9,
             hjust = 1) +
   geom_text(data = ann_text_foraging, 
-            aes(x=age_yrs, y=mean_GER),
+            aes(x=age_yrs, y=mean_GER+100),
             label = "Foraging Season",
-            size = 3.5,
+            size = 3.9,
             hjust = 1)
 
 #plot_GER_panel
@@ -673,8 +673,8 @@ Figure5 <- ggarrange(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all
 
 ggsave(paste0(Figurespath,"/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg"),
        Figure5,
-       width = 8,
-       height = 12, dpi = 300
+       width = 8.5,
+       height = 10.5, dpi = 300, units = "in"
      )
 
 ```
@@ -731,9 +731,10 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
                                 colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(panel.spacing = unit(0.3, "lines"))+
-  theme(strip.background = element_rect(
-    color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(1.5)))+
+  theme(panel.border = element_rect(color="black"))+
+  theme(strip.background = element_rect(color="transparent", fill="transparent"))+
+  theme(strip.text = element_text(size = rel(1.5), 
+                                  margin = margin(0,0,0,0.55, "cm")))+
   theme(axis.text = element_text(size = rel(1.5),
                                  colour = "black")) +
   theme(axis.title.x = element_text(size = rel(1.5),
@@ -776,7 +777,7 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
                     ymax = mean_GER+GER_sd), 
                 width=0, size = 0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_yrs-0.5, y= mean_GER), shape = 21, fill = "black")+
- facet_grid(Lifestage~MC_var_factor, 
+  facet_grid(Lifestage~MC_var_factor, 
              labeller = label_wrap_gen(width=25, multi_line = TRUE)) +
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
@@ -791,8 +792,10 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
                                 colour = "black"))+
   theme(panel.grid = element_blank()) +
   theme(panel.spacing = unit(0.3, "lines"))+
-   theme(strip.background = element_rect(color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(1.5)))+
+  theme(panel.border = element_rect(color="black"))+
+  theme(strip.background = element_rect(color="transparent", fill="transparent"))+
+  theme(strip.text = element_text(size = rel(1.5), 
+                                  margin = margin(0,0,0,0.55, "cm")))+
   theme(axis.title = element_text(size = rel(1.5), colour = "black"))+
   theme(axis.text = element_text(size = rel(1.5), colour = "black"))
 
@@ -830,7 +833,7 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
   facet_grid(phase~MC_var_factor, 
-             labeller = label_wrap_gen(width=30, multi_line = TRUE)) +
+             labeller = label_wrap_gen(width=22, multi_line = TRUE)) +
   xlab("Age (years)") +
    ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
@@ -842,15 +845,13 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
                                 colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(panel.spacing = unit(0.3, "lines"))+
-  theme(strip.background = element_rect(
-    color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(1.5)))+
+  theme(panel.border = element_rect(color="black"))+
+  theme(strip.text = element_text(size = rel(1.5)))+
   theme(axis.text = element_text(size = rel(1.5),
                                  colour = "black"))+
   theme(axis.title.x = element_text(size = rel(1.5)),
         axis.title.y = element_text(size = rel(1.5)))+
-  theme(strip.background = element_rect(
-    color="transparent", fill="transparent"))
+  theme(strip.background = element_rect(color="transparent", fill="transparent"))
 
 #plot_predict_GER_sensAnalysis_preg              
 
@@ -888,8 +889,8 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
                 width=0, size = 0.5, linetype = 1, color="gray40") + 
   geom_point(aes(x = age_yrs, y= GER_foraging), 
              shape = 21, fill = "black")+
- facet_grid(phase~MC_var_factor, 
-             labeller = label_wrap_gen(width=30, multi_line = TRUE)) +
+  facet_grid(phase~MC_var_factor, 
+             labeller = label_wrap_gen(width=18, multi_line = TRUE)) +
   xlab("Age (years)") +
   ylab(bquote('GER (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
@@ -900,16 +901,14 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
   theme(plot.tag = element_text(size = rel(3), colour = "black"))+
   theme(panel.grid = element_blank())+
   theme(panel.spacing = unit(0.3, "lines"))+
-  theme(strip.background = element_rect(
-    color="transparent", fill="transparent"))+
-    theme(strip.text = element_text(size = rel(1.5)))+
+  theme(strip.text = element_text(size = rel(1.5)))+
+  theme(panel.border = element_rect(color="black"))+
   theme(axis.text = element_text(size = rel(1.5),
                                  colour = "black"))+
   theme(axis.title.x = element_text(size = rel(1.5)),
         axis.title.y = element_text(size = rel(1.5)))+
-  theme(strip.background = element_rect(
-    color="transparent", fill="transparent"))
-
+  theme(strip.background = element_rect(color="transparent", fill="transparent"))
+  
 #plot_predict_GER_sensAnalysis_lact          
 
 ```
