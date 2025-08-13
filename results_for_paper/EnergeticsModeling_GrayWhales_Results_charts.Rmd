@@ -965,7 +965,7 @@ Es_sensAnalysis_phase1_permth <-Es_sensAnalysis_phase1_permth %>%
 
 
 Es_sensAnalysis_alladults_preg_lact_peryear <-
-  as_tibble(read_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_source_bpm.csv"))
+  as_tibble(read_csv("data/Es_sensAnalysis_alladults_preg_lact_peryear_bpm.csv"))
 
 # Es_sensAnalysis_alladults_preg_lact_peryear <- Es_sensAnalysis_alladults_preg_lact_peryear %>% 
 #   rename("Es_perday_sd" = "Es_sd_perday")
@@ -1119,7 +1119,7 @@ plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>%
   geom_point(size=0.5)+
 
   facet_grid(MC_var_factor~Activity_stages_factor,
-             labeller = labeller(label_wrap_gen(width = 15, multi_line = TRUE))) +
+             labeller = label_wrap_gen(width = 15, multi_line = TRUE)) +
   xlab("Age (years)") +
   ylab(bquote('Es (MJ day '^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
