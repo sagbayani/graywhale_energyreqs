@@ -1,7 +1,7 @@
 Total Gross Energy Requirements for calves from birth to weaning
 ================
 Selina Agbayani
-04 August, 2025
+12 August, 2025
 
 ``` r
 # Set path for output figures: 
@@ -26,8 +26,7 @@ predict_GER_table_phase1_permth <-  predict_GER_table_phase1_permth %>% filter(a
    select(phase, age_yrs,age_mth, sex, mean_GER, GER_sd, Ts)
 ```
 
-Calculating total GER from birth to 6mths, and from 7mth-9.6mth, and
-also from birth to 9.6 mth
+#### Calculating total GER from birth to 6mths, and from 7mth-9.6mth, and also from birth to 9.6 mth
 
 ``` r
 #Calculate total GER from birth to end of fasting (at 6 mths)  

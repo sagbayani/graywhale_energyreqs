@@ -5,7 +5,6 @@ date:  "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   github_document:
   html_document:
-  pdf_document:
     
 editor_options:
   chunk_output_type: console
@@ -93,7 +92,7 @@ predict_GER_table_phase1_permth <-  predict_GER_table_phase1_permth %>% filter(a
 ```
 
 
-Calculating total GER from birth to 6mths, and from 7mth-9.6mth, and also from birth to 9.6 mth
+#### Calculating total GER from birth to 6mths, and from 7mth-9.6mth, and also from birth to 9.6 mth
 
 ```{r GER_birth_to_weaning}
 
@@ -232,7 +231,7 @@ TotalGER_birth_to_weaning_plot <- TotalGER_birth_to_weaning_tibble %>%
   scale_y_continuous(breaks = scales::pretty_breaks(n = 8),
                      labels = comma)+
   xlab("Age range (months)") +
-  ylab(bquote('Gross Energetic Requirement (MJ)')) +
+  ylab(bquote('Total GER (MJ)')) +
   theme_bw() 
   #theme(panel.grid = element_blank())
   
