@@ -12,9 +12,10 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(error = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(error = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
 
 ## Setup
 
@@ -54,15 +55,12 @@ options(readr.show_col_types = FALSE)
 
 ```
 
-
 ```{r functions, include=FALSE}
 
 #Call R script with custom functions
 source(paste0(getwd(),"/functions.R"), local = knitr::knit_global())
 
-```   
-
-
+```
 
 ```{r setpaths, include = FALSE}
 # Set path for output figures: 
@@ -74,21 +72,15 @@ datapath
 
 ```
 
-
-
-
 ## GRAY WHALE LIFE CYCLE
 
 ![](figures/Figure1_Lifecycle_v6.jpg)
 
-Figure 1. Gray whale life cycle, showing the approximate times of year for different stages in the migration pattern over two years. Panel A shows the migration for males and non-reproductive females, including weaned juveniles. Panel B shows the approximate 2-year cycle for pregnant and lactating females, including nursing calves. These charts highlight the differences in migration timing between the mother/calf pairs and other whales. Estimates and associated sources for number of days in each activity life stage are listed in Table S1 in Suppl. Materials. Adapted from Villegas-Amtmann et al. (2015).
-
-
+**Figure 1**. Gray whale life cycle, showing the approximate times of year for different stages in the migration pattern over two years. Panel A shows the migration for males and non-reproductive females, including weaned juveniles. Panel B shows the approximate 2-year cycle for pregnant and lactating females, including nursing calves. These charts highlight the differences in migration timing between the mother/calf pairs and other whales. Estimates and associated sources for number of days in each life stage are listed in Table S1 in Suppl. Materials. Adapted from Villegas-Amtmann et al. (2015).
 
 ## RESULTS
 
 ### Mass and Production cost (P)
-
 
 ```{r P_cost_phase1, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
@@ -165,7 +157,6 @@ plot_P_cost_mass_perday <- P_cost_table %>%
 #plot_P_cost_mass_perday
 
 ```
-
 
 ```{r P_cost_peryear, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 #### Juveniles and Adults
@@ -263,8 +254,7 @@ dev.off()
 
 ![](figures/Figure2_Pcost_multiplot.jpg)
 
-Figure 2. A) Production cost per day and mass growth curves for calves. B) Production cost per day and mass growth curves for juveniles and adult gray whales. Average production cost (MJ) per day on the primary axis, represented as a dotted line, and total mass (kg) shown on the secondary axis, as modelled by Agbayani et al. (2020) represented as a dashed line. Gray shading represents the standard deviation (±SD) around the mean from 10,000 Monte Carlo estimates.
-
+**Figure 2.** A) Production cost per day and mass growth curves for gray whale calves. B) Production cost per day and mass growth curves for juveniles and adult gray whales. Average production cost (MJ) per day on the primary axis, represented as a dotted line, and total mass (kg) shown on the secondary axis, as modelled by Agbayani et al. (2020) represented as a dashed line. Gray shading represents the standard deviation (±SD) around the mean from 10,000 Monte Carlo estimates.
 
 ### Total Energetic Expenditure (*E~s~*)
 
@@ -282,7 +272,7 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
   facet_grid(. ~Lifestage)+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
                 linewidth = 0.5, linetype = 1, colour = 'gray40', width = 0) +
-  geom_point(aes(x = age_mth-0.5, y =Es_perday), size = 0.5) +
+  geom_point(aes(x = age_mth-0.5, y =Es_perday), size = 0.8) +
   xlab("Age (months)") +
   ylab(bquote('Es (MJ day'^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5))+ 
@@ -308,7 +298,6 @@ plot_Es_table_phase1_mthly_perday <- Es_table_phase1_permth %>%
 
 ```
 
-
 ```{r Es_table_alladults_preg_lact_peryear, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 #### Gray whale juveniles and adults, including pregnant and lactating females
 Es_table_alladults_preg_lact_peryear  <- 
@@ -329,7 +318,7 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
                     ymax = Es_perday + Es_sd_perday),
                 linewidth = 0.5, colour = 'gray40', 
                 width = 0, linetype = 1) +
-  geom_point(size =0.5)+
+  geom_point(size =0.8)+
   xlab("Age (years)") +
   ylab(bquote('Energetic expenditure (MJ day'^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5), 
@@ -356,29 +345,36 @@ plot_Es_table_alladults_preg_lact_yearly_perday <-
 
 ```
 
-
-```{r Es all ages multipanel, echo=FALSE}
+```{r Es all ages multipanel, results = "hide", echo=FALSE, message=FALSE, warning=FALSE}
 
 Figure3_ES_multipanel <- ggarrange(plot_Es_table_phase1_mthly_perday, 
             plot_Es_table_alladults_preg_lact_yearly_perday, 
             widths = c(2, 5)) 
 
-#ES_multipanel
 
-ggsave(paste0(Figurespath,"/Figure3_Es_sensanalysis_allstages_multiplot.jpg"),
-       Figure3_ES_multipanel,
-       width = 8,
-       height = 3, dpi = 300
-     )
+jpeg(filename = paste0(Figurespath,"/Figure3_Es_sensanalysis_allstages_multiplot.jpg"), 
+     width = 2500,
+     height = 1000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+Figure3_ES_multipanel
+
+
+dev.off()
+
 
 
 
 ```
+
 ![](figures/Figure3_Es_sensanalysis_allstages_multiplot.jpg)
 
-Figure 3. Estimates  of average daily energetic expenditure (Es)  from activity (MJ day-1) for each month in the first year (Phase 1). calves per month (Phase 1), and for juveniles and single adults (Phase 2), pregnant, and lactating females per year. Values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations. Note: Energetic expenditure Es values for the 6th and 10th months represent energetic expenditures across two activity stages. 
-
-
+**Figure 3.** A) Estimates of average daily energetic expenditure (E~s~) in MJ day^-1^ for gray whale calves per month. B) Estimates of average daily energetic expenditure (E~s~) in MJ day^-1^for juveniles (1–7 y) and single adults (\>8 y), pregnant, and lactating females per year. Values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations. Note: E~s~ values for the 6^th^ and 10^th^ months represent energetic expenditures across two activity stages (see Table S7).
 
 ### Gross Energy Requirements and Food Requirements
 
@@ -420,7 +416,6 @@ plot_predict_GER_phase1_permth <- predict_GER_table_phase1_permth %>%
 
 
 ```
-
 
 ```{r plot_milk_food_reqs_phase1,  echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 predict_GER_table_phase1_permth <- read_csv("data/predict_GER_table_sensAnalysis_phase1_permth_source_bpm.csv")
@@ -493,24 +488,32 @@ milkreqs_figure <- ggarrange(plot_MilkReqs_phase1,
 #panel phase 1 GER, milk and food reqs 
 Figure4 <- ggarrange(plot_predict_GER_phase1_permth,milkreqs_figure) 
 
-ggsave(paste0(Figurespath,"/Figure4_Phase1_GER_Milk_FoodReqs.jpg"),
-       Figure4,
-       width = 10,
-       height = 4, dpi = 300
-     )
+
+jpeg(filename = paste0(Figurespath,"/Figure4_Phase1_GER_Milk_FoodReqs.jpg"), 
+     width = 4000,
+     height = 1500,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+Figure4
+
+
+dev.off()
 
 
 ```
 
 ![](figures/Figure4_Phase1_GER_Milk_FoodReqs.jpg)
 
-Figure 4. A) Daily average gross energy requirements for calves in the first year in MJ day-1. B) Average daily milk and food requirements for calves for each month in their first year. The left panel represents milk requirements (L day-1) for calves up to 9 months (left panel), and the right panel represents food requirements (kg of benthic invertebrate prey day-1) for weaned calves over 9 months. All values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations.
-
-
+**Figure 4.** A) Daily average gross energy requirements (GER) for calves in the first year in MJ day^-1^. B) Average daily milk and food requirements for calves for each month in their first year. The left panel represents milk requirements (L day^-1^) for calves up to 9 months (left panel), and the right panel represents food requirements (kg of benthic invertebrate prey day^-1^) for weaned calves over 9 months. All values are plotted at the midpoint of each month. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations.
 
 #### Juveniles/Adults, Pregnant, Lactating
 
-```{r plots_GER_preg_lact_panel, echo =  FALSE}
+```{r plots_GER_preg_lact_panel, results = "hide", echo =  FALSE}
 predict_GER_table_alladults <- read_csv("data/predict_GER_sensAnalysis_alladults.csv")
 
 predict_GER_table_panel <- within(predict_GER_table_alladults, Lifestage <- 
@@ -593,8 +596,7 @@ plot_GER_panel <- plot_GER_panel +
 
 ```
 
-
-```{r plot_FoodReqs_preg_lact_panel, echo = FALSE}
+```{r plot_FoodReqs_preg_lact_panel, results = "hide", echo = FALSE}
 
 plot_FoodReqs_panel <- predict_GER_table_panel %>% 
   
@@ -631,8 +633,7 @@ plot_FoodReqs_panel <- predict_GER_table_panel %>%
 
 ```
 
-
-```{r plot_pct_bodywt_consumed_panel, echo=FALSE}
+```{r plot_pct_bodywt_consumed_panel, results = "hide", echo=FALSE}
 
 plot_pct_bodyweight_all <- predict_GER_table_panel %>% 
   filter(age_yrs > 1) %>% 
@@ -666,28 +667,36 @@ plot_pct_bodyweight_all <- predict_GER_table_panel %>%
 
 ```
 
-```{r multiplot, echo=FALSE}
+```{r multiplot, results = "hide", echo=FALSE}
 #save multi-panel plot as hi-res jpg
 
 Figure5 <- ggarrange(plot_GER_panel,plot_FoodReqs_panel, plot_pct_bodyweight_all, ncol=1)
 
-ggsave(paste0(Figurespath,"/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg"),
-       Figure5,
-       width = 8.5,
-       height = 10.5, dpi = 300, units = "in"
-     )
+
+jpeg(filename = paste0(Figurespath,"/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg"), 
+     width = 2600,
+     height = 4000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+Figure5
+
+
+dev.off()
+
+
 
 ```
 
-![](figures/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg)
-Figure 5.  A) Daily gross energy requirements for a full year (annual; black circles) and for when feeding is limited to the foraging season (white circles). B) Average daily food requirements (kg day-1) of benthic invertebrate prey for pregnant females, lactating females, and others (juveniles and other adult gray whales) during foraging season. C) Average percentage of body weight consumed per day during the foraging season for juveniles and other adults, pregnant females, and lactating females. Note that the y-axis does not always start at 0. Panels from left to right represent single juveniles (1–7 y) and adults (>8 y), pregnant whales for the duration of the pregnancy, lactating whales for the duration of nursing from birth to weaning at 9.6 months (per Agbayani et al., 2020), pregnant whales for the duration of the pregnancy (with the first 6 months of lactation while fasting), and lactating whales in the last 3.6 months of lactation while foraging in the Arctic feeding grounds. To calculate daily gross energy requirements on an annual basis for single juveniles (1–7 y) and adults (>8 y) the gross energy requirement was assumed to be borne over 365 days and for the foraging season it was assumed to be ~154 days. For pregnant females the annual gross energy requirement was calculated over ~396 days and foraging season was assumed to be ~153 days. For lactating females the annual gross energy requirement was calculated over 293 days and foraging season was assumed to be ~119 days. Values are plotted at the midpoint of each year. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations.
-
-
+![](figures/Figure5_GER_FoodReqs_pctbodywt_multiplot.jpg)**Figure 5.** A) Daily gross energy requirements (GER) for gray whales over an annual period (black circles) and during the foraging season when energy is obtained only during summer and stored for later use (white circles). B) Average daily food requirements (kg day^-1^) of benthic invertebrate prey for pregnant females, lactating females, and others (juveniles and other adult gray whales) during foraging season. C) Average percentage of body weight consumed per day during the foraging season for juveniles and other adults, pregnant females, and lactating females. Note that the y-axis does not always start at 0. Panels from left to right represent juveniles (1–7 y) and single adults (\>8 y), pregnant whales including cost of gestation for the duration of the pregnancy, lactating whales for the duration of nursing from birth to weaning at 9.6 months (per Agbayani et al., 2020), pregnant whales for the duration of the pregnancy and) the first 6 months of lactation while fasting, and lactating whales in the last 3.6 months of lactation while foraging in the Arctic feeding grounds. To calculate daily GER on an annual basis for juveniles and single adults the GER was assumed to be borne over 365 days and for the foraging season it was assumed to be \~154 days. For pregnant females, the annual GER was calculated over \~396 days and foraging season was assumed to be \~153 days. For lactating females, the annual GER was calculated over 293 days and foraging season was assumed to be \~119 days. Values are plotted at the midpoint of each year. Error bars show the standard deviation around the mean of 10,000 Monte Carlo simulations.
 
 ## Sensitivity Analyses
 
 ### Gross Energy Requirements (*GER*)
-
 
 ```{r predict_GER_table_sensAnalysis_phase1,  echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 predict_GER_table_sensAnalysis_phase1_permth  <-  read_csv("data/predict_GER_table_sensAnalysis_phase1_permth_source_bpm.csv")
@@ -747,7 +756,6 @@ plot_predict_GER_sensAnalysis_phase1_permth <-
 
 ```
 
-
 ```{r predict_GER_table_sensAnalysis_phase2,  echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 predict_GER_table_sensAnalysis_phase2 <- read_csv("data/predict_GER_table_sensAnalysis_phase2.csv")
 
@@ -803,7 +811,6 @@ plot_predict_GER_table_sensAnalysis_phase2 <- predict_GER_table_sensAnalysis_pha
 
 ```
 
-
 ```{r predict_GER_table_sensAnalysis_preg, echo= FALSE, results = "hide", message = FALSE, warning=FALSE, fig.width=10,fig.height=5}
 #Read in data
 predict_GER_table_sensAnalysis_preg <-
@@ -858,8 +865,6 @@ plot_predict_GER_sensAnalysis_preg <- predict_GER_table_sensAnalysis_preg %>%
 
 ```
 
-
-
 ```{r predict_GER_table_sensAnalysis_lact, echo= FALSE, results = "hide", message = FALSE, warning=FALSE, fig.width=10,fig.height=5}
 
 #Read in data
@@ -913,16 +918,13 @@ plot_predict_GER_sensAnalysis_lact <- predict_GER_table_sensAnalysis_lact %>%
 
 ```
 
-
-
-
 ```{r panel plot Es sensitivity analysis all stages, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
 
 # Figure6 <- multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
 #           plot_predict_GER_table_sensAnalysis_phase2,
-#           plot_predict_GER_sensAnalysis_preg,  
-#           plot_predict_GER_sensAnalysis_lact, 
+#           plot_predict_GER_sensAnalysis_preg,
+#           plot_predict_GER_sensAnalysis_lact,
 #           cols=1)
 
 
@@ -936,12 +938,11 @@ jpeg(filename = paste0(Figurespath,"/Figure6_GER_sensanalysis_allstages_multiplo
      restoreConsole = TRUE)
 
 
-p <- multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
+Figure6 <- multiplot(plot_predict_GER_sensAnalysis_phase1_permth,
           plot_predict_GER_table_sensAnalysis_phase2,
-          plot_predict_GER_sensAnalysis_preg,  
-          plot_predict_GER_sensAnalysis_lact, 
+          plot_predict_GER_sensAnalysis_preg,
+          plot_predict_GER_sensAnalysis_lact,
           cols=1)
-
 
 dev.off()
 
@@ -949,10 +950,7 @@ dev.off()
 
 ![](figures/Figure6_GER_sensanalysis_allstages_multiplot.jpg)
 
-Figure 6. Results from the sensitivity analysis of the gross energy requirements (GER). A) Calves (Phase 1), B) juveniles/adults (phase 2), C) pregnant whales (including first 6 months of lactation), and D) lactating whales (last 3.6 months). Not shown are the pregnant only and lactating (from birth to 9.6 months) because the pattern for the range of uncertainty for these are similar to those shown in C) and D), except where pregnant only would not have a variable for GER of a calf, lactating (from birth to 9.6 months) would have a variable for GER of a calf from birth to 9.6 months that has a negligible contribution to range of uncertainty.   
-
-
-
+Figure 6. Results from the sensitivity analysis of the gross energy requirements (GER) of gray whales for: A) calves, B) juveniles (1–7 y) and single adults (\>8 y), C) pregnant whales (including first 6 months of lactation), and D) lactating whales (last 3.6 months). The parameters shown are production cost (*P*), energetic expenditure (*E~s~*), digestive efficiency accounting for fecal and urinary loss (*E~F+U~*), heat increment of gestation (*H~g~*), production cost of a newbord (*P~newborn~*), gross energy requirement of a calf in first 6 months while nursing (GER calf first 6 mo.), and gross energy requirement of a calf in last 3.6 months of nursing (GER calf last 3.6 mo.). Not shown are the pregnant only and lactating (from birth to weaning at 9.6 months) because the pattern for the range of uncertainty for these are similar to those shown in C) and D), except where pregnant only would not have a variable for GER of a calf, lactating (from birth to 9.6 months) would have a variable for GER of a calf from birth to 9.6 months that has a negligible contribution to range of uncertainty.   
 
 ### Total energetic expenditure (*E~s~*)
 
@@ -1008,11 +1006,11 @@ plot_Es_sensAnalysis_allstages_permth_peryr <- Es_sensAnalysis_allstages_permth_
   ylab(bquote('Es (MJ day'^'-1'*')')) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +  
   scale_y_continuous(label = comma,
-  breaks = scales::pretty_breaks(n = 4),
+  breaks = scales::pretty_breaks(n = 6),
   limits = c(0,1500))+
   theme_bw()+
   theme(panel.grid = element_blank())+
-  theme(axis.text = element_text(size = rel(1.2),
+  theme(axis.text = element_text(size = rel(1),
                                  colour = "black"))+
   theme(axis.title.x = element_text(size = rel(1.2)),
         axis.title.y = element_text(size = rel(1.2)))+
@@ -1023,22 +1021,29 @@ plot_Es_sensAnalysis_allstages_permth_peryr <- Es_sensAnalysis_allstages_permth_
 
 #plot_Es_sensAnalysis_allstages_permth_peryr
 
+jpeg(filename = paste0(Figurespath,"/Figure7_Es_sensAnalysis_allstages_permth_peryr.jpg"), 
+     width = 2400,
+     height = 2000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
 
-ggsave(paste0(Figurespath,"/Figure7_Es_sensAnalysis_allstages_permth_peryr.jpg"),
-       plot_Es_sensAnalysis_allstages_permth_peryr,
-       width = 9,
-       height = 7, dpi = 300
-     )
+
+plot_Es_sensAnalysis_allstages_permth_peryr
+
+
+dev.off()
 
 
 ```
+
 ![](figures/Figure7_Es_sensAnalysis_allstages_permth_peryr.jpg)
 
-Figure 7. Sensitivity analysis for Es (mean daily energetic expenditure) in MJ day-1 for calves (Phase 1), juveniles/adults (Phase 2), pregnant (with first 6 months of lactation), and lactating whales (last 3.6 months of lactation). The patterns for range of uncertainty for pregnant only and lactating (from birth to 9.6 months) are similar to pregnant (with first 6 months of lactation) and lactating (last 3.6. months) and are not shown. %O2 contributed the highest range of uncertainty across all life stages. 
+Figure 7. Sensitivity analysis for mean daily energetic expenditure (*E~s~*) in MJ day^-1^ for gray whale calves, juveniles (1–7 y) and single adults (\>8 y), pregnant, and lactating whales. The parameters shown are percentage of oxygen absorbed (*%O~2~*), respiration rates (*R~s~*), and tidal volume (*V~t~*).
 
-
-
-### Es sensitivity analysis by activity stages 
+### Es sensitivity analysis by activity stages
 
 ```{r Es sens analysis phase 1 stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
@@ -1056,7 +1061,7 @@ levels(Es_sensAnalysis_phase1$MC_var_factor) <- c("All variables","%O2", "Rs", "
 plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>% 
   ggplot(aes(x = age_mth, y = Es_perday))+
   geom_errorbar(aes(ymin = Es_perday - Es_perday_sd, ymax = Es_perday + Es_perday_sd),
-                 colour = "gray45", width = 0)+
+                 colour = "gray40", width = 0)+
   geom_point(size=0.5)+
   facet_grid(MC_var_factor~Activity_stages, 
              labeller = label_wrap_gen(width = 15, multi_line = TRUE)) +
@@ -1086,8 +1091,6 @@ plot_Es_sensAnalysis_phase1 <- Es_sensAnalysis_phase1 %>%
 
 
 ```
-
-
 
 ```{r plots_Es_phase2_stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
@@ -1121,7 +1124,7 @@ plot_Es_sensAnalysis_phase2 <- Es_sensAnalysis_phase2 %>%
              labeller = label_wrap_gen(width = 15, multi_line = TRUE)) +
   xlab("Age (years)") +
   ylab(bquote('Es (MJ day '^'-1'*')')) +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 5),
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 4),
                      limits = c(0, 30.5))+
   scale_y_continuous(label=comma,
                       breaks = scales::pretty_breaks(n = 4),
@@ -1156,20 +1159,33 @@ Figure8_ES_stacked_phase1_2_multipanel <- ggarrange(plot_Es_sensAnalysis_phase1,
 
 #ES_stacked_phase1_2_multipanel
 
-ggsave(paste0(Figurespath,"/Figure8_Es_stacked_phase1_2_multipanel.jpg"),
-       Figure8_ES_stacked_phase1_2_multipanel,
-       width = 8,
-       height = 10, dpi = 300
-     )
+# ggsave(paste0(Figurespath,"/Figure8_Es_stacked_phase1_2_multipanel.jpg"),
+#        Figure8_ES_stacked_phase1_2_multipanel,
+#        width = 8,
+#        height = 10, dpi = 300
+#      )
+
+
+jpeg(filename = paste0(Figurespath,"/Figure8_Es_stacked_phase1_2_multipanel.jpg"), 
+     width = 1900,
+     height = 3000,
+     pointsize = 35, 
+     quality = 100, 
+     bg = "white", 
+     res = 300, 
+     restoreConsole = TRUE)
+
+
+Figure8_ES_stacked_phase1_2_multipanel
+
+
+dev.off()
 
 
 
 ```
 
-![](figures/Figure8_Es_stacked_phase1_2_multipanel.jpg)
-Figure 8. A) Sensitivity analysis for Es of calves (Phase 1) by activity stage B) Sensitivity analysis for Es of juveniles/adults (Phase 2) by activity stage. The same pattern occurred for pregnant and lactating whales, where foraging contributing highest amount of energy expenditure and largest range of uncertainty (see Suppl. Figure S2 and S3).
-
-
+![](figures/Figure8_Es_stacked_phase1_2_multipanel.jpg)Figure 8. Results for the sensitivity analysis for mean daily energetic expenditure (*E~s~*) of gray whales for: A) calves by activity stage, and B) juveniles (1–7 y) and single adults (\>8 y) by activity stage. The same pattern occurred for pregnant and lactating whales, where foraging contributed the highest amount of energy expenditure and largest range of uncertainty (see Figure S2 and Figure S3).
 
 ## Supplementary Figures: Es sensitivity analysis for pregnant only and lactating whales (from birth to 9.6 months) by activity stages
 
@@ -1201,7 +1217,7 @@ plot_Es_sensAnalysis_preg <- Es_sensAnalysis_preg %>%
   geom_errorbar(aes(x = age_yrs, 
                     ymin = Es_perday - Es_perday_sd, 
                     ymax = Es_perday + Es_perday_sd),
-                colour = 'gray70', width = 0, linetype = 1) +
+                colour = 'gray40', width = 0, linetype = 1) +
   geom_point(size=0.5)+
   xlab("Age (years)") +
   ylab(bquote('Es (MJ day'^'-1'*')')) +
@@ -1225,7 +1241,6 @@ plot_Es_sensAnalysis_preg <- Es_sensAnalysis_preg %>%
 
 
 ```
-
 
 ```{r Es_lact_stacked, echo= FALSE, results = "hide", message = FALSE, warning=FALSE}
 
@@ -1256,7 +1271,7 @@ plot_Es_sensAnalysis_lact <- Es_sensAnalysis_lact %>%
   geom_errorbar(aes(x = age_yrs, 
                     ymin = Es_perday - Es_perday_sd, 
                     ymax = Es_perday + Es_perday_sd),
-                colour = 'gray70', width = 0, linetype = 1) +
+                colour = 'gray40', width = 0, linetype = 1) +
   geom_point(size=0.5)+
   xlab("Age (years)") +
   ylab(bquote('Es (MJ day'^'-1'*')')) +
@@ -1296,5 +1311,5 @@ ggsave(paste0(Figurespath,"/FigureS2_Es_sensAnalysis_preglact_by_activitystage.j
 
 
 ```
-![](figures/FigureS2_Es_sensAnalysis_preglact_by_activitystage.jpg)
-Figure S2. A) Sensitivity analysis for energetic expenditure (Es) of pregnant whales by activity stage. B) Sensitivity analysis for Es of lactating by activity stage.
+
+![](figures/FigureS2_Es_sensAnalysis_preglact_by_activitystage.jpg)Figure S2. A) Sensitivity analysis for energetic expenditure (*E~s~*) of pregnant whales by activity stage. B) Sensitivity analysis for *E~s~* of lactating by activity stage. The parameters shown are percentage of oxygen absorbed (*%O~2~*), respiration rates (*R~s~*), and tidal volume (*V~t~*). .
