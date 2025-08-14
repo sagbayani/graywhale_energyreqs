@@ -1,7 +1,7 @@
 GER Sensitivity Analysis outputs - all adults, all models
 ================
 Selina Agbayani
-12 August 2025
+13 August 2025
 
 ``` r
 # Set path for output figures: 
@@ -81,7 +81,7 @@ kable(head(predict_GER_table_alladults))
 
 | Lifestage | age_yrs | mean_GER | GER_sd | GER_foraging | sd_foraging | FR_foraging | FR_sd_foraging | pctbodywt | pctbodywt_sd |
 |:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Juvenile/Adult | 1 | 596.3387 | 73.50608 | 596.3387 | 73.50608 | 48.1411 | 6.327453 | NA | NA |
+| Juvenile/Adult | 1 | 596.3387 | 73.50608 | 596.3387 | 73.50608 | 48.1411 | 6.327453 | 1.114288 | 0.7025064 |
 | Juvenile/Adult | 2 | 524.6561 | 57.61249 | 1243.5031 | 136.54909 | 428.4040 | 42.948163 | 5.576522 | 0.4919251 |
 | Juvenile/Adult | 3 | 623.8229 | 68.60964 | 1478.5413 | 162.61376 | 509.3904 | 51.291409 | 5.526187 | 0.5062134 |
 | Juvenile/Adult | 4 | 715.6074 | 79.69414 | 1696.0825 | 188.88546 | 584.3360 | 59.704130 | 5.488292 | 0.5152666 |

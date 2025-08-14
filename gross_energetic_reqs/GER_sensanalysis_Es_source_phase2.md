@@ -2,7 +2,7 @@ Gross Energetic Requirements (GER) Sensitivity Analysis - phase 2
 (juvenile/adult)
 ================
 Selina Agbayani
-25 Jan 2022 - code updated 12 August 2025
+25 Jan 2022 - code updated 13 August 2025
 
 ``` r
 # Set path for output figures: 
@@ -310,7 +310,7 @@ kable(head(predict_GER_table_sensAnalysis_phase2))
 
 ``` r
 for (s in c("N/A")){ 
-  for (MC_var in c("all","P_cost", "Es", "E_FnU")){
+  for (MC_variable in c("all","P_cost", "Es", "E_FnU")){
     for (i in seq(from = 1, to = 31, by = 1)){
     
       if (i == 1) {
@@ -322,7 +322,7 @@ for (s in c("N/A")){
         mass <- mass_table %>% filter(age_yrs == 1) %>% 
           select(mean_mass) %>% pull(mean_mass)
         
-        if (MC_var == "all"){
+        if (MC_variable == "all"){
           mass_sd <- mass_table %>% filter(age_yrs == 1) %>% 
             select(sd_mass) %>% pull(sd_mass)
         } else {
@@ -332,7 +332,7 @@ for (s in c("N/A")){
         row <- tibble(phase = "2",
                       age_yrs = i, 
                       sex = s, 
-                      MC_variable = MC_var,
+                      MC_variable = MC_variable,
                       mean_GER =  mean(firstyear_GER$mean_GER),
                       GER_sd =  mean(firstyear_GER$GER_sd),
                       quant025 = mean(firstyear_GER$quant025), 
@@ -348,8 +348,8 @@ for (s in c("N/A")){
                       Ts = sum(firstyear_GER$Ts),
                       mass = mass,
                       mass_sd = mass_sd,
-                      pctbodywt = NA,
-                      pctbodywt_sd = NA
+                      pctbodywt = mean(firstyear_GER$FR_foraging/firstyear_GER$mass*100),
+                      pctbodywt_sd = sd(firstyear_GER$FR_foraging/firstyear_GER$mass*100)
         )
         
         
@@ -364,7 +364,7 @@ for (s in c("N/A")){
           select(mean_mass) %>% 
           pull(mean_mass)
         
-        if (MC_var == "all"){
+        if (MC_variable == "all"){
         mass_sd <- mass_table %>% 
           filter(age_yrs == age) %>% 
           select(sd_mass) %>% 
@@ -384,7 +384,7 @@ for (s in c("N/A")){
         
         mean_P <- P_cost_i$mean_P
         
-        if (MC_var == "all" || MC_var == "P_cost"){
+        if (MC_variable == "all" || MC_variable == "P_cost"){
           sd_P <-  P_cost_i$sd_P
         } else {
           sd_P <- 0
@@ -396,7 +396,7 @@ for (s in c("N/A")){
                    Lifestage == "Juvenile/Adult") 
         Es <- Es_table_i$Es
         
-        if (MC_var == "all" || MC_var == "Es"){
+        if (MC_variable == "all" || MC_variable == "Es"){
           Es_sd <- Es_table_i$Es_sd
         } else {
           Es_sd <- 0
@@ -412,7 +412,7 @@ for (s in c("N/A")){
         ED_prey_min = 2.51   #from Coyle et al. 2007
         ED_prey_max = 3.41   #from Stoker 1978
         
-        if (MC_var == "all"){
+        if (MC_variable == "all"){
           ED_prey_sd = 0.0408  #calculated from table 3  
         } else {
           ED_prey_sd = 0
@@ -438,7 +438,7 @@ for (s in c("N/A")){
         
         #### Monte carlo - Fecal and urinary waste - E_FnU  
         set.seed(12345)
-        if (MC_var == "E_FnU" || MC_var == "all"){   
+        if (MC_variable == "E_FnU" || MC_variable == "all"){   
           #runif - random uniform distribution
           E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_min, max = E_FnU_max)) 
         } else {
@@ -508,7 +508,7 @@ for (s in c("N/A")){
         row <- tibble(phase = "2",
                       age_yrs = age, 
                       sex = s, 
-                      MC_variable = MC_var,
+                      MC_variable = MC_variable,
                       mean_GER = mean_GER_i, 
                       GER_sd = sd_GER_i, 
                       quant025 = quant025, 
@@ -542,7 +542,7 @@ kable(head(predict_GER_table_sensAnalysis_phase2))
 
 | phase | age_yrs | sex | MC_variable | mean_GER | GER_sd | quant025 | quant975 | GER_foraging | sd_foraging | quant025_foraging | quant975_foraging | FR_foraging | FR_sd_foraging | FR_quant025 | FR_quant975 | Ts | mass | mass_sd | pctbodywt | pctbodywt_sd |
 |:---|---:|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2 | 1 | N/A | all | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 48.1411 | 6.327453 | 34.0330 | 61.91614 | 365 | 6072.856 | 202.1109 | NA | NA |
+| 2 | 1 | N/A | all | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 48.1411 | 6.327453 | 34.0330 | 61.91614 | 365 | 6072.856 | 202.1109 | 1.114288 | 0.7025064 |
 | 2 | 2 | N/A | all | 524.6561 | 57.61249 | 397.2785 | 652.0168 | 1243.5031 | 136.54909 | 941.6016 | 1545.3645 | 428.4040 | 42.948163 | 331.9735 | 521.92116 | 365 | 7675.068 | 162.2207 | 5.576522 | 0.4919251 |
 | 2 | 3 | N/A | all | 623.8229 | 68.60964 | 471.1066 | 775.2712 | 1478.5413 | 162.61376 | 1116.5837 | 1837.4935 | 509.3904 | 51.291409 | 394.1354 | 620.65893 | 365 | 9210.689 | 147.9627 | 5.526187 | 0.5062134 |
 | 2 | 4 | N/A | all | 715.6074 | 79.69414 | 538.3682 | 892.0200 | 1696.0825 | 188.88546 | 1276.0025 | 2114.2032 | 584.3360 | 59.704130 | 449.9485 | 714.05486 | 365 | 10639.232 | 156.4481 | 5.488292 | 0.5152666 |
@@ -557,7 +557,7 @@ predict_GER_table_sensAnalysis_phase2 %>%
 
 | phase | age_yrs | sex | MC_variable | mean_GER | GER_sd | quant025 | quant975 | GER_foraging | sd_foraging | quant025_foraging | quant975_foraging | FR_foraging | FR_sd_foraging | FR_quant025 | FR_quant975 | Ts | mass | mass_sd | pctbodywt | pctbodywt_sd |
 |---:|---:|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2 | 1 | N/A | all | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 48.1411 | 6.327453 | 34.0330 | 61.91614 | 365 | 6072.856 | 202.1109 | NA | NA |
+| 2 | 1 | N/A | all | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 596.3387 | 73.50608 | 437.3082 | 754.6293 | 48.1411 | 6.327453 | 34.0330 | 61.91614 | 365 | 6072.856 | 202.1109 | 1.114288 | 0.7025064 |
 | 2 | 2 | N/A | all | 524.6561 | 57.61249 | 397.2785 | 652.0168 | 1243.5031 | 136.54909 | 941.6016 | 1545.3645 | 428.4040 | 42.948163 | 331.9735 | 521.92116 | 365 | 7675.068 | 162.2207 | 5.576522 | 0.4919251 |
 | 2 | 3 | N/A | all | 623.8229 | 68.60964 | 471.1066 | 775.2712 | 1478.5413 | 162.61376 | 1116.5837 | 1837.4935 | 509.3904 | 51.291409 | 394.1354 | 620.65893 | 365 | 9210.689 | 147.9627 | 5.526187 | 0.5062134 |
 | 2 | 4 | N/A | all | 715.6074 | 79.69414 | 538.3682 | 892.0200 | 1696.0825 | 188.88546 | 1276.0025 | 2114.2032 | 584.3360 | 59.704130 | 449.9485 | 714.05486 | 365 | 10639.232 | 156.4481 | 5.488292 | 0.5152666 |

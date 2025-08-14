@@ -296,7 +296,7 @@ predict_GER_table_sensAnalysis_phase2 <- as_tibble(
 kable(head(predict_GER_table_sensAnalysis_phase2))
 
 for (s in c("N/A")){ 
-  for (MC_var in c("all","P_cost", "Es", "E_FnU")){
+  for (MC_variable in c("all","P_cost", "Es", "E_FnU")){
     for (i in seq(from = 1, to = 31, by = 1)){
     
       if (i == 1) {
@@ -308,7 +308,7 @@ for (s in c("N/A")){
         mass <- mass_table %>% filter(age_yrs == 1) %>% 
           select(mean_mass) %>% pull(mean_mass)
         
-        if (MC_var == "all"){
+        if (MC_variable == "all"){
           mass_sd <- mass_table %>% filter(age_yrs == 1) %>% 
             select(sd_mass) %>% pull(sd_mass)
         } else {
@@ -318,7 +318,7 @@ for (s in c("N/A")){
         row <- tibble(phase = "2",
                       age_yrs = i, 
                       sex = s, 
-                      MC_variable = MC_var,
+                      MC_variable = MC_variable,
                       mean_GER =  mean(firstyear_GER$mean_GER),
                       GER_sd =  mean(firstyear_GER$GER_sd),
                       quant025 = mean(firstyear_GER$quant025), 
@@ -334,8 +334,8 @@ for (s in c("N/A")){
                       Ts = sum(firstyear_GER$Ts),
                       mass = mass,
                       mass_sd = mass_sd,
-                      pctbodywt = NA,
-                      pctbodywt_sd = NA
+                      pctbodywt = mean(firstyear_GER$FR_foraging/firstyear_GER$mass*100),
+                      pctbodywt_sd = sd(firstyear_GER$FR_foraging/firstyear_GER$mass*100)
         )
         
         
@@ -350,7 +350,7 @@ for (s in c("N/A")){
           select(mean_mass) %>% 
           pull(mean_mass)
         
-        if (MC_var == "all"){
+        if (MC_variable == "all"){
         mass_sd <- mass_table %>% 
           filter(age_yrs == age) %>% 
           select(sd_mass) %>% 
@@ -370,7 +370,7 @@ for (s in c("N/A")){
         
         mean_P <- P_cost_i$mean_P
         
-        if (MC_var == "all" || MC_var == "P_cost"){
+        if (MC_variable == "all" || MC_variable == "P_cost"){
           sd_P <-  P_cost_i$sd_P
         } else {
           sd_P <- 0
@@ -382,7 +382,7 @@ for (s in c("N/A")){
                    Lifestage == "Juvenile/Adult") 
         Es <- Es_table_i$Es
         
-        if (MC_var == "all" || MC_var == "Es"){
+        if (MC_variable == "all" || MC_variable == "Es"){
           Es_sd <- Es_table_i$Es_sd
         } else {
           Es_sd <- 0
@@ -398,7 +398,7 @@ for (s in c("N/A")){
         ED_prey_min = 2.51   #from Coyle et al. 2007
         ED_prey_max = 3.41   #from Stoker 1978
         
-        if (MC_var == "all"){
+        if (MC_variable == "all"){
           ED_prey_sd = 0.0408  #calculated from table 3  
         } else {
           ED_prey_sd = 0
@@ -424,7 +424,7 @@ for (s in c("N/A")){
         
         #### Monte carlo - Fecal and urinary waste - E_FnU  
         set.seed(12345)
-        if (MC_var == "E_FnU" || MC_var == "all"){   
+        if (MC_variable == "E_FnU" || MC_variable == "all"){   
           #runif - random uniform distribution
           E_FnU_i <- as_tibble(runif(MC_reps, min = E_FnU_min, max = E_FnU_max)) 
         } else {
@@ -494,7 +494,7 @@ for (s in c("N/A")){
         row <- tibble(phase = "2",
                       age_yrs = age, 
                       sex = s, 
-                      MC_variable = MC_var,
+                      MC_variable = MC_variable,
                       mean_GER = mean_GER_i, 
                       GER_sd = sd_GER_i, 
                       quant025 = quant025, 

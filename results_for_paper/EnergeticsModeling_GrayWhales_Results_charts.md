@@ -1,7 +1,7 @@
 ENERGY REQUIREMENTS OF GRAY WHALES
 ================
 Selina Agbayani
-12 August, 2025
+13 August, 2025
 
 ## GRAY WHALE LIFE CYCLE
 
