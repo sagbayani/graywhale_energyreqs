@@ -29,3 +29,5 @@ The recommended sequence for running the code is as follows:
 ***Note**: Some of the code using 10,000 Monte Carlo reps will run for a long time. If you would like to test/explore the code, use less reps.*
 
 The final charts shown in the paper are located in the folder "results_for_paper".
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.16879095.svg)](https://doi.org/10.5281/zenodo.16879095)
